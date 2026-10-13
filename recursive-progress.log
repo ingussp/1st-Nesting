@@ -1,0 +1,120 @@
+New job: 2372a7d7-9199-4e3f-9b6d-28bb3ce5e505
+Recursive progress: worker=3 rootAngles=2+1 elapsed=5s depth=1 best=1 nodes=256784 backtracks=256783 duplicateSkips=0 gpuBatches=0 gpuCandidates=0 vectorChecks=0 gpuWaitMs=0 gpuUpdateMs=0 gpuDispatchMs=0 gpuUploadBytes=0 exhausted=0
+Recursive progress: worker=4 rootAngles=3+1 elapsed=5s depth=1 best=1 nodes=248449 backtracks=248448 duplicateSkips=0 gpuBatches=0 gpuCandidates=0 vectorChecks=0 gpuWaitMs=0 gpuUpdateMs=0 gpuDispatchMs=0 gpuUploadBytes=0 exhausted=0
+Recursive progress: worker=1 rootAngles=0+1 elapsed=5s depth=1 best=1 nodes=258049 backtracks=258048 duplicateSkips=0 gpuBatches=0 gpuCandidates=0 vectorChecks=0 gpuWaitMs=0 gpuUpdateMs=0 gpuDispatchMs=0 gpuUploadBytes=0 exhausted=0
+Recursive progress: worker=2 rootAngles=1+1 elapsed=5s depth=1 best=1 nodes=248449 backtracks=248448 duplicateSkips=0 gpuBatches=0 gpuCandidates=0 vectorChecks=0 gpuWaitMs=0 gpuUpdateMs=0 gpuDispatchMs=0 gpuUploadBytes=0 exhausted=0
+Recursive finished: nodes=1593992 backtracks=1593988 duplicateSkips=0 exhausted=0 cancelled=1
+Offcut finished: evaluations=2 evaluationMs=5.400800
+New job: 131064e1-29b8-41ff-a991-1b4c2cfc7c52
+Contact trial: worker=4 trial=3 strategy=repair placed=95 groupSize=0 interlockingCapacity=0 elapsedMs=422
+Contact trial: worker=4 trial=7 strategy=repair placed=97 groupSize=0 interlockingCapacity=0 elapsedMs=484
+Contact trial: worker=3 trial=2 strategy=nfp placed=104 groupSize=0 interlockingCapacity=0 elapsedMs=2258
+Contact trial: worker=7 trial=6 strategy=nfp placed=118 groupSize=0 interlockingCapacity=0 elapsedMs=2572
+Contact trial: worker=2 trial=5 strategy=nfp placed=116 groupSize=0 interlockingCapacity=0 elapsedMs=2572
+Contact trial: worker=6 trial=1 strategy=nfp placed=120 groupSize=0 interlockingCapacity=0 elapsedMs=2797
+Contact trial: worker=7 trial=11 strategy=repair placed=120 groupSize=0 interlockingCapacity=0 elapsedMs=496
+Contact trial: worker=1 trial=0 strategy=group placed=117 groupSize=6 interlockingCapacity=114 elapsedMs=5004
+Contact trial: worker=5 trial=4 strategy=group placed=120 groupSize=4 interlockingCapacity=120 elapsedMs=5251
+Contact trial: worker=3 trial=9 strategy=nfp placed=124 groupSize=0 interlockingCapacity=0 elapsedMs=2675
+Contact trial: worker=2 trial=10 strategy=nfp placed=115 groupSize=0 interlockingCapacity=0 elapsedMs=2674
+Contact trial: worker=7 trial=13 strategy=nfp placed=116 groupSize=0 interlockingCapacity=0 elapsedMs=1999
+Recursive progress: worker=1 rootAngles=0+180 elapsed=5s depth=16 best=16 nodes=16 backtracks=0 duplicateSkips=0 gpuBatches=379 gpuCandidates=82972672 vectorChecks=75701 gpuWaitMs=66 gpuUpdateMs=3 gpuDispatchMs=1827 gpuUploadBytes=716800 exhausted=0
+Recursive progress: worker=2 rootAngles=180+180 elapsed=5s depth=13 best=13 nodes=13 backtracks=0 duplicateSkips=0 gpuBatches=411 gpuCandidates=92356608 vectorChecks=15308 gpuWaitMs=27 gpuUpdateMs=2 gpuDispatchMs=2990 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=5 trial=15 strategy=repair placed=123 groupSize=0 interlockingCapacity=0 elapsedMs=583
+Contact trial: worker=4 trial=8 strategy=group placed=125 groupSize=3 interlockingCapacity=120 elapsedMs=5177
+Contact trial: worker=5 trial=19 strategy=repair placed=125 groupSize=0 interlockingCapacity=0 elapsedMs=592
+Contact trial: worker=1 trial=14 strategy=nfp placed=121 groupSize=0 interlockingCapacity=0 elapsedMs=2288
+Contact trial: worker=7 trial=18 strategy=nfp placed=113 groupSize=0 interlockingCapacity=0 elapsedMs=2124
+Contact trial: worker=2 trial=17 strategy=nfp placed=122 groupSize=0 interlockingCapacity=0 elapsedMs=2250
+Contact trial: worker=6 trial=12 strategy=group placed=136 groupSize=4 interlockingCapacity=136 elapsedMs=5138
+Contact trial: worker=7 trial=23 strategy=repair placed=125 groupSize=0 interlockingCapacity=0 elapsedMs=441
+Contact trial: worker=5 trial=21 strategy=nfp placed=123 groupSize=0 interlockingCapacity=0 elapsedMs=2339
+Contact trial: worker=5 trial=27 strategy=repair placed=133 groupSize=0 interlockingCapacity=0 elapsedMs=672
+Contact trial: worker=1 trial=22 strategy=nfp placed=126 groupSize=0 interlockingCapacity=0 elapsedMs=2470
+Contact trial: worker=6 trial=25 strategy=nfp placed=121 groupSize=0 interlockingCapacity=0 elapsedMs=2370
+Contact trial: worker=3 trial=16 strategy=group placed=124 groupSize=4 interlockingCapacity=120 elapsedMs=5004
+Contact trial: worker=7 trial=26 strategy=nfp placed=119 groupSize=0 interlockingCapacity=0 elapsedMs=2474
+Recursive progress: worker=1 rootAngles=0+180 elapsed=10s depth=17 best=17 nodes=17 backtracks=0 duplicateSkips=0 gpuBatches=690 gpuCandidates=163184640 vectorChecks=87986 gpuWaitMs=96 gpuUpdateMs=3 gpuDispatchMs=4679 gpuUploadBytes=716800 exhausted=0
+Recursive progress: worker=2 rootAngles=180+180 elapsed=10s depth=15 best=15 nodes=15 backtracks=0 duplicateSkips=0 gpuBatches=560 gpuCandidates=128786432 vectorChecks=472897 gpuWaitMs=91 gpuUpdateMs=3 gpuDispatchMs=4909 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=4 trial=20 strategy=group placed=124 groupSize=4 interlockingCapacity=124 elapsedMs=5004
+Contact trial: worker=3 trial=31 strategy=repair placed=132 groupSize=0 interlockingCapacity=0 elapsedMs=689
+Contact trial: worker=1 trial=29 strategy=nfp placed=123 groupSize=0 interlockingCapacity=0 elapsedMs=2459
+Contact trial: worker=6 trial=30 strategy=nfp placed=115 groupSize=0 interlockingCapacity=0 elapsedMs=2409
+Contact trial: worker=2 trial=24 strategy=group placed=129 groupSize=6 interlockingCapacity=120 elapsedMs=5008
+Contact trial: worker=1 trial=35 strategy=repair placed=136 groupSize=0 interlockingCapacity=0 elapsedMs=679
+Contact trial: worker=4 trial=33 strategy=nfp placed=120 groupSize=0 interlockingCapacity=0 elapsedMs=2269
+Contact trial: worker=3 trial=34 strategy=nfp placed=119 groupSize=0 interlockingCapacity=0 elapsedMs=2450
+Contact trial: worker=4 trial=39 strategy=repair placed=132 groupSize=0 interlockingCapacity=0 elapsedMs=577
+Contact trial: worker=5 trial=28 strategy=group placed=126 groupSize=4 interlockingCapacity=126 elapsedMs=5005
+Contact trial: worker=2 trial=37 strategy=nfp placed=114 groupSize=0 interlockingCapacity=0 elapsedMs=2696
+Contact trial: worker=7 trial=32 strategy=group placed=132 groupSize=3 interlockingCapacity=132 elapsedMs=5004
+Recursive progress: worker=1 rootAngles=0+180 elapsed=15s depth=31 best=31 nodes=31 backtracks=0 duplicateSkips=0 gpuBatches=901 gpuCandidates=203694080 vectorChecks=934693 gpuWaitMs=96 gpuUpdateMs=5 gpuDispatchMs=6243 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=1 trial=38 strategy=nfp placed=123 groupSize=0 interlockingCapacity=0 elapsedMs=2621
+Recursive progress: worker=2 rootAngles=180+180 elapsed=15s depth=19 best=19 nodes=19 backtracks=0 duplicateSkips=0 gpuBatches=617 gpuCandidates=138600448 vectorChecks=1302254 gpuWaitMs=91 gpuUpdateMs=3 gpuDispatchMs=5549 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=2 trial=43 strategy=repair placed=132 groupSize=0 interlockingCapacity=0 elapsedMs=652
+Contact trial: worker=4 trial=41 strategy=nfp placed=121 groupSize=0 interlockingCapacity=0 elapsedMs=2377
+Contact trial: worker=4 trial=47 strategy=repair placed=136 groupSize=0 interlockingCapacity=0 elapsedMs=563
+Contact trial: worker=5 trial=42 strategy=nfp placed=121 groupSize=0 interlockingCapacity=0 elapsedMs=2458
+Contact trial: worker=6 trial=36 strategy=group placed=126 groupSize=6 interlockingCapacity=126 elapsedMs=5004
+Contact trial: worker=1 trial=45 strategy=nfp placed=118 groupSize=0 interlockingCapacity=0 elapsedMs=2171
+Contact trial: worker=2 trial=46 strategy=nfp placed=117 groupSize=0 interlockingCapacity=0 elapsedMs=2265
+Contact trial: worker=3 trial=40 strategy=group placed=128 groupSize=3 interlockingCapacity=128 elapsedMs=5004
+Contact trial: worker=1 trial=51 strategy=repair placed=132 groupSize=0 interlockingCapacity=0 elapsedMs=715
+Contact trial: worker=5 trial=49 strategy=nfp placed=121 groupSize=0 interlockingCapacity=0 elapsedMs=2474
+Contact trial: worker=6 trial=50 strategy=nfp placed=119 groupSize=0 interlockingCapacity=0 elapsedMs=2671
+Contact trial: worker=5 trial=55 strategy=repair placed=132 groupSize=0 interlockingCapacity=0 elapsedMs=573
+Contact trial: worker=7 trial=44 strategy=group placed=112 groupSize=4 interlockingCapacity=112 elapsedMs=5002
+Recursive progress: worker=1 rootAngles=0+180 elapsed=20s depth=32 best=32 nodes=32 backtracks=0 duplicateSkips=0 gpuBatches=1274 gpuCandidates=300158976 vectorChecks=961456 gpuWaitMs=146 gpuUpdateMs=5 gpuDispatchMs=9159 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=3 trial=53 strategy=nfp placed=119 groupSize=0 interlockingCapacity=0 elapsedMs=2247
+Recursive progress: worker=2 rootAngles=180+180 elapsed=20s depth=25 best=25 nodes=25 backtracks=0 duplicateSkips=0 gpuBatches=865 gpuCandidates=195854336 vectorChecks=1508766 gpuWaitMs=232 gpuUpdateMs=5 gpuDispatchMs=7699 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=1 trial=54 strategy=nfp placed=111 groupSize=0 interlockingCapacity=0 elapsedMs=2217
+Contact trial: worker=3 trial=59 strategy=repair placed=136 groupSize=0 interlockingCapacity=0 elapsedMs=524
+Contact trial: worker=4 trial=48 strategy=group placed=130 groupSize=3 interlockingCapacity=130 elapsedMs=5003
+Contact trial: worker=5 trial=57 strategy=nfp placed=119 groupSize=0 interlockingCapacity=0 elapsedMs=2074
+Contact trial: worker=7 trial=58 strategy=nfp placed=117 groupSize=0 interlockingCapacity=0 elapsedMs=2262
+Contact trial: worker=5 trial=63 strategy=repair placed=133 groupSize=0 interlockingCapacity=0 elapsedMs=651
+Contact trial: worker=2 trial=52 strategy=group placed=133 groupSize=4 interlockingCapacity=120 elapsedMs=5005
+Contact trial: worker=3 trial=61 strategy=nfp placed=116 groupSize=0 interlockingCapacity=0 elapsedMs=2186
+Contact trial: worker=3 trial=67 strategy=repair placed=131 groupSize=0 interlockingCapacity=0 elapsedMs=537
+Contact trial: worker=4 trial=62 strategy=nfp placed=126 groupSize=0 interlockingCapacity=0 elapsedMs=2563
+Contact trial: worker=6 trial=56 strategy=group placed=136 groupSize=4 interlockingCapacity=135 elapsedMs=5004
+Contact trial: worker=5 trial=65 strategy=nfp placed=120 groupSize=0 interlockingCapacity=0 elapsedMs=2244
+Contact trial: worker=2 trial=66 strategy=nfp placed=115 groupSize=0 interlockingCapacity=0 elapsedMs=2246
+Recursive progress: worker=1 rootAngles=0+180 elapsed=25s depth=34 best=34 nodes=34 backtracks=0 duplicateSkips=0 gpuBatches=1509 gpuCandidates=359133184 vectorChecks=1017125 gpuWaitMs=216 gpuUpdateMs=6 gpuDispatchMs=11664 gpuUploadBytes=716800 exhausted=0
+Recursive progress: worker=2 rootAngles=180+180 elapsed=25s depth=26 best=26 nodes=26 backtracks=0 duplicateSkips=0 gpuBatches=1074 gpuCandidates=249327616 vectorChecks=1674740 gpuWaitMs=286 gpuUpdateMs=5 gpuDispatchMs=10179 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=5 trial=71 strategy=repair placed=136 groupSize=0 interlockingCapacity=0 elapsedMs=437
+Contact trial: worker=1 trial=60 strategy=group placed=143 groupSize=3 interlockingCapacity=143 elapsedMs=5236
+Contact trial: worker=4 trial=69 strategy=nfp placed=121 groupSize=0 interlockingCapacity=0 elapsedMs=2189
+Contact trial: worker=6 trial=70 strategy=nfp placed=110 groupSize=0 interlockingCapacity=0 elapsedMs=2087
+Contact trial: worker=4 trial=75 strategy=repair placed=138 groupSize=0 interlockingCapacity=0 elapsedMs=677
+Contact trial: worker=7 trial=64 strategy=group placed=122 groupSize=3 interlockingCapacity=120 elapsedMs=5004
+Contact trial: worker=5 trial=73 strategy=nfp placed=121 groupSize=0 interlockingCapacity=0 elapsedMs=2537
+Contact trial: worker=1 trial=74 strategy=nfp placed=113 groupSize=0 interlockingCapacity=0 elapsedMs=3001
+Contact trial: worker=3 trial=68 strategy=group placed=135 groupSize=3 interlockingCapacity=135 elapsedMs=5005
+Contact trial: worker=5 trial=79 strategy=repair placed=139 groupSize=0 interlockingCapacity=0 elapsedMs=682
+Contact trial: worker=4 trial=77 strategy=nfp placed=124 groupSize=0 interlockingCapacity=0 elapsedMs=3000
+Contact trial: worker=2 trial=72 strategy=group placed=132 groupSize=5 interlockingCapacity=132 elapsedMs=5005
+Recursive progress: worker=1 rootAngles=0+180 elapsed=30s depth=34 best=34 nodes=34 backtracks=0 duplicateSkips=0 gpuBatches=1551 gpuCandidates=370143232 vectorChecks=3642021 gpuWaitMs=216 gpuUpdateMs=6 gpuDispatchMs=12197 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=7 trial=78 strategy=nfp placed=120 groupSize=0 interlockingCapacity=0 elapsedMs=2770
+Recursive progress: worker=2 rootAngles=180+180 elapsed=30s depth=31 best=31 nodes=31 backtracks=0 duplicateSkips=0 gpuBatches=1319 gpuCandidates=306978816 vectorChecks=2622743 gpuWaitMs=286 gpuUpdateMs=6 gpuDispatchMs=12949 gpuUploadBytes=716800 exhausted=0
+Contact trial: worker=4 trial=83 strategy=repair placed=143 groupSize=0 interlockingCapacity=0 elapsedMs=531
+Contact trial: worker=3 trial=81 strategy=nfp placed=118 groupSize=0 interlockingCapacity=0 elapsedMs=2633
+Contact trial: worker=5 trial=82 strategy=nfp placed=122 groupSize=0 interlockingCapacity=0 elapsedMs=2895
+Contact trial: worker=6 trial=76 strategy=group placed=127 groupSize=3 interlockingCapacity=120 elapsedMs=5004
+Contact trial: worker=3 trial=87 strategy=repair placed=142 groupSize=0 interlockingCapacity=0 elapsedMs=552
+Contact trial: worker=7 trial=85 strategy=nfp placed=118 groupSize=0 interlockingCapacity=0 elapsedMs=2771
+Contact trial: worker=7 trial=91 strategy=repair placed=140 groupSize=0 interlockingCapacity=0 elapsedMs=631
+Contact trial: worker=1 trial=80 strategy=group placed=128 groupSize=3 interlockingCapacity=128 elapsedMs=5003
+Contact trial: worker=4 trial=86 strategy=nfp placed=119 groupSize=0 interlockingCapacity=0 elapsedMs=3007
+Contact trial: worker=3 trial=90 strategy=nfp placed=119 groupSize=0 interlockingCapacity=0 elapsedMs=2696
+Contact trial: worker=6 trial=89 strategy=nfp placed=124 groupSize=0 interlockingCapacity=0 elapsedMs=2842
+Contact trial: worker=6 trial=96 strategy=group placed=135 groupSize=3 interlockingCapacity=135 elapsedMs=281
+Contact trial: worker=7 trial=92 strategy=group placed=126 groupSize=4 interlockingCapacity=126 elapsedMs=1559
+Contact trial: worker=5 trial=88 strategy=group placed=139 groupSize=4 interlockingCapacity=132 elapsedMs=3372
+Contact trial: worker=3 trial=95 strategy=repair placed=143 groupSize=0 interlockingCapacity=0 elapsedMs=403
+Contact trial: worker=4 trial=94 strategy=nfp placed=71 groupSize=0 interlockingCapacity=0 elapsedMs=1092
+Contact trial: worker=1 trial=93 strategy=nfp placed=85 groupSize=0 interlockingCapacity=0 elapsedMs=1344
+Contact trial: worker=2 trial=84 strategy=group placed=127 groupSize=4 interlockingCapacity=126 elapsedMs=5022
+Recursive finished: nodes=71 backtracks=0 duplicateSkips=0 exhausted=0 cancelled=1
+Offcut finished: evaluations=16 evaluationMs=3320.588000
+Contact finished: trials=48 groupTrials=25 repairTrials=24 maxGroupSize=6

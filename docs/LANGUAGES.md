@@ -1,0 +1,114 @@
+# Languages
+
+1st Nesting starts in English independently of FreeCAD's language. Open the gear
+button, hover over **Language**, then select a language. The choice takes effect
+immediately and is saved in `BaseApp/Preferences/Mod/IPNesting/Language`.
+
+The searchable chooser contains 50 language entries, including all 24 official
+European Union languages. The remaining entries are selected among the most
+widely spoken languages by country population. The 24 EU languages are confirmed
+by the [European Union language list](https://european-union.europa.eu/principles-countries-history/languages_en).
+[Google Translate language selector](https://translate.google.com/?hl=en), matching
+the supplied September 2026 screenshot. English names are sorted alphabetically
+down six columns, or seven on wider screens, followed by native names. Scrolling
+keeps the chooser usable on smaller displays. Search accepts either name or code.
+
+All 50 entries have a separate JSON catalog with the same message-key set.
+The catalogs include translated labels, dialog text, tooltips and diagnostics.
+Technical identifiers (such as `Shape.Area`, function names and file names),
+format placeholders and genuine cognates can remain identical to English.
+Catalogs are prepared ahead of time; the workbench does not call a translation
+service. The completed catalogs include offline machine-assisted translations.
+Automated validation checks coverage and formatting, not linguistic accuracy;
+native-speaker review of the technical terminology is still recommended.
+
+The search-mode combo shows translated captions (`Fast`,
+`Continuous` in English). Each item's data contains its fixed CLI
+identifier. Always read that data for export, persistence, control enablement
+and progress messages; never infer the identifier from a translated caption.
+
+## Technical terminology
+
+English is the source language. Translate the manufacturing/CAD meaning, rather
+than the everyday meaning of an isolated word. In particular:
+
+| English | Meaning in this workbench |
+| --- | --- |
+| Sheet | Stock sheet or panel; not necessarily paper or metal |
+| Offcut | Remaining stock that can be reused |
+| Face | A face of a geometric solid, not a human face |
+| Wire | Connected chain of geometric edges; may be open |
+| Vertex | Geometric vertex, not a vertical direction |
+| BoundBox | Three-dimensional bounding box in diagnostics |
+| Bounding box strategy | Minimise the rectangular bounds of the 2D layout |
+| Hole-to-part clearance | Minimum separation from the hole edge to the part edge |
+| Unplaced parts | Parts that were not placed; not replacement parts |
+| Cache rejected positions | Remember failed placement positions; not rejected parts |
+
+Keep `Solids`, `Shells`, `Faces`, `Wires`, `Edges`, `Vertices` and `BoundBox`
+unchanged when they identify FreeCAD API collections/properties in diagnostics.
+Keep CLI values (`first`, `continuous`), axes and numeric placeholders
+unchanged too. A rotation about Z stays in the XY plane; rotations about X or Y
+can change which face points upward.
+
+The contour approximation tolerance is a geometric distance in document units.
+It is distinct from the CLI bitmap resolution in mm/px. Reducing either tolerance
+or pixel size means greater precision; a smaller pixel size also increases
+memory **usage**, not the computer's available memory.
+
+The October 2026 review checks every catalog's coverage and formatting, and
+corrects shared technical terminology, rotation explanations, result summaries
+and the affected diagnostic messages. Automated checks do not certify the
+idiomatic quality of every sentence in all 50 languages.
+
+## Live text updates
+
+`tr("key")` retains its key and percent-format arguments in a `str` subclass.
+Use `ui_widget(QtGui.QLabel, tr("key"))` when constructing a text-bearing widget,
+or `ui_call(widget, "setText", tr("key"))` for text setters. Helpers retain
+explicit bindings on the Qt object; they never guess keys from user text.
+Lists passed to `addItems` and `setHorizontalHeaderLabels` are supported too.
+
+Language changes refresh bound controls and toolbar actions in place, with table
+and combo signals blocked. Inputs, option indices, part names and placements
+survive. Standard dialog buttons use `translate_buttons`. Generated perimeter
+captions have stable language-key properties and update without repacking parts.
+Previous English/Latvian perimeter objects in `Nesting_Preview` are recognized.
+
+FreeCAD-owned controls and native file dialogs use FreeCAD/OS language settings.
+Historical console/debug reports and external executable output are not rewritten.
+Right-to-left layout and font coverage need verification before shipping catalogs
+in additional scripts; keep numeric fields and the English-sorted chooser usable.
+
+## Storage and offline maintenance
+
+Every `lng/<code>.json` remains readable and is shipped separately. The language
+loader reads only the selected JSON, validates its dictionary and keeps only the
+English and active catalogs in memory after a switch. Missing or broken entries
+fall back to English; an invalid new choice does not replace the current one.
+
+`lng/index.json` is a small name index, and `lng/perimeters.json` contains only
+caption aliases for saved-document compatibility. Each language code stores its
+current captions; additional legacy entries preserve earlier saved captions.
+Include the entire `lng` directory when distributing the workbench.
+
+To update a translation, edit its `CODE.json` and run the catalog validation
+tests. They reject missing keys, empty strings, incompatible percent placeholders,
+changed newline counts and untranslated English messages (with explicit exceptions
+for technical strings and genuine cognates). Never alter internal schema keys,
+axes, object Names, user-provided names or nesting engine identifiers.
+
+`tools/build_remaining_catalogs.py` is a bootstrap helper, not a translator.
+It preserves completed translations and existing perimeter aliases. Any newly
+scaffolded English fallback messages must be translated before the catalog
+coverage tests will pass.
+
+```console
+python -m unittest discover -s tests
+```
+
+To exercise actual Qt controls, run
+`tests/gui_language_smoke.py` with FreeCAD's bundled Python. The smoke test uses
+an isolated language preference/cache and checks repeated changes, preserved
+input and angles, blocked editing signals, captions, selection and search.
+

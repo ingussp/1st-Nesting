@@ -1,0 +1,1158 @@
+# Nesting1stGrain.py
+"""
+Grain preparer utilities for 1st Nesting — improved font/margin sizing.
+Includes logic for packing grain-specific parts at a designated location .
+"""
+from Nesting1stLanguages import tr, perimeter_labels, perimeter_object_labels, tag_perimeter
+import FreeCAD as App
+import FreeCADGui as Gui
+import traceback
+import math
+import time
+
+try:
+    import Part
+except Exception:
+    Part = None
+
+try:
+    import Draft
+except Exception:
+    Draft = None
+
+
+# Provide preview packing, perimeter labels and grain-direction arrow utilities.
+class GrainPreparer:
+    # Return the combined XY bounding-box diagonal and counted shape objects.
+    @staticmethod
+    def _get_global_bbox_diag(p_doc):
+        """
+        Return the combined XY bounding-box diagonal and counted shape objects.
+
+        Grain perimeter/arrow names and nonpositive X extents are skipped.
+        When no objects qualify, return the sizing fallback (1000.0, 1).
+        """
+        min_x = min_y = float("inf")
+        max_x = max_y = float("-inf")
+        found = False
+        count = 0
+        for o in p_doc.Objects:
+            if "GrainPerimeter" in getattr(o, "Name", "") or "GrainArrow" in getattr(o, "Name", ""):
+                continue
+            if hasattr(o, "Shape") and o.Shape is not None:
+                bb = o.Shape.BoundBox
+                if bb.XMax <= bb.XMin:
+                    continue
+                min_x = min(min_x, bb.XMin)
+                min_y = min(min_y, bb.YMin)
+                max_x = max(max_x, bb.XMax)
+                max_y = max(max_y, bb.YMax)
+                found = True
+                count += 1
+
+        if not found:
+            return 1000.0, 1  # Default fallback
+
+        w = max_x - min_x
+        h = max_y - min_y
+        return math.hypot(w, h), count
+
+    # Read label and margin scale preferences, clamp them to 0.1..10 and default to 1.0.
+    @staticmethod
+    def _safe_get_scale_factors():
+        """
+        "Scale method" for text size and margins.
+
+        We try to read optional values from FreeCAD parameters, and fall back to 1.0.
+        This prevents NameError for label_scale/margin_scale and makes scaling consistent.
+        """
+        label_scale = 1.0
+        margin_scale = 1.0
+
+        try:
+            # Common place for macros/addons to store parameters
+            p = App.ParamGet("User parameter:BaseApp/Preferences/Mod/IPNesting")
+            try:
+                label_scale = float(p.GetFloat("LabelScale", 1.0))
+            except Exception:
+                pass
+            try:
+                margin_scale = float(p.GetFloat("MarginScale", 1.0))
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+        # Safety clamp
+        try:
+            label_scale = max(0.1, min(label_scale, 10.0))
+        except Exception:
+            label_scale = 1.0
+        try:
+            margin_scale = max(0.1, min(margin_scale, 10.0))
+        except Exception:
+            margin_scale = 1.0
+
+        return label_scale, margin_scale
+
+    # Helper: returns True if object's Text property contains the label text.
+    @staticmethod
+    def _safe_text_contains_label(text_val, custom_label):
+        """Helper: returns True if object's Text property contains the label text."""
+        try:
+            if text_val is None:
+                return False
+            # In FreeCAD this is often list like ["..."]
+            if isinstance(text_val, (list, tuple)):
+                joined = "\n".join([str(x) for x in text_val])
+                return str(custom_label) in joined
+            return str(custom_label) in str(text_val)
+        except Exception:
+            return False
+
+    # Determine whether obj is the perimeter label text for the given custom_label, without
+    # relying on obj.Name (because in FreeCAD 1.0.2 it may remain 'Text').
+    @staticmethod
+    def _safe_is_label_object(obj, custom_label):
+        """
+        Determine whether obj is the perimeter label text for the given custom_label,
+        without relying on obj.Name (because in FreeCAD 1.0.2 it may remain 'Text').
+        """
+        try:
+            if getattr(obj, "Label", "") in perimeter_object_labels(custom_label, "label"):
+                return True
+            for label in perimeter_labels(custom_label):
+                if hasattr(obj, "Text") and GrainPreparer._safe_text_contains_label(obj.Text, label):
+                    return True
+            lbl = getattr(obj, "Label", "") or ""
+            if str(custom_label) in lbl and "Label" in lbl:
+                return True
+            # The code tries to set Label to custom_label + " Label"
+            if lbl == (str(custom_label) + " Label"):
+                return True
+
+            # Text content match
+            if hasattr(obj, "Text"):
+                if GrainPreparer._safe_text_contains_label(getattr(obj, "Text", None), custom_label):
+                    return True
+        except Exception:
+            pass
+        return False
+
+    # Determine whether obj is the perimeter border for the given custom_label.
+    @staticmethod
+    def _safe_is_border_object(obj, custom_label):
+        """
+        Determine whether obj is the perimeter border for the given custom_label.
+        """
+        try:
+            if getattr(obj, "Label", "") in perimeter_object_labels(custom_label, "border"):
+                return True
+            lbl = getattr(obj, "Label", "") or ""
+            if lbl == (str(custom_label) + " Border"):
+                return True
+            if str(custom_label) in lbl and "Border" in lbl:
+                return True
+        except Exception:
+            pass
+        return False
+
+    # -----------------------------
+    # Shared helpers (refactor)
+    # -----------------------------
+    # Collect bounding extents for the subset using the same rules as perimeter drawing.
+    # Returns: (found, min_x, min_y, max_x, max_y, subset_part_count)
+    @staticmethod
+    def _collect_subset_bbox(p_doc, subset_names=None):
+        """
+        Collect bounding extents for the subset using the same rules as perimeter drawing.
+        Returns:
+          (found, min_x, min_y, max_x, max_y, subset_part_count)
+        """
+        found = False
+        min_x = min_y = float("inf")
+        max_x = max_y = float("-inf")
+        subset_part_count = 0
+
+        objects_to_process = []
+        if subset_names is not None:
+            for name in subset_names:
+                o = p_doc.getObject(name)
+                if o:
+                    objects_to_process.append(o)
+        else:
+            objects_to_process = p_doc.Objects
+
+        for o in objects_to_process:
+            try:
+                n = getattr(o, "Name", "")
+                if "GrainPerimeter" in n or "GrainArrow" in n:
+                    continue
+
+                shp = getattr(o, "Shape", None)
+                if shp is None:
+                    continue
+                bb = shp.BoundBox
+                if bb.XMax <= bb.XMin and bb.YMax <= bb.YMin:
+                    continue
+
+                min_x = min(min_x, bb.XMin)
+                min_y = min(min_y, bb.YMin)
+                max_x = max(max_x, bb.XMax)
+                max_y = max(max_y, bb.YMax)
+                found = True
+                subset_part_count += 1
+            except Exception:
+                continue
+
+        return found, min_x, min_y, max_x, max_y, subset_part_count
+
+    # Size each group's caption and margin from its own bounds, independent of camera or spacing.
+    @staticmethod
+    def _compute_font_and_margin(preview_doc_name, p_doc, min_x, min_y, max_x, max_y, subset_part_count):
+        """Return proportional font size, perimeter margin and neutral text scaling."""
+        width = max(0.0, float(max_x - min_x))
+        height = max(0.0, float(max_y - min_y))
+        diagonal = max(1e-6, math.hypot(width, height))
+        label_scale, margin_scale = GrainPreparer._safe_get_scale_factors()
+
+        # A single part gets the same proportions as a group with the same bounds.
+        # Keep world-space sizing stable when the groups move or the view is fitted.
+        font_size = diagonal * 0.05 * label_scale
+        margin = diagonal * 0.05 * margin_scale
+        return float(font_size), float(margin), 1.0
+
+    # Reserve proportional space above the lower perimeter for its caption and a clear gap.
+    @staticmethod
+    def _compute_group_gap(preview_doc_name, p_doc, subset_info):
+        """Return border-to-border clearance including the lower group's caption."""
+        _, min_x, min_y, max_x, max_y, count, margin = subset_info
+        font_size, _, _ = GrainPreparer._compute_font_and_margin(
+            preview_doc_name, p_doc, min_x, min_y, max_x, max_y, count
+        )
+        perimeter_height = max_y - min_y + 2.0 * margin
+        # Caption baseline is margin + half a font above the perimeter.
+        # Allow extra font height for ascenders/descenders and visible whitespace.
+        caption_clearance = margin + 3.0 * font_size
+        return max(0.30 * perimeter_height, caption_clearance)
+
+    # Return subset XY bounds, part count and the margin used to draw its perimeter.
+    @staticmethod
+    def get_subset_bbox_and_margin(preview_doc_name, subset_names=None):
+        """
+        Public helper for both UI placement and perimeter drawing.
+
+        Returns:
+          (found, min_x, min_y, max_x, max_y, subset_part_count, final_margin)
+        """
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return (False, 0.0, 0.0, 0.0, 0.0, 0, 0.0)
+            p_doc = App.getDocument(preview_doc_name)
+            if p_doc is None:
+                return (False, 0.0, 0.0, 0.0, 0.0, 0, 0.0)
+
+            found, min_x, min_y, max_x, max_y, subset_part_count = GrainPreparer._collect_subset_bbox(
+                p_doc, subset_names=subset_names
+            )
+            if not found or subset_part_count == 0:
+                return (False, 0.0, 0.0, 0.0, 0.0, 0, 0.0)
+
+            _, final_margin, _ = GrainPreparer._compute_font_and_margin(
+                preview_doc_name, p_doc, min_x, min_y, max_x, max_y, subset_part_count
+            )
+            return (True, float(min_x), float(min_y), float(max_x), float(max_y), int(subset_part_count), float(final_margin))
+        except Exception:
+            return (False, 0.0, 0.0, 0.0, 0.0, 0, 0.0)
+
+    # Draws a perimeter around objects + label. If subset_names is provided (list of strings),
+    # only considers those objects. Otherwise considers all objects in document.
+    @staticmethod
+    def draw_perimeter_and_label(
+        preview_doc_name,
+        base_label_offset=None,
+        subset_names=None,
+        custom_label="Parts without texture direction",
+        line_color=None,
+        matched=False,
+    ):
+        """
+        Draws a perimeter around objects + label.
+        If subset_names is provided (list of strings), only considers those objects.
+        Otherwise considers all objects in document.
+
+        line_color:
+          - None -> default red for "without grain" and blue for "with grain"
+          - tuple (r,g,b) in [0..1]
+
+        matched:
+          - True -> green perimeter for texture-matched groups
+        """
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return
+            p_doc = App.getDocument(preview_doc_name)
+            if p_doc is None:
+                return
+
+            # Suffix determines unique names for this specific group (Main vs Grain vs Matched)
+            suffix = "Main"
+            if matched:
+                suffix = "Matched"
+            elif "with texture" in custom_label:
+                suffix = "Grain"
+
+            # Keep group identity in canonical names; only presentation is translated.
+            if matched:
+                display_label = tr("perimeter.matched")
+            elif suffix == "Grain":
+                display_label = tr("perimeter.with_grain")
+            else:
+                display_label = tr("perimeter.without_grain")
+
+            feat_name_poly = "GrainPerimeter_" + suffix
+            feat_name_label = "GrainPerimeterLabel_" + suffix
+
+            # default colors
+            if line_color is None:
+                if suffix == "Grain":
+                    # (4) Grain perimeter should be blue
+                    line_color = (0.0, 0.0, 1.0)
+                elif suffix == "Matched":
+                    # Texture-matched groups are drawn green.
+                    line_color = (0.0, 0.7, 0.0)
+                else:
+                    line_color = (1.0, 0.0, 0.0)
+
+            # --- ROBUST CLEANUP ---
+            # 1) Remove our previous border/label objects by name pattern where possible
+            # 2) Also remove by Label/Text match (important for FreeCAD 1.0.2 where Name may remain 'Text')
+            for obj in list(p_doc.Objects):
+                try:
+                    n = getattr(obj, "Name", "") or ""
+
+                    # Delete exact matches (if we managed to name them)
+                    if n == feat_name_poly or n == feat_name_label:
+                        p_doc.removeObject(n)
+                        continue
+
+                    # Delete logic for duplicates (e.g. GrainPerimeterLabel_Main001)
+                    if n.startswith("GrainPerimeterLabel_" + suffix) or n.startswith("GrainPerimeter_" + suffix):
+                        p_doc.removeObject(n)
+                        continue
+
+                    # Delete by label/text match as fallback
+                    if GrainPreparer._safe_is_border_object(obj, custom_label) or GrainPreparer._safe_is_label_object(obj, custom_label):
+                        p_doc.removeObject(obj.Name)
+                        continue
+                except Exception:
+                    continue
+
+            # Legacy cleanup (for "Main")
+            if suffix == "Main":
+                for obj in list(p_doc.Objects):
+                    try:
+                        n = getattr(obj, "Name", "")
+                        if n == "GrainPerimeter" or n == "GrainPerimeterLabel":
+                            p_doc.removeObject(n)
+                    except Exception:
+                        continue
+
+            # --- Collect bbox extents for the SUBSET (shared helper) ---
+            found, min_x, min_y, max_x, max_y, subset_part_count = GrainPreparer._collect_subset_bbox(
+                p_doc, subset_names=subset_names
+            )
+            if not found or subset_part_count == 0:
+                return
+
+            # --- FONT + MARGIN (shared helper) ---
+            world_font_size, final_margin, scale_multiplier = GrainPreparer._compute_font_and_margin(
+                preview_doc_name, p_doc, min_x, min_y, max_x, max_y, subset_part_count
+            )
+
+            # Draw Box (apply margin expansion after sizing computations)
+            min_x -= final_margin
+            min_y -= final_margin
+            max_x += final_margin
+            max_y += final_margin
+
+            p1 = App.Vector(min_x, min_y, 0)
+            p2 = App.Vector(max_x, min_y, 0)
+            p3 = App.Vector(max_x, max_y, 0)
+            p4 = App.Vector(min_x, max_y, 0)
+            pts = [p1, p2, p3, p4, p1]
+
+            created_perimeter = False
+            try:
+                if Part is not None:
+                    try:
+                        wire = Part.makePolygon(pts)
+                        feat = p_doc.addObject("Part::Feature", feat_name_poly)
+                        feat.Label = tr("perimeter.border") % display_label
+                        tag_perimeter(feat, custom_label, "border")
+                        feat.Shape = wire
+                        try:
+                            vo = feat.ViewObject
+                            vo.LineWidth = 2
+                            vo.LineColor = line_color
+                            vo.DisplayMode = "Wireframe"
+                        except Exception:
+                            pass
+                        created_perimeter = True
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+            if not created_perimeter and Draft is not None:
+                try:
+                    w = Draft.make_wire([p1, p2, p3, p4], closed=True)
+                    w.Name = feat_name_poly
+                    w.Label = tr("perimeter.border") % display_label
+                    tag_perimeter(w, custom_label, "border")
+                    try:
+                        w.ViewObject.LineColor = line_color
+                        w.ViewObject.LineWidth = 2
+                    except Exception:
+                        pass
+                    created_perimeter = True
+                except Exception:
+                    pass
+
+            # Create Label
+            # Default caption offset scales with the font; explicit caller offsets remain supported.
+            label_offset = 0.5 * world_font_size if base_label_offset is None else float(base_label_offset)
+            label_pos = App.Vector(min_x, max_y + label_offset + final_margin, 0)
+            text_obj = None
+
+            if Draft is not None:
+                try:
+                    try:
+                        # Try point argument
+                        try:
+                            text_obj = Draft.make_text([display_label], point=label_pos)
+                        except TypeError:
+                            text_obj = Draft.make_text([display_label], label_pos)
+                    except Exception:
+                        try:
+                            text_obj = Draft.makeText([display_label], point=label_pos)
+                        except Exception:
+                            pass
+
+                    if text_obj is not None:
+                        # Note: In FreeCAD 1.0.2 this may remain 'Text' (Name may not be settable).
+                        try:
+                            text_obj.Name = feat_name_label
+                        except Exception:
+                            pass
+
+                        # This is more reliable than Name for later cleanup
+                        try:
+                            text_obj.Label = tr("perimeter.label") % display_label
+                            tag_perimeter(text_obj, custom_label, "label")
+                        except Exception:
+                            pass
+
+                        try:
+                            p_doc.recompute()
+                            Gui.updateGui()
+                        except Exception:
+                            pass
+
+                        # Apply font size + ScaleMultiplier
+                        success = False
+                        try:
+                            vo = text_obj.ViewObject
+
+                            # Primary: FontSize in mm (confirmed by your macro)
+                            if hasattr(vo, "FontSize"):
+                                vo.FontSize = float(world_font_size)
+                                success = True
+                            elif hasattr(vo, "TextSize"):
+                                vo.TextSize = float(world_font_size)
+                                success = True
+                            elif hasattr(vo, "Size"):
+                                vo.Size = float(world_font_size)
+                                success = True
+
+                            # Extra scaling for FreeCAD 1.0.2 if available
+                            if scale_multiplier is not None and hasattr(vo, "ScaleMultiplier"):
+                                try:
+                                    vo.ScaleMultiplier = float(scale_multiplier)
+                                except Exception:
+                                    pass
+
+                        except Exception:
+                            pass
+
+                        if not success:
+                            try:
+                                if hasattr(text_obj, "Size"):
+                                    text_obj.Size = float(world_font_size)
+                                elif hasattr(text_obj, "Height"):
+                                    text_obj.Height = float(world_font_size)
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+
+            try:
+                p_doc.recompute()
+            except Exception:
+                pass
+
+        except Exception:
+            App.Console.PrintError(tr('grainpreparer_draw_perimeter_and_label_failed') + traceback.format_exc())
+
+
+    # Draw a thick green outline around each texture-matched group so the group stays
+    # visible as one unit even when it sits inside the blue (grain) box.
+    @staticmethod
+    def draw_group_highlights(preview_doc_name, groups):
+        """
+        Draw a thick green outline around each texture-matched group.
+
+        groups is a list of member-name lists. Passing an empty list removes any
+        previously drawn group highlights.
+        """
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return
+            p_doc = App.getDocument(preview_doc_name)
+            if p_doc is None:
+                return
+
+            # Remove previously drawn group highlights.
+            for obj in list(p_doc.Objects):
+                try:
+                    n = getattr(obj, "Name", "") or ""
+                    if n.startswith("GrainGroupHighlight_"):
+                        p_doc.removeObject(n)
+                except Exception:
+                    continue
+
+            color = (0.0, 0.7, 0.0)
+            index = 0
+            for subset_names in (groups or []):
+                if not subset_names:
+                    continue
+                found, min_x, min_y, max_x, max_y, count = GrainPreparer._collect_subset_bbox(
+                    p_doc, subset_names=list(subset_names)
+                )
+                if not found or count == 0:
+                    continue
+                # Tight outline: the group already sits inside the blue (grain)
+                # perimeter, so hug the parts with a small fixed offset instead
+                # of the proportional caption margin used by the colored boxes.
+                margin = 1.0
+                min_x -= margin
+                min_y -= margin
+                max_x += margin
+                max_y += margin
+
+                p1 = App.Vector(min_x, min_y, 0)
+                p2 = App.Vector(max_x, min_y, 0)
+                p3 = App.Vector(max_x, max_y, 0)
+                p4 = App.Vector(min_x, max_y, 0)
+                pts = [p1, p2, p3, p4, p1]
+
+                index += 1
+                feat_name = "GrainGroupHighlight_%d" % index
+                try:
+                    if Part is not None:
+                        wire = Part.makePolygon(pts)
+                        feat = p_doc.addObject("Part::Feature", feat_name)
+                        feat.Label = "GrainGroupHighlight_%d" % index
+                        feat.Shape = wire
+                        try:
+                            vo = feat.ViewObject
+                            vo.LineWidth = 4
+                            vo.LineColor = color
+                            vo.DisplayMode = "Wireframe"
+                        except Exception:
+                            pass
+                    elif Draft is not None:
+                        w = Draft.make_wire([p1, p2, p3, p4], closed=True)
+                        w.Label = "GrainGroupHighlight_%d" % index
+                        try:
+                            w.ViewObject.LineWidth = 4
+                            w.ViewObject.LineColor = color
+                        except Exception:
+                            pass
+                except Exception:
+                    continue
+
+            try:
+                p_doc.recompute()
+            except Exception:
+                pass
+
+        except Exception:
+            App.Console.PrintError(tr('grainpreparer_draw_perimeter_and_label_failed') + traceback.format_exc())
+
+    # Arrange parts in height-sorted rows extending right and downward from the target anchor.
+    @staticmethod
+    def pack_grain_parts(preview_doc_name, part_names, target_x=0.0, target_y=-5000.0, extra_pct=30.0, padding=4.0):
+        """
+        Pack parts in height-sorted rows anchored at target_x and target_y.
+
+        Rows extend toward +X and -Y. An area-based target width expands
+        on overflow; the final layout is not guaranteed to be square.
+        """
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return
+            p_doc = App.getDocument(preview_doc_name)
+            if not p_doc or not part_names:
+                return
+
+            items = []
+            total_area = 0.0
+
+            from Nesting1stGrainMatch import read_groups
+            units = {name: group['names'] for group in read_groups(p_doc)
+                     for name in group['names']}
+            collected = set()
+
+            # Collect items
+            for name in part_names:
+                if name in collected:
+                    continue
+                unit_names = units.get(name, [name])
+                objects = [p_doc.getObject(n) for n in unit_names]
+                objects = [o for o in objects if o is not None and hasattr(o, 'Shape')]
+                collected.update(unit_names)
+                obj = p_doc.getObject(name)
+                if not obj:
+                    continue
+
+                # Check shape
+                if not hasattr(obj, "Shape") or obj.Shape is None:
+                    continue
+
+                # Approx area from bbox for sorting/sizing
+                bb = App.BoundBox()
+                for member in objects:
+                    bb.add(member.Shape.BoundBox)
+                w = max(0.0, bb.XMax - bb.XMin)
+                h = max(0.0, bb.YMax - bb.YMin)
+                area = w * h
+
+                items.append({
+                    "obj": obj,
+                    "objects": objects,
+                    "bb": bb,
+                    "w": w,
+                    "h": h,
+                    "base": obj.Placement.Base,
+                    "rot": obj.Placement.Rotation,
+                    "area": area
+                })
+                total_area += area
+
+            if not items:
+                return
+
+            # Initial square side calculation
+            adjusted_area = total_area * (1.0 + float(extra_pct) / 100.0)
+            side = math.sqrt(max(1e-6, adjusted_area))
+
+            # Packing logic (Shelf algorithm)
+            max_expand_iters = 15
+            expand_factor = 1.1
+            iters = 0
+
+            planned = []
+
+            while iters < max_expand_iters:
+                planned = []
+                cur_x = 0.0
+                cur_y = 0.0
+                row_h = 0.0
+                pad = float(padding)
+                overflow = False
+
+                # Sort items by height desc (shelf packing heuristic)
+                items_sorted = sorted(items, key=lambda x: x["h"], reverse=True)
+
+                for it in items_sorted:
+                    w = it["w"]
+                    h = it["h"]
+
+                    # Wrap only a populated row; an oversized first part stays at the anchor.
+                    # Otherwise every repack adds a blank row and shifts the whole group down.
+                    if cur_x > 0.0 and cur_x + w > side:
+                        cur_x = 0.0
+                        cur_y += row_h + pad
+                        row_h = 0.0
+
+                    # Update row height
+                    if h > row_h:
+                        row_h = h
+
+                    # Store position
+                    it_copy = dict(it)
+                    it_copy["new_rel_x"] = cur_x
+                    it_copy["new_rel_y"] = cur_y
+                    planned.append(it_copy)
+
+                    cur_x += w + pad
+
+                    if cur_y > side * 1.5:
+                        overflow = True
+
+                if not overflow:
+                    break
+
+                side *= expand_factor
+                iters += 1
+
+            # Apply positions relative to target
+            tx = float(target_x)
+            ty = float(target_y)
+
+            for p in planned:
+                obj = p["obj"]
+                orig_bb = p["bb"]
+
+                # Relative pos in pack
+                rel_x = p["new_rel_x"]
+                rel_y = p["new_rel_y"]
+
+                # Grid point (top-left of slot)
+                Gx = tx + rel_x
+                Gy = ty - rel_y
+
+                # Align object's Top-Left (bb.XMin, bb.YMax) to Grid Point
+                dx = Gx - orig_bb.XMin
+                dy = Gy - orig_bb.YMax
+
+                for member in p['objects']:
+                    base = member.Placement.Base
+                    member.Placement.Base = App.Vector(base.x + dx, base.y + dy, base.z)
+
+            try:
+                p_doc.recompute()
+            except Exception:
+                pass
+
+        except Exception:
+            App.Console.PrintError(tr('pack_grain_parts_failed') + traceback.format_exc())
+
+    # Find a preview object by internal name, then by exact label.
+    @staticmethod
+    def _find_preview_object(p_doc, obj_name_or_label):
+        try:
+            if not p_doc:
+                return None
+            obj = p_doc.getObject(obj_name_or_label)
+            if obj:
+                return obj
+            for o in p_doc.Objects:
+                try:
+                    if getattr(o, "Label", None) == obj_name_or_label or getattr(o, "Name", None) == obj_name_or_label:
+                        return o
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        return None
+
+    # Build the GrainArrow_ object name for a preview part.
+    @staticmethod
+    def _arrow_object_name_for(obj_name):
+        safe = str(obj_name)
+        return "GrainArrow_" + safe
+
+    # Remove a part arrow by generated name or matching label and report whether one was
+    # removed.
+    @staticmethod
+    def remove_grain_arrow(preview_doc_name, obj_name):
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return False
+            p_doc = App.getDocument(preview_doc_name)
+            if p_doc is None:
+                return False
+            arrow_name = GrainPreparer._arrow_object_name_for(obj_name)
+            try:
+                obj = p_doc.getObject(arrow_name)
+                if obj:
+                    p_doc.removeObject(obj.Name)
+                    try:
+                        p_doc.recompute()
+                    except Exception:
+                        pass
+                    return True
+            except Exception:
+                pass
+            removed = False
+            for o in list(p_doc.Objects):
+                try:
+                    if getattr(o, "Label", "").startswith("GrainArrow_") and obj_name in getattr(o, "Label", ""):
+                        p_doc.removeObject(o.Name)
+                        removed = True
+                except Exception:
+                    continue
+            if removed:
+                try:
+                    p_doc.recompute()
+                except Exception:
+                    pass
+                return True
+            return False
+        except Exception:
+            App.Console.PrintError(tr('remove_grain_arrow_failed') + traceback.format_exc())
+            return False
+
+    # Remove objects whose name or label starts with GrainArrow_ and report whether any were
+    # removed.
+    @staticmethod
+    def remove_all_grain_arrows(preview_doc_name):
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return False
+            p_doc = App.getDocument(preview_doc_name)
+            if p_doc is None:
+                return False
+            removed_any = False
+            for o in list(p_doc.Objects):
+                try:
+                    name = getattr(o, "Name", "") or ""
+                    lbl = getattr(o, "Label", "") or ""
+                    if name.startswith("GrainArrow_") or lbl.startswith("GrainArrow_"):
+                        try:
+                            p_doc.removeObject(o.Name)
+                            removed_any = True
+                        except Exception:
+                            App.Console.PrintError(tr('failed_to_remove_grain_arrow_s_s') % (o.Name, traceback.format_exc()))
+                except Exception:
+                    continue
+            if removed_any:
+                try:
+                    p_doc.recompute()
+                except Exception:
+                    pass
+            return removed_any
+        except Exception:
+            App.Console.PrintError(tr('remove_all_grain_arrows_failed') + traceback.format_exc())
+            return False
+
+    # Replace or remove an X/Y grain arrow above a part, using Part, Draft or a placeholder
+    # fallback.
+    @staticmethod
+    def update_grain_arrow(preview_doc_name, obj_name, enable=True, axis='X',
+                          length_factor=0.5, width_factor=0.06, z_offset=0.5, color=(1.0, 0.0, 0.0)):
+        """
+        Replace or remove an X/Y arrow above the preview part.
+
+        The colour defaults to red. Length is limited using the bounding box,
+        but minimum sizes and arrowhead width can extend outside small parts.
+        Part and Draft geometry fall back to a placeholder when unavailable.
+        """
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return False
+            p_doc = App.getDocument(preview_doc_name)
+            if p_doc is None:
+                return False
+
+            # Remove existing arrow for this object first
+            try:
+                GrainPreparer.remove_grain_arrow(preview_doc_name, obj_name)
+            except Exception:
+                pass
+
+            if not enable:
+                return True
+
+            obj = GrainPreparer._find_preview_object(p_doc, obj_name)
+            if obj is None:
+                App.Console.PrintMessage(tr('update_grain_arrow_object_s_not_found_in_preview') % str(obj_name))
+                return False
+
+            # Build a bound-box-like object for the shared arrow builder.
+            try:
+                bb = obj.Shape.BoundBox
+            except Exception:
+                try:
+                    base = obj.Placement.Base
+                    bb = App.BoundBox(base.x - 5.0, base.y - 5.0, base.z,
+                                      base.x + 5.0, base.y + 5.0, base.z)
+                except Exception:
+                    bb = App.BoundBox(-5.0, -5.0, 0.0, 5.0, 5.0, 0.0)
+
+            return GrainPreparer._build_grain_arrow(
+                p_doc,
+                GrainPreparer._arrow_object_name_for(obj.Name),
+                "GrainArrow_" + (getattr(obj, "Label", obj.Name) or obj.Name),
+                bb,
+                axis=axis,
+                length_factor=length_factor,
+                width_factor=width_factor,
+                z_offset=z_offset,
+                color=color,
+            )
+
+        except Exception:
+            App.Console.PrintError(tr('update_grain_arrow_failed') + traceback.format_exc())
+            return False
+
+    # Create or replace an X/Y arrow above one bounding box, using Part, Draft or a
+    # placeholder fallback.
+    @staticmethod
+    def _build_grain_arrow(p_doc, arrow_name, label, bb, axis='X',
+                           length_factor=0.5, width_factor=0.06, z_offset=0.5,
+                           color=(1.0, 0.0, 0.0)):
+        """
+        Create or replace an X/Y arrow above the supplied bounding box.
+
+        Shared by single parts and texture-matched groups so both callers draw
+        identical geometry.
+        """
+        try:
+            try:
+                bbox_w = max(0.0, bb.XMax - bb.XMin)
+                bbox_h = max(0.0, bb.YMax - bb.YMin)
+                center_x = (bb.XMin + bb.XMax) / 2.0
+                center_y = (bb.YMin + bb.YMax) / 2.0
+                top_z = bb.ZMax
+            except Exception:
+                center_x = center_y = top_z = 0.0
+                bbox_w = bbox_h = 10.0
+
+            main_dim = max(bbox_w, bbox_h, 1.0)
+
+            # desired sizes
+            desired_length = max(1.0, float(length_factor) * main_dim)
+            shaft_width = max(0.2, float(width_factor) * main_dim)
+
+            # clamp length so arrow fits inside bbox (half-length limited by distances to edges)
+            axis_upper = (axis or 'X').upper()
+            margin_factor = 0.95  # leave small margin from edge
+            if axis_upper == 'X':
+                max_pos = bb.XMax - center_x
+                max_neg = center_x - bb.XMin
+                max_half = min(max_pos, max_neg)
+                if max_half <= 0:
+                    half_len = desired_length / 2.0
+                else:
+                    half_len = min(desired_length / 2.0, max_half * margin_factor)
+                length = max(half_len * 2.0, 1.0)
+            else:
+                max_pos = bb.YMax - center_y
+                max_neg = center_y - bb.YMin
+                max_half = min(max_pos, max_neg)
+                if max_half <= 0:
+                    half_len = desired_length / 2.0
+                else:
+                    half_len = min(desired_length / 2.0, max_half * margin_factor)
+                length = max(half_len * 2.0, 1.0)
+
+            # head and geometry
+            head_length = max(max(shaft_width * 1.5, length * 0.18), min(length * 0.45, length * 0.35))
+            head_half = max(shaft_width * 1.8, shaft_width * 2.5)
+
+            half_length = length / 2.0
+            x0 = -half_length
+            shaft_end = x0 + (length - head_length)
+            tip_x = x0 + length
+            w = shaft_width
+
+            # polygon: shaft rectangle + triangular head (keeps head within shaft_end..tip_x)
+            poly2d = [
+                (x0, -w/2.0),
+                (shaft_end, -w/2.0),
+                (shaft_end, -head_half),
+                (tip_x, 0.0),
+                (shaft_end, head_half),
+                (shaft_end, w/2.0),
+                (x0, w/2.0),
+                (x0, -w/2.0)
+            ]
+
+            # rotate polygon if axis == 'Y' so arrow points +Y.
+            if axis_upper == 'Y':
+                poly2d = [(-y, x) for (x, y) in poly2d]
+
+            # translate to center_x, center_y and set z = top_z + small offset
+            z_plane = top_z + float(z_offset)
+            pts = [App.Vector((center_x + px) if axis_upper == 'X' or True else center_x + px,
+                              (center_y + py) if axis_upper == 'Y' or True else center_y + py,
+                              z_plane) for (px, py) in poly2d]
+            # Note: the conditional is redundant but kept for clarity; we translate both coords by center.
+
+            try:
+                if Part is not None:
+                    wire = Part.makePolygon(pts)
+                    try:
+                        face = Part.Face(wire)
+                        feat = p_doc.addObject("Part::Feature", arrow_name)
+                        feat.Label = label
+                        feat.Shape = face
+                        try:
+                            vo = feat.ViewObject
+                            vo.ShapeColor = color
+                            vo.LineColor = color
+                            vo.LineWidth = 1
+                            vo.DisplayMode = "Flat Lines"
+                        except Exception:
+                            pass
+                    except Exception:
+                        feat = p_doc.addObject("Part::Feature", arrow_name)
+                        feat.Label = label
+                        feat.Shape = wire
+                        try:
+                            vo = feat.ViewObject
+                            vo.LineColor = color
+                            vo.LineWidth = 2
+                            vo.DisplayMode = "Wireframe"
+                        except Exception:
+                            pass
+                    try:
+                        p_doc.recompute()
+                    except Exception:
+                        pass
+                    return True
+            except Exception:
+                App.Console.PrintError(tr('update_grain_arrow_part_failed') + traceback.format_exc())
+
+            try:
+                if Draft is not None:
+                    try:
+                        dw = Draft.make_wire(pts, closed=True)
+                        dw.Label = label
+                        try:
+                            dw.ViewObject.LineColor = color
+                            dw.ViewObject.LineWidth = 2
+                        except Exception:
+                            pass
+                    except Exception:
+                        try:
+                            dw = Draft.makeWire(pts, closed=True)
+                            dw.Label = label
+                            try:
+                                dw.ViewObject.LineColor = color
+                                dw.ViewObject.LineWidth = 2
+                            except Exception:
+                                pass
+                        except Exception:
+                            ph = p_doc.addObject("App::FeaturePython", arrow_name)
+                            ph.Label = label
+                    try:
+                        p_doc.recompute()
+                    except Exception:
+                        pass
+                    return True
+            except Exception:
+                App.Console.PrintError(tr('update_grain_arrow_draft_fallback_failed') + traceback.format_exc())
+
+            try:
+                ph = p_doc.addObject("App::FeaturePython", arrow_name)
+                ph.Label = label
+                try:
+                    p_doc.recompute()
+                except Exception:
+                    pass
+                return True
+            except Exception:
+                App.Console.PrintError(tr('update_grain_arrow_final_fallback_failed') + traceback.format_exc())
+                return False
+
+        except Exception:
+            App.Console.PrintError(tr('update_grain_arrow_failed') + traceback.format_exc())
+            return False
+
+    # Draw (or remove) a single grain arrow for a whole texture-matched group, using the
+    # group's combined outer contour as one bounding box.
+    @staticmethod
+    def update_group_grain_arrow(preview_doc_name, group_names, enable=True, axis='X',
+                                 length_factor=0.5, width_factor=0.06, z_offset=0.5,
+                                 color=(1.0, 0.0, 0.0)):
+        """
+        Draw or remove one shared arrow above a texture-matched group.
+
+        The group is treated as a single rigid unit, so a single arrow is placed over the
+        union of all member bounding boxes instead of one arrow per member.
+        """
+        try:
+            if preview_doc_name not in App.listDocuments():
+                return False
+            p_doc = App.getDocument(preview_doc_name)
+            if p_doc is None:
+                return False
+
+            arrow_name = ("GrainArrow_Group_" + str(group_names[0])) if group_names else "GrainArrow_Group"
+
+            # Remove any previous shared arrow plus leftover per-member arrows.
+            try:
+                existing = p_doc.getObject(arrow_name)
+                if existing:
+                    p_doc.removeObject(existing.Name)
+            except Exception:
+                pass
+            for nm in group_names:
+                try:
+                    GrainPreparer.remove_grain_arrow(preview_doc_name, nm)
+                except Exception:
+                    pass
+
+            if not enable:
+                try:
+                    p_doc.recompute()
+                except Exception:
+                    pass
+                return True
+
+            # Union bounding box across all members.
+            found = False
+            min_x = min_y = min_z = float('inf')
+            max_x = max_y = max_z = float('-inf')
+            for nm in group_names:
+                obj = GrainPreparer._find_preview_object(p_doc, nm)
+                if obj is None:
+                    continue
+                try:
+                    bb = obj.Shape.BoundBox
+                except Exception:
+                    continue
+                min_x = min(min_x, bb.XMin)
+                min_y = min(min_y, bb.YMin)
+                min_z = min(min_z, bb.ZMin)
+                max_x = max(max_x, bb.XMax)
+                max_y = max(max_y, bb.YMax)
+                max_z = max(max_z, bb.ZMax)
+                found = True
+
+            if not found:
+                return False
+
+            try:
+                bb = App.BoundBox(min_x, min_y, min_z, max_x, max_y, max_z)
+            except Exception:
+                class _GroupBox(object):
+                    pass
+                bb = _GroupBox()
+                bb.XMin = min_x
+                bb.YMin = min_y
+                bb.ZMin = min_z
+                bb.XMax = max_x
+                bb.YMax = max_y
+                bb.ZMax = max_z
+
+            label = "GrainArrow_" + ", ".join(str(n) for n in group_names)
+            return GrainPreparer._build_grain_arrow(
+                p_doc,
+                arrow_name,
+                label,
+                bb,
+                axis=axis,
+                length_factor=length_factor,
+                width_factor=width_factor,
+                z_offset=z_offset,
+                color=color,
+            )
+
+        except Exception:
+            App.Console.PrintError(tr('update_grain_arrow_failed') + traceback.format_exc())
+            return False

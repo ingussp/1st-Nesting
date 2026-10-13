@@ -1,0 +1,2534 @@
+"""
+Material preview cards with grain, contour exclusion and shared-clearance controls.
+Supports rectangular sheets and DXF offcuts with resizable, zoomable previews.
+"""
+from Nesting1stLanguages import tr, translate_buttons, ui_call, ui_widget, register_window
+
+import traceback
+import math
+import time
+import os
+
+from Nesting1stAddSheet import AddSheetOrOffcutDialog
+from Nesting1stOffcuts import (extract_offcut_from_dxf,add_or_increment_material,polygon_area)
+
+import FreeCAD as App
+from PySide import QtGui, QtCore
+MM_PER_INCH = 25.4
+
+# Parse XY pairs or {"x", "y"} dictionaries into [x, y] pairs.
+def _clean_xy_points(points):
+    cleaned = []
+
+    for point in points or []:
+        try:
+            if isinstance(point, dict):
+                x = float(point.get("x", 0.0))
+                y = float(point.get("y", 0.0))
+            else:
+                x = float(point[0])
+                y = float(point[1])
+        except Exception:
+            continue
+
+        cleaned.append([x, y])
+
+    return cleaned
+
+
+def _rotate_xy_points_90_cw(points):
+    return [
+        [round(y, 6), round(-x, 6)]
+        for x, y in points
+    ]
+
+
+def _xy_points_min(points):
+    if not points:
+        return 0.0, 0.0
+
+    return (
+        min(point[0] for point in points),
+        min(point[1] for point in points),
+    )
+
+
+def _translate_xy_points(points, offset):
+    return [
+        [
+            round(point[0] - offset[0], 6),
+            round(point[1] - offset[1], 6),
+        ]
+        for point in points
+    ]
+
+
+# Orient a polygon so a Y (vertical) grain axis becomes horizontal.
+def _orient_polygon_for_grain(points, grain, offset=None):
+    """
+    Return [x, y] points for a polygon oriented so its grain is horizontal.
+
+    X and None grains return the points unchanged. A Y grain is rotated 90
+    degrees clockwise so the former +Y axis maps to +X. When offset is given
+    it is the (min_x, min_y) translation applied to every point; otherwise the
+    polygon is shifted by its own minimum so its lower-left corner lands at
+    0/0. Input points may be [x, y] pairs or {"x", "y"} dictionaries.
+    """
+    cleaned = _clean_xy_points(points)
+
+    if str(grain or "None").strip().upper() == "Y":
+        cleaned = _rotate_xy_points_90_cw(cleaned)
+
+        if offset is None:
+            offset = _xy_points_min(cleaned)
+
+        cleaned = _translate_xy_points(cleaned, offset)
+
+    return cleaned
+
+
+def _grain_offset(points, grain):
+    """
+    Return the (min_x, min_y) translation applied to a Y-grain polygon.
+
+    The offset is the minimum corner of the rotated polygon, i.e. the amount
+    by which the polygon is shifted so its lower-left corner lands at 0/0.
+    Non-Y grains return None.
+    """
+    if str(grain or "None").strip().upper() != "Y":
+        return None
+
+    return _xy_points_min(
+        _rotate_xy_points_90_cw(
+            _clean_xy_points(points)
+        )
+    )
+
+# Synchronize compatibility fields from user-selected contours.
+def _sync_compatibility_holes(offcut):
+    """
+    Synchronize compatibility fields from user-selected contours.
+
+    The new source of truth is:
+        offcut["contours"][...]["selected"]
+
+    The old fields holes and selected_holes are kept synchronized
+    for compatibility with code that still reads them.
+    """
+    try:
+        contours = offcut.get("contours") or []
+
+        selected_holes = []
+
+        for contour in contours:
+            if contour.get("is_outer"):
+                continue
+
+            if not contour.get("selected", False):
+                continue
+
+            polygon = contour.get("polygon") or []
+
+            if len(polygon) >= 3:
+                selected_holes.append(
+                    list(polygon)
+                )
+
+        offcut["holes"] = selected_holes
+        offcut["selected_holes"] = [
+            True for _ in selected_holes
+        ]
+
+    except Exception:
+        App.Console.PrintError(
+            tr('sync_compatibility_holes_failed')
+            + traceback.format_exc()
+        )
+
+
+# Clickable non-outer contour.
+class _ContourGraphicsItem(QtGui.QGraphicsPolygonItem):
+    """
+    Clickable non-outer contour.
+
+    Selected contour is exported as a forbidden nesting area.
+    The outer contour is never represented by this class.
+    """
+
+    # Create a clickable contour polygon with its selection state and callback.
+    def __init__(
+        self,
+        contour_index,
+        polygon,
+        selected,
+        callback,
+        parent=None
+    ):
+        super(_ContourGraphicsItem, self).__init__(
+            QtGui.QPolygonF(polygon),
+            parent
+        )
+
+        self.contour_index = int(contour_index)
+        self.selected = bool(selected)
+        self.callback = callback
+
+        self.setZValue(10)
+        self.setAcceptedMouseButtons(
+            QtCore.Qt.LeftButton
+        )
+
+        self.update_style()
+
+    # Colour a selected forbidden contour red and an unselected contour grey.
+    def update_style(self):
+        if self.selected:
+            self.setBrush(
+                QtGui.QBrush(
+                    QtGui.QColor(255, 120, 120)
+                )
+            )
+            self.setPen(
+                QtGui.QPen(
+                    QtGui.QColor(180, 0, 0),
+                    2
+                )
+            )
+        else:
+            self.setBrush(
+                QtGui.QBrush(
+                    QtGui.QColor(220, 220, 220)
+                )
+            )
+            self.setPen(
+                QtGui.QPen(
+                    QtGui.QColor(100, 100, 100),
+                    2
+                )
+            )
+
+    # Toggle contour selection on a left click and notify the callback.
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.selected = not self.selected
+            self.update_style()
+
+            if self.callback:
+                self.callback(
+                    self.contour_index,
+                    self.selected
+                )
+
+            event.accept()
+            return
+
+        event.ignore()
+
+
+# Display a proportional material outline with selectable non-outer contours.
+class _OffcutPreview(QtGui.QGraphicsView):
+    """
+    Display a proportional material outline with selectable non-outer contours.
+
+    Include dimensions, an optional grain arrow, scrolling and mouse-wheel zoom.
+    """
+
+    # Create the scrollable material scene, copy contour state and initialize units and grain.
+    def __init__(
+        self,
+        outer=None,
+        contours=None,
+        on_contour_clicked=None,
+        grain="None",
+        display_units="mm",
+        parent=None,
+        size_px=700,
+        show_dimensions=True
+    ):
+        super(_OffcutPreview, self).__init__(parent)
+
+        # Sheet previews show outer dimensions; part previews are
+        # sheet-oriented and hide them.
+        self._show_dimensions = bool(show_dimensions)
+
+        # Keep the unrotated geometry so grain changes can re-orient the
+        # preview without mutating the shared offcut records.
+        self._base_outer = list(outer or [])
+
+        self._outer = list(self._base_outer)
+
+        self._contours = []
+        self._base_contour_polygons = []
+
+        for contour in contours or []:
+            copy = dict(contour)
+            polygon = list(
+                contour.get("polygon") or []
+            )
+            copy["polygon"] = polygon
+            self._base_contour_polygons.append(polygon)
+            self._contours.append(copy)
+
+        self._on_contour_clicked = (
+            on_contour_clicked
+        )
+
+        self._grain = "None"
+        self._display_units = str(
+            display_units or "mm"
+        ).strip().lower()
+
+        if self._display_units not in (
+            "mm",
+            "inch"
+        ):
+            self._display_units = "mm"
+        self._zoom = 1.0
+        self._has_user_zoom = False
+
+        self._scene = QtGui.QGraphicsScene(self)
+        self.setScene(self._scene)
+
+        self.setMinimumSize(500, 400)
+        self.setSizePolicy(
+            QtGui.QSizePolicy.Expanding,
+            QtGui.QSizePolicy.Expanding
+        )
+
+        self.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAsNeeded
+        )
+        self.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAsNeeded
+        )
+
+        self.setTransformationAnchor(
+            QtGui.QGraphicsView.AnchorUnderMouse
+        )
+        self.setResizeAnchor(
+            QtGui.QGraphicsView.AnchorViewCenter
+        )
+
+        self.setRenderHint(
+            QtGui.QPainter.Antialiasing,
+            True
+        )
+
+        self.setBackgroundBrush(
+            QtGui.QBrush(QtGui.QColor("white"))
+        )
+
+        self.set_grain(grain)
+
+    # Convert finite XY pairs to scene points with inverted Y, skipping invalid entries.
+    def _valid_points(self, polygon):
+        result = []
+
+        for point in polygon or []:
+            try:
+                if point is None or len(point) < 2:
+                    continue
+
+                x = float(point[0])
+                y = float(point[1])
+
+                if (
+                    math.isfinite(x)
+                    and math.isfinite(y)
+                ):
+                    # Invert Y for QGraphicsScene coordinates.
+                    result.append(
+                        QtCore.QPointF(x, -y)
+                    )
+
+            except Exception:
+                continue
+
+        return result
+
+    # Add labels for the four longest outer polygon segments whose length is greater than 10 mm.
+    def _add_outer_dimension_labels(self):
+        """
+        Add labels for the four longest outer polygon segments
+        whose length is greater than 10 mm.
+
+        Segment lengths are calculated in millimetres.
+        Labels are displayed in the selected display units.
+        """
+        try:
+            outer_points = self._valid_points(
+                self._outer
+            )
+
+            if len(outer_points) < 3:
+                return
+
+            # Calculate an approximate contour center.
+            center_x = sum(
+                point.x()
+                for point in outer_points
+            ) / float(len(outer_points))
+
+            center_y = sum(
+                point.y()
+                for point in outer_points
+            ) / float(len(outer_points))
+
+            xs = [
+                point.x()
+                for point in outer_points
+            ]
+
+            ys = [
+                point.y()
+                for point in outer_points
+            ]
+
+            contour_width = max(xs) - min(xs)
+            contour_height = max(ys) - min(ys)
+
+            if (
+                contour_width <= 1e-9
+                or contour_height <= 1e-9
+            ):
+                return
+
+            # This threshold is always in mm.
+            min_length_mm = 10.0
+            max_labels = 4
+
+            edges = []
+
+            point_count = len(outer_points)
+
+            for index in range(point_count):
+                p1 = outer_points[index]
+                p2 = outer_points[
+                    (index + 1) % point_count
+                ]
+
+                dx = p2.x() - p1.x()
+                dy = p2.y() - p1.y()
+
+                length_mm = math.sqrt(
+                    dx * dx + dy * dy
+                )
+
+                if length_mm <= min_length_mm:
+                    continue
+
+                edges.append({
+                    "index": index,
+                    "p1": p1,
+                    "p2": p2,
+                    "dx": dx,
+                    "dy": dy,
+                    "length_mm": length_mm,
+                })
+
+            # Longest segments first.
+            edges.sort(
+                key=lambda edge: edge["length_mm"],
+                reverse=True
+            )
+
+            edges = edges[:max_labels]
+
+            min_dimension = min(
+                contour_width,
+                contour_height
+            )
+
+            inside_offset = max(
+                4.0,
+                min_dimension * 0.025
+            )
+
+            for edge in edges:
+                p1 = edge["p1"]
+                p2 = edge["p2"]
+                dx = edge["dx"]
+                dy = edge["dy"]
+                length_mm = edge["length_mm"]
+
+                length = math.sqrt(
+                    dx * dx + dy * dy
+                )
+
+                if length <= 1e-9:
+                    continue
+
+                midpoint_x = (
+                    p1.x() + p2.x()
+                ) * 0.5
+
+                midpoint_y = (
+                    p1.y() + p2.y()
+                ) * 0.5
+
+                # Two possible normals.
+                nx = -dy / length
+                ny = dx / length
+
+                # Choose the normal pointing approximately
+                # toward the inside of the contour.
+                candidate_a_x = (
+                    midpoint_x
+                    + nx * inside_offset
+                )
+                candidate_a_y = (
+                    midpoint_y
+                    + ny * inside_offset
+                )
+
+                candidate_b_x = (
+                    midpoint_x
+                    - nx * inside_offset
+                )
+                candidate_b_y = (
+                    midpoint_y
+                    - ny * inside_offset
+                )
+
+                distance_a = math.sqrt(
+                    (
+                        center_x
+                        - candidate_a_x
+                    ) ** 2
+                    + (
+                        center_y
+                        - candidate_a_y
+                    ) ** 2
+                )
+
+                distance_b = math.sqrt(
+                    (
+                        center_x
+                        - candidate_b_x
+                    ) ** 2
+                    + (
+                        center_y
+                        - candidate_b_y
+                    ) ** 2
+                )
+
+                if distance_b < distance_a:
+                    nx = -nx
+                    ny = -ny
+
+                label_x = (
+                    midpoint_x
+                    + nx * inside_offset
+                )
+
+                label_y = (
+                    midpoint_y
+                    + ny * inside_offset
+                )
+
+                display_value = _format_display_dimension(
+                    length_mm,
+                    self._display_units
+                )
+
+                unit_text = (
+                    "inch"
+                    if self._display_units == "inch"
+                    else "mm"
+                )
+
+                text = tr('s_s_265fc5') % (
+                    display_value,
+                    unit_text
+                )
+
+                label = QtGui.QGraphicsSimpleTextItem(
+                    text
+                )
+
+                # Scale dimension text according to the sheet size.
+                # Geometry is in mm, so the font size is also
+                # calculated relative to the contour dimensions.
+                min_dimension = min(
+                    contour_width,
+                    contour_height
+                )
+
+                font_size = min_dimension * 0.02
+
+                # Keep small sheets readable and prevent very large
+                # sheets from getting excessively large labels.
+                font_size = max(
+                    8.0,
+                    min(
+                        32.0,
+                        font_size
+                    )
+                )
+
+                # Do not allow the label to become too large for
+                # the corresponding edge.
+                edge_length_limit = length * 0.12
+
+                font_size = min(
+                    font_size,
+                    max(
+                        8.0,
+                        edge_length_limit
+                    )
+                )
+
+                font = QtGui.QFont()
+                font.setPointSizeF(font_size)
+                font.setBold(False)
+                font.setWeight(
+                    QtGui.QFont.Normal
+                )
+
+                label.setFont(font)
+                label.setBrush(
+                    QtGui.QBrush(
+                        QtGui.QColor(70, 70, 70)
+                    )
+                )
+
+                # Keep the text parallel to the segment.
+                angle = math.degrees(
+                    math.atan2(dy, dx)
+                )
+
+                # Do not display text upside down.
+                if angle > 90.0 or angle < -90.0:
+                    angle += 180.0
+
+                label.setRotation(angle)
+
+                label_rect = label.boundingRect()
+
+                label.setPos(
+                    label_x
+                    - label_rect.width() * 0.5,
+                    label_y
+                    - label_rect.height() * 0.5
+                )
+
+                # Above geometry, below the grain arrow.
+                label.setZValue(15)
+
+                self._scene.addItem(label)
+
+        except Exception:
+            App.Console.PrintError(
+                tr('add_outer_dimension_labels_failed')
+                + traceback.format_exc()
+            )
+    
+    # Add a red grain-direction arrow over the preview.
+    def _add_grain_arrow_to_scene(self):
+        """
+        Add a red grain-direction arrow over the preview.
+
+        The arrow is drawn in scene coordinates. The model uses
+        inverted Y coordinates, therefore scene_y is negative
+        model_y.
+        """
+        try:
+            if self._grain == "None":
+                return
+
+            outer_points = self._valid_points(
+                self._outer
+            )
+
+            if len(outer_points) < 3:
+                return
+
+            xs = [
+                point.x()
+                for point in outer_points
+            ]
+
+            ys = [
+                point.y()
+                for point in outer_points
+            ]
+
+            min_x = min(xs)
+            max_x = max(xs)
+            min_y = min(ys)
+            max_y = max(ys)
+
+            width = max_x - min_x
+            height = max_y - min_y
+
+            if width <= 1e-9 or height <= 1e-9:
+                return
+
+            # Keep the arrow inside the outer contour bbox.
+            margin_x = width * 0.12
+            margin_y = height * 0.12
+
+            arrow_pen = QtGui.QPen(
+                QtGui.QColor(210, 0, 0),
+                max(1.0, min(width, height) * 0.008)
+            )
+
+            arrow_brush = QtGui.QBrush(
+                QtGui.QColor(210, 0, 0)
+            )
+
+            # The sheet is oriented so its grain always runs horizontally,
+            # therefore draw a left -> right arrow.
+            y = min_y + margin_y
+            x1 = min_x + margin_x
+            x2 = max_x - margin_x
+
+            line = self._scene.addLine(
+                x1,
+                y,
+                x2,
+                y,
+                arrow_pen
+            )
+            line.setZValue(5)
+
+            head_size = max(
+                min(width, height) * 0.04,
+                1.0
+            )
+
+            head = QtGui.QPolygonF([
+                QtCore.QPointF(
+                    x2,
+                    y
+                ),
+                QtCore.QPointF(
+                    x2 - head_size,
+                    y - head_size * 0.55
+                ),
+                QtCore.QPointF(
+                    x2 - head_size,
+                    y + head_size * 0.55
+                ),
+            ])
+
+            head_item = self._scene.addPolygon(
+                head,
+                arrow_pen,
+                arrow_brush
+            )
+            head_item.setZValue(5)
+
+        except Exception:
+            App.Console.PrintError(
+                tr('add_grain_arrow_to_scene_failed')
+                + traceback.format_exc()
+            )
+
+    # Change display units for dimension labels.
+    def set_display_units(self, units):
+        """
+        Change display units for dimension labels.
+
+        Geometry remains in millimetres. Only the label text
+        is reformatted.
+        """
+        try:
+            units = str(
+                units or "mm"
+            ).strip().lower()
+
+            if units not in (
+                "mm",
+                "inch"
+            ):
+                units = "mm"
+
+            self._display_units = units
+
+            self._rebuild_scene(
+                preserve_view=True
+            )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('offcutpreview_set_display_units_failed')
+                + traceback.format_exc()
+            )
+    
+    # Normalize the grain axis to X, Y or None and rebuild the preview.
+    def set_grain(self, grain):
+        value = str(
+            grain or "None"
+        ).strip().upper()
+
+        if value not in ("X", "Y"):
+            value = "None"
+
+        self._grain = value
+
+        # Compute the outer's normalization offset once so every contour
+        # (holes) is translated by the same amount and keeps its position
+        # relative to the outer boundary instead of collapsing to the origin.
+        offset = _grain_offset(self._base_outer, value)
+
+        self._outer = _orient_polygon_for_grain(
+            self._base_outer,
+            value,
+            offset
+        )
+
+        for index, contour in enumerate(self._contours):
+            contour["polygon"] = _orient_polygon_for_grain(
+                self._base_contour_polygons[index],
+                value,
+                offset
+            )
+
+        self._rebuild_scene(
+            preserve_view=True
+        )
+    
+    # Update the clicked non-outer contour state and notify the owner.
+    def _contour_clicked(self, contour_index, selected):
+        for contour in self._contours:
+            if int(
+                contour.get("index", -1)
+            ) == int(contour_index):
+
+                if contour.get("is_outer"):
+                    return
+
+                contour["selected"] = bool(selected)
+                break
+
+        if self._on_contour_clicked:
+            self._on_contour_clicked(
+                contour_index,
+                bool(selected)
+            )
+    
+    # Redraw the outline, dimensions, selectable contours and grain arrow, optionally preserving
+    # the view centre.
+    def _rebuild_scene(self, preserve_view=False):
+        old_center = None
+
+        try:
+            if preserve_view:
+                old_center = self.mapToScene(
+                    self.viewport().rect().center()
+                )
+        except Exception:
+            old_center = None
+
+        self._scene.clear()
+
+        outer_points = self._valid_points(
+            self._outer
+        )
+
+        if len(outer_points) >= 3:
+            outer_item = self._scene.addPolygon(
+                QtGui.QPolygonF(outer_points),
+                QtGui.QPen(
+                    QtGui.QColor(0, 0, 0),
+                    2
+                ),
+                QtGui.QBrush(
+                    QtGui.QColor(245, 245, 245)
+                )
+            )
+
+            # Outer contour is always above background
+            # but below selectable contours.
+            outer_item.setZValue(0)
+
+            # Add labels for the four longest outer segments
+            # (skipped for part previews that are sheet-oriented).
+            if self._show_dimensions:
+                self._add_outer_dimension_labels()
+
+        for contour in self._contours:
+            if contour.get("is_outer"):
+                continue
+
+            contour_index = int(
+                contour.get("index", -1)
+            )
+
+            polygon = self._valid_points(
+                contour.get("polygon") or []
+            )
+
+            if len(polygon) < 3:
+                continue
+
+            selected = bool(
+                contour.get("selected", False)
+            )
+
+            item = _ContourGraphicsItem(
+                contour_index=contour_index,
+                polygon=polygon,
+                selected=selected,
+                callback=self._contour_clicked
+            )
+
+            self._scene.addItem(item)
+
+        # Draw grain arrow after outer and selectable contours.
+        self._add_grain_arrow_to_scene()
+        
+        bounds = self._scene.itemsBoundingRect()
+
+        if not bounds.isNull():
+            margin = max(
+                10.0,
+                max(
+                    bounds.width(),
+                    bounds.height()
+                ) * 0.03
+            )
+
+            self._scene.setSceneRect(
+                bounds.adjusted(
+                    -margin,
+                    -margin,
+                    margin,
+                    margin
+                )
+            )
+
+        if not self._has_user_zoom:
+            self.fitInView(
+                self._scene.sceneRect(),
+                QtCore.Qt.KeepAspectRatio
+            )
+
+        if old_center is not None:
+            self.centerOn(old_center)
+
+    # Mouse wheel zoom.
+    def wheelEvent(self, event):
+        """
+        Mouse wheel zoom.
+
+        Scroll up:
+            zoom in
+
+        Scroll down:
+            zoom out
+        """
+        try:
+            delta = event.angleDelta().y()
+
+            if delta == 0:
+                event.ignore()
+                return
+
+            if delta > 0:
+                factor = 1.20
+            else:
+                factor = 1.0 / 1.20
+
+            new_zoom = self._zoom * factor
+            new_zoom = max(
+                0.15,
+                min(12.0, new_zoom)
+            )
+
+            factor = new_zoom / self._zoom
+            self._zoom = new_zoom
+            self._has_user_zoom = True
+
+            self.scale(
+                factor,
+                factor
+            )
+
+            event.accept()
+
+        except Exception:
+            App.Console.PrintError(
+                tr('offcutpreview_wheelevent_failed')
+                + traceback.format_exc()
+            )
+            event.ignore()
+
+    # Double-click resets the preview to fit the whole sheet.
+    def mouseDoubleClickEvent(self, event):
+        """
+        Double-click resets the preview to fit the whole sheet.
+        """
+        try:
+            if event.button() == QtCore.Qt.LeftButton:
+                self._zoom = 1.0
+                self._has_user_zoom = False
+                self.resetTransform()
+
+                self.fitInView(
+                    self._scene.sceneRect(),
+                    QtCore.Qt.KeepAspectRatio
+                )
+
+                event.accept()
+                return
+
+        except Exception:
+            pass
+
+        super(_OffcutPreview, self).mouseDoubleClickEvent(
+            event
+        )
+
+    # Fit the material scene on resize unless the user has manually zoomed.
+    def resizeEvent(self, event):
+        super(_OffcutPreview, self).resizeEvent(event)
+
+        if not self._has_user_zoom:
+            try:
+                self.fitInView(
+                    self._scene.sceneRect(),
+                    QtCore.Qt.KeepAspectRatio
+                )
+            except Exception:
+                pass
+
+
+# Parse a decimal value using either comma or dot.
+def _parse_clearance_value(text, default=0.0):
+    """
+    Parse a decimal value using either comma or dot.
+    """
+    try:
+        value = str(text or "").strip()
+        value = value.replace(",", ".")
+        return max(0.0, float(value))
+    except Exception:
+        return float(default)
+
+
+# Format clearance value for display.
+def _format_clearance_value(value):
+    """
+    Format clearance value for display.
+    """
+    try:
+        value = max(0.0, float(value))
+
+        text = "%.6f" % value
+        text = text.rstrip("0").rstrip(".")
+
+        return text or "0"
+    except Exception:
+        return "0"
+
+# Parse a nonnegative dot/comma dimension into millimetres, or return None on invalid input.
+def _parse_display_dimension(text, units):
+    try:
+        value = str(text or "").strip()
+
+        if not value or "/" in value:
+            return None
+
+        value = float(
+            value.replace(",", ".")
+        )
+
+        if value < 0.0:
+            return None
+
+        if str(units).lower() == "inch":
+            return value * MM_PER_INCH
+
+        return value
+
+    except Exception:
+        return None
+
+
+# Format a millimetre dimension in mm or inch without trailing decimal zeros.
+def _format_display_dimension(value_mm, units):
+    try:
+        value_mm = float(value_mm)
+
+        if str(units).lower() == "inch":
+            value = value_mm / MM_PER_INCH
+        else:
+            value = value_mm
+
+        return (
+            "%.6f" % value
+        ).rstrip("0").rstrip(".") or "0"
+
+    except Exception:
+        return "0"
+
+# Display selected material cards and edit contour exclusions, grain and shared clearance.
+class OffcutShowDialog(QtGui.QDialog):
+    # Format rectangular sheet dimensions using active display units.
+    def _format_card_label(self, off):
+        """
+        Format rectangular sheet dimensions using active display units.
+        """
+        try:
+            if str(
+                off.get("type", "")
+            ).lower() != "rectangular":
+                return str(
+                    off.get(
+                        "label",
+                        "Offcut"
+                    )
+                )
+
+            width_mm = float(
+                off.get("width", 0.0)
+            )
+
+            height_mm = float(
+                off.get("height", 0.0)
+            )
+
+            if self._display_units == "inch":
+                width = width_mm / MM_PER_INCH
+                height = height_mm / MM_PER_INCH
+                suffix = "inch"
+            else:
+                width = width_mm
+                height = height_mm
+                suffix = "mm"
+
+            return tr('sheet_3f_x_3f_s') % (
+                width,
+                height,
+                suffix
+            )
+
+        except Exception:
+            return str(
+                off.get(
+                    "label",
+                    "Offcut"
+                )
+            )
+    
+    # Build material preview cards and connect grain, contour and shared-clearance controls.
+    def __init__(self, offcuts, parent=None, panel=None):
+        super(OffcutShowDialog, self).__init__(parent)
+        ui_call(self, 'setWindowTitle', tr('offcuts'))
+        self.setModal(True)
+        
+        self.setSizeGripEnabled(True)
+
+        # 1) Minimum dialog size 900x700
+        self.resize(1100, 850)
+        self.setMinimumSize(900, 700)
+
+        self._offcuts = offcuts  # list of dicts, mutated in place
+        self._panel = panel
+        
+        self._display_units = getattr(
+            panel,
+            "display_units",
+            "mm"
+        ) if panel is not None else "mm"
+
+        self._clearance_combos = []
+        self._clearance_edits = []
+        self._clearance_unit_labels = []
+        self._preview_widgets = []
+        
+        if self._panel is not None:
+            self._clearance_mode = str(
+                getattr(
+                    self._panel,
+                    "offcut_clearance_mode",
+                    "same"
+                )
+                or "same"
+            ).strip().lower()
+
+            self._custom_clearance = max(
+                0.0,
+                float(
+                    getattr(
+                        self._panel,
+                        "offcut_custom_clearance",
+                        0.0
+                    )
+                    or 0.0
+                )
+            )
+        else:
+            self._clearance_mode = "same"
+            self._custom_clearance = 0.0
+
+        if self._clearance_mode not in (
+            "same",
+            "custom"
+        ):
+            self._clearance_mode = "same"
+        
+        self._cards = []
+        self._scroll_area = None
+
+        root = QtGui.QVBoxLayout(self)
+
+        info = ui_widget(
+            QtGui.QLabel, tr('added_sheets_and_offcuts_grain_direction_is_relative_to_the_material_local_axes')
+        )
+        root.addWidget(info)
+
+        scroll = QtGui.QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff
+        )
+        scroll.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAsNeeded
+        )
+
+        self._scroll_area = scroll
+
+        root.addWidget(scroll, 1)
+
+        container = QtGui.QWidget()
+        v = QtGui.QVBoxLayout(container)
+        v.setContentsMargins(8, 8, 8, 8)
+        v.setSpacing(10)
+
+        # Build cards
+        for idx, off in enumerate(self._offcuts):
+            card = QtGui.QGroupBox()
+            self._cards.append(card)
+            card_lay = QtGui.QVBoxLayout(card)
+            card_lay.setContentsMargins(10, 10, 10, 10)
+            card_lay.setSpacing(8)
+
+            label = self._format_card_label(off)
+
+            try:
+                count = max(
+                    1,
+                    int(
+                        off.get(
+                            "count",
+                            off.get("quantity", 1)
+                        )
+                    )
+                )
+            except Exception:
+                count = 1
+
+            # -------------------------
+            # Controls above the model
+            # -------------------------
+            header_lay = QtGui.QHBoxLayout()
+            header_lay.setSpacing(12)
+
+            title = ui_widget(
+                QtGui.QLabel, tr('b_s_b_count_d')
+                % (label, count)
+            )
+            header_lay.addWidget(title)
+            
+            clearance_lay = QtGui.QHBoxLayout()
+            clearance_lay.setSpacing(8)
+
+            clearance_lay.addWidget(
+                ui_widget(
+                    QtGui.QLabel, tr('hole_to_part_clearance')
+                )
+            )
+
+            clearance_combo = QtGui.QComboBox()
+            ui_call(clearance_combo, 'addItems', [
+                tr('same_as_part_spacing'),
+                tr('custom'),
+            ])
+            clearance_combo.setMinimumWidth(180)
+
+            clearance_edit = QtGui.QLineEdit()
+            clearance_edit.setMinimumWidth(90)
+            clearance_edit.setMaximumWidth(120)
+            ui_call(
+                clearance_edit, 'setToolTip', tr('custom_distance_from_hole_edge_to_part_edge')
+            )
+            
+            clearance_unit_label = ui_widget(
+                QtGui.QLabel, "mm"
+            )
+            clearance_unit_label.setMinimumWidth(
+                35
+            )            
+
+            self._clearance_combos.append(
+                clearance_combo
+            )
+            self._clearance_edits.append(
+                clearance_edit
+            )
+            self._clearance_unit_labels.append(
+                clearance_unit_label
+            )            
+
+            clearance_combo.currentIndexChanged.connect(
+                self._on_shared_clearance_mode_changed
+            )
+
+            # Capture this card's edit widget and propagate its value to shared clearance.
+            clearance_edit.editingFinished.connect(
+                lambda _checked=False,
+                _edit=clearance_edit:
+                    self._on_shared_clearance_value_changed(
+                        _edit
+                    )
+            )
+
+            clearance_lay.addWidget(
+                clearance_combo
+            )
+            
+            clearance_lay.addWidget(
+                clearance_edit
+            )
+
+            clearance_lay.addWidget(
+                clearance_unit_label
+            )
+
+            clearance_lay.addStretch(1)
+
+            header_lay.addStretch(1)
+
+            header_lay.addWidget(
+                ui_widget(QtGui.QLabel, tr('grain_direction_4f9262'))
+            )
+
+            combo = QtGui.QComboBox()
+            ui_call(combo, 'addItems', [tr('none_6eef66'), "X", "Y"])
+            combo.setMinimumWidth(75)
+
+            grain = str(
+                off.get("grain", "None")
+                or "None"
+            ).strip().upper()
+
+            if grain == "X":
+                combo.setCurrentIndex(1)
+            elif grain == "Y":
+                combo.setCurrentIndex(2)
+            else:
+                combo.setCurrentIndex(0)
+
+            header_lay.addWidget(combo)
+            card_lay.addLayout(header_lay)
+            card_lay.addLayout(
+                clearance_lay
+            )            
+
+            # DXF path below the header, still above the model
+            path = str(off.get("path", "") or "")
+
+            if path:
+                path_label = ui_widget(QtGui.QLabel, path)
+                path_label.setWordWrap(True)
+                path_label.setTextInteractionFlags(
+                    QtCore.Qt.TextSelectableByMouse
+                )
+                card_lay.addWidget(path_label)
+
+            # -------------------------
+            # Outer contour and holes
+            # -------------------------
+            outer = off.get("outer") or []
+
+            # Compatibility with older records.
+            if not outer:
+                polygons = off.get("polygons") or []
+                outer = polygons[0] if polygons else []
+
+            contours = off.get("contours")
+
+            if contours is None:
+                # Compatibility fallback for old records that only
+                # contain outer/holes.
+                contours = []
+
+                contours.append({
+                    "index": 0,
+                    "polygon": outer,
+                    "area": abs(polygon_area(outer)),
+                    "is_outer": True,
+                    "selected": False,
+                })
+
+                for hole_index, hole in enumerate(
+                    off.get("holes") or [],
+                    start=1
+                ):
+                    contours.append({
+                        "index": hole_index,
+                        "polygon": hole,
+                        "area": abs(polygon_area(hole)),
+                        "is_outer": False,
+                        "selected": True,
+                    })
+
+            off["contours"] = contours
+            
+            # Ensure every contour has normalized fields.
+            normalized_contours = []
+
+            for contour in contours or []:
+                normalized_contours.append({
+                    "index": int(
+                        contour.get("index", 0)
+                    ),
+                    "polygon": list(
+                        contour.get("polygon") or []
+                    ),
+                    "area": float(
+                        contour.get("area", 0.0)
+                    ),
+                    "bbox": dict(
+                        contour.get("bbox") or {}
+                    ),
+                    "is_outer": bool(
+                        contour.get("is_outer", False)
+                    ),
+                    "selected": bool(
+                        contour.get("selected", False)
+                    ),
+                })
+
+            contours = normalized_contours
+            off["contours"] = contours
+
+            # -------------------------
+            # Large preview
+            # -------------------------
+
+            # Store a card contour selection and synchronize the material compatibility hole
+            # fields.
+            def _on_contour_clicked(
+                contour_index,
+                selected,
+                _off=off
+            ):
+                try:
+                    contours = _off.get(
+                        "contours"
+                    ) or []
+
+                    for contour in contours:
+                        if int(
+                            contour.get("index", -1)
+                        ) != int(contour_index):
+                            continue
+
+                        if contour.get("is_outer"):
+                            return
+
+                        contour["selected"] = bool(
+                            selected
+                        )
+                        break
+
+                    _sync_compatibility_holes(
+                        _off
+                    )
+
+                except Exception:
+                    App.Console.PrintError(
+                        tr('failed_to_update_contour_state')
+                        + traceback.format_exc()
+                    )
+            
+            preview = _OffcutPreview(
+                outer=outer,
+                contours=contours,
+                on_contour_clicked=_on_contour_clicked,
+                grain=grain,
+                display_units=self._display_units,
+                parent=card,
+                size_px=700,
+            )
+            self._preview_widgets.append(
+                preview
+            )            
+
+            # Store preview so checkbox callbacks can refresh it.
+            off["_preview_widget"] = preview
+
+            card_lay.addWidget(
+                preview,
+                1
+            )
+
+            # Store the card grain selection and update its preview arrow.
+            def _on_combo_changed(
+                index,
+                _off=off,
+                _preview=preview
+            ):
+                try:
+                    if int(index) == 1:
+                        _off["grain"] = "X"
+                        _preview.set_grain("X")
+                    elif int(index) == 2:
+                        _off["grain"] = "Y"
+                        _preview.set_grain("Y")
+                    else:
+                        _off["grain"] = "None"
+                        _preview.set_grain("None")
+                except Exception:
+                    pass
+
+            combo.currentIndexChanged.connect(
+                _on_combo_changed
+            )
+
+            v.addWidget(card, 1)
+
+        v.addStretch(1)
+        scroll.setWidget(container)
+
+        buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Close)
+        translate_buttons(buttons)
+        buttons.rejected.connect(self.reject)
+        buttons.accepted.connect(self.accept)
+        root.addWidget(buttons)
+        self._apply_shared_clearance_to_widgets()
+        register_window(self)
+        QtCore.QTimer.singleShot(
+            0,
+            self._resize_cards_to_viewport
+        )
+    
+    # Update clearance fields and preview dimension labels to the selected units.
+    def set_display_units(self, units):
+        """
+        Update clearance fields and preview dimension labels to the selected units.
+
+        Existing card header text is not rebuilt here.
+        """
+        try:
+            units = str(units or "mm").lower()
+
+            if units not in ("mm", "inch"):
+                units = "mm"
+
+            self._display_units = units
+
+            self._apply_shared_clearance_to_widgets()
+
+            for preview in self._preview_widgets:
+                try:
+                    preview.set_display_units(
+                        units
+                    )
+                except Exception:
+                    pass
+
+        except Exception:
+            App.Console.PrintError(
+                tr('offcutshowdialog_set_display_units_failed')
+                + traceback.format_exc()
+            )
+    
+    # Make every card fill the available scroll viewport height while preserving the outer
+    # margins.
+    def _resize_cards_to_viewport(self):
+        """
+        Make every card fill the available scroll viewport height
+        while preserving the outer margins.
+        """
+        try:
+            if self._scroll_area is None:
+                return
+
+            viewport_height = int(
+                self._scroll_area.viewport().height()
+            )
+
+            if viewport_height <= 0:
+                return
+
+            # Preserve the container margins and a small safety gap.
+            card_height = max(
+                500,
+                viewport_height - 20
+            )
+
+            for card in self._cards:
+                try:
+                    card.setMinimumHeight(card_height)
+                    card.setSizePolicy(
+                        QtGui.QSizePolicy.Expanding,
+                        QtGui.QSizePolicy.Fixed
+                    )
+                except Exception:
+                    pass
+
+        except Exception:
+            App.Console.PrintError(
+                tr('resize_cards_to_viewport_failed')
+                + traceback.format_exc()
+            )
+            
+    # Store the shared clearance state on the main panel.
+    def _store_shared_clearance_state(self):
+        """
+        Store the shared clearance state on the main panel.
+
+        This is session/workbench state, not per-offcut state.
+        """
+        try:
+            if self._panel is None:
+                return
+
+            self._panel.offcut_clearance_mode = (
+                self._clearance_mode
+            )
+
+            self._panel.offcut_custom_clearance = (
+                self._custom_clearance
+            )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('store_shared_clearance_state_failed')
+                + traceback.format_exc()
+            )
+
+    # Update all cards so every card shows the same shared setting.
+    def _apply_shared_clearance_to_widgets(self):
+        """
+        Update all cards so every card shows the same shared setting.
+        """
+        try:
+            is_custom = (
+                self._clearance_mode == "custom"
+            )
+
+            for combo in self._clearance_combos:
+                combo.blockSignals(True)
+
+                try:
+                    combo.setCurrentIndex(
+                        1 if is_custom else 0
+                    )
+                finally:
+                    combo.blockSignals(False)
+
+            for edit in self._clearance_edits:
+                edit.blockSignals(True)
+
+                try:
+                    ui_call(
+                        edit, 'setText', _format_display_dimension(
+                            self._custom_clearance,
+                            self._display_units
+                        )
+                    )
+                    edit.setEnabled(is_custom)
+                finally:
+                    edit.blockSignals(False)
+                    
+            unit_text = (
+                "inch"
+                if self._display_units == "inch"
+                else "mm"
+            )
+
+            for unit_label in self._clearance_unit_labels:
+                ui_call(
+                    unit_label, 'setText', unit_text
+                )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('apply_shared_clearance_to_widgets_failed')
+                + traceback.format_exc()
+            )
+
+    # Change the shared mode for all cards.
+    def _on_shared_clearance_mode_changed(self, index):
+        """
+        Change the shared mode for all cards.
+        """
+        try:
+            if int(index) == 1:
+                self._clearance_mode = "custom"
+            else:
+                self._clearance_mode = "same"
+
+            self._store_shared_clearance_state()
+            self._apply_shared_clearance_to_widgets()
+
+        except Exception:
+            App.Console.PrintError(
+                tr('on_shared_clearance_mode_changed_failed')
+                + traceback.format_exc()
+            )
+
+    # Update the shared custom clearance value.
+    def _on_shared_clearance_value_changed(self, edit):
+        """
+        Update the shared custom clearance value.
+
+        Only the edited field is normalized first; then all cards
+        receive the same value.
+        """
+        try:
+            text = str(edit.text()).strip()
+
+            if not text:
+                value = 0.0
+            else:
+                value = _parse_display_dimension(
+                    text,
+                    self._display_units
+                )
+
+                if value is None:
+                    value = self._custom_clearance
+
+            self._custom_clearance = value
+            self._clearance_mode = "custom"
+
+            self._store_shared_clearance_state()
+            self._apply_shared_clearance_to_widgets()
+
+        except Exception:
+            App.Console.PrintError(
+                tr('on_shared_clearance_value_changed_failed')
+                + traceback.format_exc()
+            )
+    
+    # Schedule card-height adjustment after the dialog resizes.
+    def resizeEvent(self, event):
+        try:
+            super(OffcutShowDialog, self).resizeEvent(
+                event
+            )
+        except Exception:
+            pass
+
+        QtCore.QTimer.singleShot(
+            0,
+            self._resize_cards_to_viewport
+        )
+        
+# Controls the Sheet & Offcut Materials table and related dialogs.
+class OffcutMaterialsController(object):
+    """
+    Controls the Sheet & Offcut Materials table and related dialogs.
+    """
+    
+    # Store the parent panel and initialize count-update and table-rebuild guards.
+    def __init__(self, panel):
+        self.panel = panel
+        self._count_update_guard = False
+        self._table_rebuild_guard = False
+
+    # Expose the parent panel material list.
+    @property
+    def offcuts(self):
+        return self.panel.offcuts
+
+    # Expose the parent panel material table widget.
+    @property
+    def offcuts_table(self):
+        return self.panel.offcuts_table
+    
+    # Open the add sheet/offcut dialog and process its result.
+    def add_offcut_dxf(self):
+        """
+        Open the add sheet/offcut dialog and process its result.
+        """
+        try:
+            dialog = AddSheetOrOffcutDialog(
+                parent=self.panel.form,
+                panel=self.panel
+            )
+
+            result = dialog.exec_()
+
+            if result != QtGui.QDialog.Accepted:
+                return
+
+            if dialog.result_type == "rectangular":
+                App.Console.PrintMessage(
+                    tr('offcuts_dialog_processing_rectangular_sheet')
+                )
+
+                self._process_rectangular_sheet_result(
+                    dialog.result_data
+                )
+
+            elif dialog.result_type == "dxf":
+                App.Console.PrintMessage(
+                    tr('offcuts_dialog_processing_dxf_offcut')
+                )
+
+                self._process_dxf_offcut_result(
+                    dialog.result_data
+                )
+
+            App.Console.PrintMessage(
+                tr('offcuts_dialog_result_processing_finished')
+            )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('add_offcut_dxf_failed')
+                + traceback.format_exc()
+            )
+            
+    
+    # Import the selected DXF and add it as one grouped material row. Repeated imports of the
+    # same DXF increase Count.
+    def _process_dxf_offcut_result(self, data):
+        """
+        Import the selected DXF and add it as one grouped material row.
+        Repeated imports of the same DXF increase Count.
+        """
+        try:
+            data = data or {}
+
+            path = os.path.abspath(
+                str(data.get("path", "") or "")
+            )
+
+            try:
+                quantity = int(data.get("quantity", 1))
+            except Exception:
+                quantity = 1
+
+            quantity = max(1, quantity)
+
+            if not path or not os.path.exists(path):
+                QtGui.QMessageBox.warning(
+                    self.panel.form,
+                    tr('dxf_offcut'),
+                    tr('the_selected_dxf_file_does_not_exist')
+                )
+                return
+
+            try:
+                boundary_resolution = (
+                    self.panel.get_boundary_resolution_mm()
+                )
+            except Exception:
+                boundary_resolution = 0.01
+
+            boundary_resolution = max(
+                0.001,
+                min(100.0, boundary_resolution)
+            )
+
+            App.Console.PrintMessage(
+                tr('offcuts_dxf_deflection_4f')
+                % boundary_resolution
+            )
+
+            outer, holes, bbox, contour_info = (
+                extract_offcut_from_dxf(
+                    path,
+                    debug=False,
+                    deflection=boundary_resolution
+                )
+            )
+            
+            App.Console.PrintMessage(
+                tr('offcuts_outer_points_d_contours_d')
+                % (
+                    len(outer or []),
+                    len(contour_info or [])
+                )
+            )
+            
+            if not outer:
+                QtGui.QMessageBox.warning(
+                    self.panel.form,
+                    tr('dxf_offcut'),
+                    tr('no_closed_outer_contour_was_found_in_the_dxf_file')
+                )
+                return
+
+            contours = []
+
+            for contour in contour_info or []:
+                contours.append({
+                    "index": int(
+                        contour.get("index", 0)
+                    ),
+                    "polygon": list(
+                        contour.get("polygon") or []
+                    ),
+                    "area": float(
+                        contour.get("area", 0.0)
+                    ),
+                    "bbox": dict(
+                        contour.get("bbox") or {}
+                    ),
+                    "is_outer": bool(
+                        contour.get("is_outer", False)
+                    ),
+                    "selected": False,
+                })
+
+            offcut = {
+                "id": int(
+                    self.panel._offcut_next_id
+                ),
+                "type": "dxf",
+                "path": path,
+                "label": os.path.basename(path),
+                "grain": "None",
+
+                "outer": outer,
+                "contours": contours,
+
+                # Compatibility fields.
+                "holes": [],
+                "selected_holes": [],
+                "polygons": [outer],
+
+                "bbox": bbox,
+                "contour_info": contour_info,
+
+                "count": quantity,
+                "quantity": quantity,
+                "duplicate": False,
+            }
+
+            self.panel._offcut_next_id += 1
+
+            material, row, was_existing = add_or_increment_material(
+                self.offcuts,
+                offcut,
+                count=quantity
+            )
+
+            self._rebuild_offcuts_table(
+                selected_row=row
+            )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('process_dxf_offcut_result_failed')
+                + traceback.format_exc()
+            )
+            
+    # Add a rectangular sheet as one grouped material row. Repeated sheets with the same
+    # dimensions increase Count.
+    def _process_rectangular_sheet_result(self, data):
+        """
+        Add a rectangular sheet as one grouped material row.
+        Repeated sheets with the same dimensions increase Count.
+        """
+        try:
+            data = data or {}
+
+            try:
+                width = float(data.get("width", 0.0))
+                height = float(data.get("height", 0.0))
+            except Exception:
+                width = 0.0
+                height = 0.0
+
+            try:
+                quantity = int(data.get("quantity", 1))
+            except Exception:
+                quantity = 1
+
+            quantity = max(1, quantity)
+
+            if width <= 0.0 or height <= 0.0:
+                QtGui.QMessageBox.warning(
+                    self.panel.form,
+                    tr('sheet'),
+                    tr('sheet_width_and_height_must_be_greater_than_zero')
+                )
+                return
+
+            outer = [
+                [0.0, 0.0],
+                [width, 0.0],
+                [width, height],
+                [0.0, height],
+            ]
+            
+            sheet = {
+                "id": int(
+                    self.panel._offcut_next_id
+                ),
+                "type": "rectangular",
+                "path": "",
+                "label": tr('sheet_0f_x_0f_mm')
+                % (width, height),
+                "grain": "None",
+
+                "outer": outer,
+
+                "contours": [
+                    {
+                        "index": 0,
+                        "polygon": outer,
+                        "area": float(
+                            width * height
+                        ),
+                        "bbox": {
+                            "min_x": 0.0,
+                            "min_y": 0.0,
+                            "max_x": width,
+                            "max_y": height,
+                        },
+                        "is_outer": True,
+                        "selected": False,
+                    }
+                ],
+
+                # Compatibility fields.
+                "holes": [],
+                "selected_holes": [],
+                "polygons": [outer],
+
+                "bbox": {
+                    "min_x": 0.0,
+                    "min_y": 0.0,
+                    "max_x": width,
+                    "max_y": height,
+                },
+
+                "width": width,
+                "height": height,
+                "quantity": quantity,
+                "count": quantity,
+                "duplicate": False,
+            }
+
+            self.panel._offcut_next_id += 1
+
+            material, row, was_existing = add_or_increment_material(
+                self.offcuts,
+                sheet,
+                count=quantity
+            )
+
+            self._rebuild_offcuts_table(
+                selected_row=row
+            )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('process_rectangular_sheet_result_failed')
+                + traceback.format_exc()
+            )
+            
+    # Safely restore or update a Count cell without triggering recursive Count processing.
+    def _set_count_cell_text(self, item, value):
+        """
+        Safely restore or update a Count cell without triggering
+        recursive Count processing.
+        """
+        try:
+            self._count_update_guard = True
+            ui_call(item, 'setText', str(max(1, int(value))))
+        except Exception:
+            pass
+        finally:
+            self._count_update_guard = False
+    
+    # Update the material count when the Count cell is edited.
+    def on_offcut_count_changed(self, item):
+        """
+        Update the material count when the Count cell is edited.
+        """
+        if self._count_update_guard:
+            return
+
+        if item is None:
+            return
+
+        # Count is column 1.
+        if item.column() != 1:
+            return
+
+        row = item.row()
+
+        if row < 0 or row >= len(self.offcuts):
+            return
+
+        material = self.offcuts[row]
+
+        try:
+            text = str(item.text()).strip()
+
+            # Empty or invalid input restores the previous value.
+            new_count = int(text)
+
+            if new_count < 1:
+                new_count = 1
+
+            if new_count > 100000:
+                new_count = 100000
+
+        except Exception:
+            try:
+                old_count = int(
+                    material.get(
+                        "count",
+                        material.get("quantity", 1)
+                    )
+                )
+            except Exception:
+                old_count = 1
+
+            self._set_count_cell_text(item, old_count)
+            return
+
+        try:
+            self._count_update_guard = True
+
+            material["count"] = new_count
+            material["quantity"] = new_count
+
+            if item.text() != str(new_count):
+                ui_call(item, 'setText', str(new_count))
+
+        except Exception:
+            App.Console.PrintError(
+                tr('on_offcut_count_changed_failed')
+                + traceback.format_exc()
+            )
+
+        finally:
+            self._count_update_guard = False
+    
+    # Remove selected material rows and rebuild the materials table.
+    def remove_offcuts(self):
+        """
+        Remove selected material rows and rebuild the materials table.
+        """
+        try:
+            selection = self.offcuts_table.selectionModel().selectedRows()
+
+            if not selection:
+                return
+
+            rows = sorted(
+                [index.row() for index in selection],
+                reverse=True
+            )
+
+            for row in rows:
+                if 0 <= row < len(self.offcuts):
+                    del self.offcuts[row]
+
+            self._rebuild_offcuts_table()
+
+        except Exception:
+            App.Console.PrintError(
+                tr('remove_offcuts_failed')
+                + traceback.format_exc()
+            )
+            
+    # Move one material in self.offcuts and rebuild the table.
+    def _move_offcut_row(self, row, direction):
+        """
+        Move one material in self.offcuts and rebuild the table.
+
+        direction:
+            -1 = up
+            +1 = down
+        """
+        try:
+            if row < 0 or row >= len(self.offcuts):
+                return
+
+            target_row = row + int(direction)
+
+            if target_row < 0:
+                return
+
+            if target_row >= len(self.offcuts):
+                return
+
+            # Preserve the material order in the model.
+            self.offcuts[row], self.offcuts[target_row] = (
+                self.offcuts[target_row],
+                self.offcuts[row],
+            )
+
+            self._rebuild_offcuts_table(selected_row=target_row)
+
+        except Exception:
+            App.Console.PrintError(
+                tr('move_offcut_row_failed')
+                + traceback.format_exc()
+            )
+            
+    # Rebuild the materials table from self.offcuts.
+    def _rebuild_offcuts_table(self, selected_row=None):
+        """
+        Rebuild the materials table from self.offcuts.
+        """
+        if self._table_rebuild_guard:
+            return
+
+        try:
+            self._table_rebuild_guard = True
+            self.offcuts_table.setUpdatesEnabled(False)
+
+            self.offcuts_table.clearContents()
+            self.offcuts_table.setRowCount(0)
+
+            for row, material in enumerate(self.offcuts):
+                self._append_offcut_table_row(
+                    material,
+                    row=row
+                )
+
+            if selected_row is not None:
+                if 0 <= selected_row < self.offcuts_table.rowCount():
+                    self.offcuts_table.selectRow(selected_row)
+                    self.offcuts_table.setCurrentCell(
+                        selected_row,
+                        0
+                    )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('rebuild_offcuts_table_failed')
+                + traceback.format_exc()
+            )
+
+        finally:
+            self.offcuts_table.setUpdatesEnabled(True)
+            self.offcuts_table.viewport().update()
+            self._table_rebuild_guard = False
+            
+    # Format rectangular sheet label using the active display units. Internal width and height
+    # values are always stored in mm.
+    def _format_material_label(self, material):
+        """
+        Format rectangular sheet label using the active display units.
+        Internal width and height values are always stored in mm.
+        """
+        try:
+            if str(
+                material.get("type", "")
+            ).lower() != "rectangular":
+                return str(
+                    material.get(
+                        "label",
+                        tr('sheet_or_offcut')
+                    )
+                )
+
+            width_mm = float(
+                material.get("width", 0.0)
+            )
+
+            height_mm = float(
+                material.get("height", 0.0)
+            )
+
+            units = str(
+                getattr(
+                    self.panel,
+                    "display_units",
+                    "mm"
+                )
+                or "mm"
+            ).lower()
+
+            if units == "inch":
+                width = width_mm / MM_PER_INCH
+                height = height_mm / MM_PER_INCH
+                suffix = "inch"
+            else:
+                width = width_mm
+                height = height_mm
+                suffix = "mm"
+
+            return tr('sheet_3f_x_3f_s') % (
+                width,
+                height,
+                suffix
+            )
+
+        except Exception:
+            return str(
+                material.get(
+                    "label",
+                    tr('sheet_or_offcut')
+                )
+            )
+    
+    # Add one material row to the table.
+    def _append_offcut_table_row(self, material, row=None):
+        """
+        Add one material row to the table.
+
+        Table order follows self.offcuts order.
+        Repeated identical materials are represented by Count.
+        """
+        try:
+            if row is None:
+                row = self.offcuts_table.rowCount()
+
+            self.offcuts_table.insertRow(row)
+
+            # Column 0: Material
+            label = self._format_material_label(
+                material
+            )
+
+            material_item = ui_widget(QtGui.QTableWidgetItem, label)
+            material_item.setFlags(
+                QtCore.Qt.ItemIsEnabled |
+                QtCore.Qt.ItemIsSelectable
+            )
+
+            if "id" in material:
+                try:
+                    material_item.setData(
+                        QtCore.Qt.UserRole,
+                        int(material.get("id"))
+                    )
+                except Exception:
+                    pass
+
+            if bool(material.get("duplicate", False)):
+                material_item.setForeground(
+                    QtGui.QBrush(QtGui.QColor("red"))
+                )
+
+            self.offcuts_table.setItem(row, 0, material_item)
+
+            # Column 1: Count
+            try:
+                count = max(1, int(material.get("count", 1)))
+            except Exception:
+                count = 1
+
+            count_item = ui_widget(QtGui.QTableWidgetItem, str(count))
+            count_item.setFlags(
+                QtCore.Qt.ItemIsEnabled
+                | QtCore.Qt.ItemIsSelectable
+                | QtCore.Qt.ItemIsEditable
+            )
+            count_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            ui_call(count_item, 'setToolTip', tr('enter_the_number_of_sheets_or_offcuts'))
+            self.offcuts_table.setItem(row, 1, count_item)
+
+            # Column 2: Grain
+            grain = str(
+                material.get("grain", "None") or "None"
+            ).strip().upper()
+
+            if grain not in ("X", "Y"):
+                grain = "None"
+
+            grain_item = ui_widget(QtGui.QTableWidgetItem, tr('none_6eef66') if grain == "None" else grain)
+            grain_item.setFlags(
+                QtCore.Qt.ItemIsEnabled |
+                QtCore.Qt.ItemIsSelectable
+            )
+            grain_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.offcuts_table.setItem(row, 2, grain_item)
+
+            # Column 3: Move buttons
+            move_widget = QtGui.QWidget()
+            move_layout = QtGui.QHBoxLayout(move_widget)
+            move_layout.setContentsMargins(2, 0, 2, 0)
+            move_layout.setSpacing(2)
+
+            up_button = QtGui.QToolButton()
+            ui_call(up_button, 'setText', "↑")
+            ui_call(up_button, 'setToolTip', tr('move_material_up'))
+            up_button.setAutoRaise(True)
+            up_button.setFixedWidth(28)
+
+            down_button = QtGui.QToolButton()
+            ui_call(down_button, 'setText', "↓")
+            ui_call(down_button, 'setToolTip', tr('move_material_down'))
+            down_button.setAutoRaise(True)
+            down_button.setFixedWidth(28)
+
+            # Capture this row index and move its material one position upward.
+            up_button.clicked.connect(
+                lambda checked=False, r=row:
+                    self._move_offcut_row(r, -1)
+            )
+
+            # Capture this row index and move its material one position downward.
+            down_button.clicked.connect(
+                lambda checked=False, r=row:
+                    self._move_offcut_row(r, 1)
+            )
+
+            move_layout.addWidget(up_button)
+            move_layout.addWidget(down_button)
+
+            self.offcuts_table.setCellWidget(row, 3, move_widget)
+
+        except Exception:
+            App.Console.PrintError(
+                tr('append_offcut_table_row_failed')
+                + traceback.format_exc()
+            )
+            
+    # Refresh material labels after changing mm/inch units.
+    def _refresh_offcut_material_labels(self):
+        """
+        Refresh material labels after changing mm/inch units.
+        """
+        try:
+            for row, material in enumerate(
+                self.offcuts
+            ):
+                item = self.offcuts_table.item(
+                    row,
+                    0
+                )
+
+                if item is None:
+                    continue
+
+                ui_call(
+                    item, 'setText', self._format_material_label(
+                        material
+                    )
+                )
+
+        except Exception:
+            App.Console.PrintError(
+                tr('refresh_offcut_material_labels_failed')
+                + traceback.format_exc()
+            )
+    
+    # Refresh displayed grain values by matching table material IDs to material records.
+    def _refresh_offcut_grain_column(self):
+        try:
+            for row in range(self.offcuts_table.rowCount()):
+                item = self.offcuts_table.item(row, 0)
+                if not item:
+                    continue
+
+                material_id = item.data(QtCore.Qt.UserRole)
+
+                material = None
+                for entry in self.offcuts:
+                    if int(entry.get("id", -1)) == int(material_id):
+                        material = entry
+                        break
+
+                if material is None:
+                    continue
+
+                grain_value = str(
+                    material.get("grain", "None") or "None"
+                ).strip().upper()
+
+                if grain_value not in ("X", "Y"):
+                    grain_value = "None"
+                    
+                grain_item = self.offcuts_table.item(row, 2)
+
+                if grain_item is None:
+                    grain_item = QtGui.QTableWidgetItem()
+                    grain_item.setFlags(
+                        QtCore.Qt.ItemIsEnabled
+                        | QtCore.Qt.ItemIsSelectable
+                    )
+                    grain_item.setTextAlignment(QtCore.Qt.AlignCenter)
+                    self.offcuts_table.setItem(row, 2, grain_item)
+
+                ui_call(grain_item, 'setText', tr('none_6eef66') if grain_value == "None" else grain_value)
+
+        except Exception:
+            App.Console.PrintError(
+                tr('refresh_offcut_grain_column_failed')
+                + traceback.format_exc()
+            )
+            
+    # Return material records corresponding to selected table rows. The order follows the
+    # table/model order.
+    def _get_selected_offcuts(self):
+        """
+        Return material records corresponding to selected table rows.
+        The order follows the table/model order.
+        """
+        selected = []
+
+        try:
+            indexes = self.offcuts_table.selectionModel().selectedRows()
+
+            rows = sorted(
+                set(index.row() for index in indexes)
+            )
+
+            for row in rows:
+                if 0 <= row < len(self.offcuts):
+                    selected.append(self.offcuts[row])
+
+        except Exception:
+            App.Console.PrintError(
+                tr('get_selected_offcuts_failed')
+                + traceback.format_exc()
+            )
+
+        return selected
+    
+    # Show previews only for the selected sheet/offcut rows.
+    def show_offcuts_popup(self):
+        """
+        Show previews only for the selected sheet/offcut rows.
+        """
+        try:
+            selected_offcuts = self._get_selected_offcuts()
+
+            if not selected_offcuts:
+                QtGui.QMessageBox.information(
+                    self.panel.form,
+                    tr('sheets_and_offcuts'),
+                    tr('select_at_least_one_sheet_or_offcut_first')
+                )
+                return
+
+            parent = QtGui.QApplication.activeWindow()
+
+            dlg = OffcutShowDialog(
+                selected_offcuts,
+                parent=parent,
+                panel=self.panel
+            )
+
+            self.panel._active_offcut_dialog = dlg
+
+            try:
+                dlg.exec_()
+            finally:
+                if getattr(
+                    self.panel,
+                    "_active_offcut_dialog",
+                    None
+                ) is dlg:
+                    self.panel._active_offcut_dialog = None
+
+            # Grain values are updated in-place by OffcutShowDialog.
+            self._refresh_offcut_grain_column()
+
+        except Exception:
+            App.Console.PrintError(
+                tr('show_offcuts_popup_failed')
+                + traceback.format_exc()
+            )
+

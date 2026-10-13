@@ -1,0 +1,989 @@
+"""
+Nesting1stGrainUI - Grain UI controller extracted from Nesting1stGui.
+Applies texture checkbox/axis changes immediately and restores original placements.
+"""
+from Nesting1stLanguages import tr
+
+import FreeCAD as App
+import FreeCADGui as Gui
+from PySide import QtGui, QtCore
+import json
+import traceback
+from functools import partial
+
+# Import GrainPreparer (if available)
+try:
+    from Nesting1stGrain import GrainPreparer
+except Exception:
+    GrainPreparer = None
+
+
+# Controller for grain-related UI operations. Operates on a panel instance (NestingTaskPanel).
+class GrainUIController:
+    """
+    Controller for grain-related UI operations.
+    Operates on a panel instance (NestingTaskPanel).
+    """
+
+    def __init__(self, panel):
+        self.panel = panel
+        self._last_applied_grain_state = None
+
+    def _rows(self):
+        """Yield data rows and every associated preview copy, including legacy rows."""
+        for row in range(self.panel.table.rowCount() - self.panel.control_rows):
+            item = self.panel.table.item(row, 0)
+            if item is None:
+                continue
+            try:
+                if item.data(QtCore.Qt.UserRole + 2) in ('texture_group', 'texture_member'):
+                    continue
+            except Exception:
+                pass
+            names = item.data(QtCore.Qt.UserRole + 1)
+            if isinstance(names, str):
+                try:
+                    names = json.loads(names)
+                except (ValueError, TypeError):
+                    names = None
+            if not isinstance(names, (list, tuple)) or not names:
+                primary = item.data(QtCore.Qt.UserRole)
+                names = [primary] if primary else []
+            widget = self.panel.table.cellWidget(row, 4)
+            if widget is None:
+                continue
+            yield row, list(names), widget.findChild(QtGui.QCheckBox), widget.findChild(QtGui.QComboBox)
+
+    def _get_current_grain_state(self):
+        return tuple((row, bool(cb and cb.isChecked())) for row, _, cb, _ in self._rows())
+
+    def _update_apply_blink_state(self):
+        """Compatibility hook for preview edits; there is no pending Apply action."""
+        self._last_applied_grain_state = self._get_current_grain_state()
+
+    @staticmethod
+    def _remember_standard_placement(obj, rotations):
+        """Save the complete pre-texture placement once per checked interval."""
+        if obj is None or hasattr(obj, 'IPNestingStandardPlacement'):
+            return
+        obj.addProperty('App::PropertyPlacement', 'IPNestingStandardPlacement', '1st Nesting')
+        obj.IPNestingStandardPlacement = obj.Placement
+        obj.setEditorMode('IPNestingStandardPlacement', 2)
+        obj.addProperty('App::PropertyString', 'IPNestingStandardRotations', '1st Nesting')
+        obj.IPNestingStandardRotations = rotations
+        obj.setEditorMode('IPNestingStandardRotations', 2)
+
+    def _restore_standard_placement(self, obj):
+        if obj is None:
+            return None
+        rotations = getattr(obj, 'IPNestingStandardRotations', None)
+        if hasattr(obj, 'IPNestingStandardPlacement'):
+            obj.Placement = obj.IPNestingStandardPlacement
+            obj.removeProperty('IPNestingStandardPlacement')
+        else:
+            # Older preview objects only retained their original rotation.
+            self._restore_saved_std_rotation(obj)
+        if hasattr(obj, 'IPNestingStandardRotations'):
+            obj.removeProperty('IPNestingStandardRotations')
+        return rotations
+
+    @staticmethod
+    def _set_axis(doc, names, axis):
+        for name in names:
+            obj = doc.getObject(name)
+            if obj is None:
+                continue
+            if not hasattr(obj, 'GrainAngleDeg'):
+                obj.addProperty('App::PropertyInteger', 'GrainAngleDeg', '1st Nesting',
+                                tr('absolute_grain_angle_in_degrees_vs_x'))
+            # An explicit axis choice or texture toggle starts a new angle baseline.
+            if hasattr(obj, 'IPNestingCustomAngleDeg'):
+                obj.removeProperty('IPNestingCustomAngleDeg')
+            obj.GrainAngleDeg = 90 if str(axis).upper() == 'Y' else 0
+
+    def _apply_live_layout(self):
+        self.update_grain_layout_and_perimeters(preserve_standard_layout=True)
+        # The layout aligns all grain arrows with X; keep the bulk selector in sync.
+        combo = getattr(self.panel, 'bulk_grain_combo', None)
+        if combo is not None:
+            blocked = combo.blockSignals(True)
+            try:
+                combo.setCurrentIndex(0)
+            finally:
+                combo.blockSignals(blocked)
+        self.panel._fit_all_views()
+
+    def _on_grain_checkbox_state_changed(self, preview_obj_name, grain_cb, grain_combo, state):
+        """Move checked parts immediately; unchecking restores each copy exactly."""
+        try:
+            if GrainPreparer is None or self.panel.preview_doc_name not in App.listDocuments():
+                return
+            doc = App.getDocument(self.panel.preview_doc_name)
+            checked = grain_cb.isChecked()
+            for row, names, _, combo in self._rows():
+                if preview_obj_name not in names:
+                    continue
+                if checked:
+                    item = self.panel.table.item(row, 2)
+                    rotations = item.text() if item is not None else str(self.panel.get_default_rotations())
+                    for name in names:
+                        self._remember_standard_placement(doc.getObject(name), rotations)
+                    self.panel._set_rotation_cell(row, '[0, 180]')
+                    self._set_axis(doc, names, combo.currentText() if combo else 'X')
+                else:
+                    rotations = None
+                    for name in names:
+                        saved = self._restore_standard_placement(doc.getObject(name))
+                        if saved is not None and rotations is None:
+                            rotations = saved
+                        GrainPreparer.remove_grain_arrow(doc.Name, name)
+                    self._set_axis(doc, names, 'X')
+                    if combo is not None:
+                        blocked = combo.blockSignals(True)
+                        try:
+                            combo.setCurrentIndex(0)
+                        finally:
+                            combo.blockSignals(blocked)
+                    custom_widget = self.panel.table.cellWidget(row, 5)
+                    custom = custom_widget.findChild(QtGui.QCheckBox) if custom_widget else None
+                    if custom is not None:
+                        custom.setChecked(False)
+                    self.panel._set_rotation_cell(row, rotations if rotations is not None
+                                                  else str(self.panel.get_default_rotations()))
+                doc.recompute()
+                self._apply_live_layout()
+                break
+        except Exception:
+            App.Console.PrintError(tr('grain_checkbox_callback_failed') + traceback.format_exc())
+
+    def _on_grain_axis_changed(self, preview_obj_name, grain_cb, grain_combo, index):
+        """Apply X/Y changes immediately to the checked row's entire copy set."""
+        try:
+            if not grain_cb.isChecked() or self.panel.preview_doc_name not in App.listDocuments():
+                return
+            doc = App.getDocument(self.panel.preview_doc_name)
+            for _, names, _, _ in self._rows():
+                if preview_obj_name in names:
+                    self._set_axis(doc, names, grain_combo.currentText())
+                    self._apply_live_layout()
+                    break
+        except Exception:
+            App.Console.PrintError(tr('grain_axis_callback_failed') + traceback.format_exc())
+
+    def _connect_grain_widgets(self, grain_cb, grain_combo, preview_obj_name):
+        grain_cb.stateChanged.connect(partial(self._on_grain_checkbox_state_changed,
+                                             preview_obj_name, grain_cb, grain_combo))
+        grain_combo.currentIndexChanged.connect(partial(self._on_grain_axis_changed,
+                                                       preview_obj_name, grain_cb, grain_combo))
+
+    def _connect_group_grain_widgets(self, group_names, grain_cb, grain_combo):
+        grain_cb.stateChanged.connect(partial(self._on_group_grain_checkbox_state_changed,
+                                             group_names, grain_cb, grain_combo))
+        grain_combo.currentIndexChanged.connect(partial(self._on_group_grain_axis_changed,
+                                                       group_names, grain_cb, grain_combo))
+
+    def _on_group_grain_checkbox_state_changed(self, group_names, grain_cb, grain_combo, state):
+        """Treat a matched group as one grain part: move it and draw its arrow."""
+        try:
+            if GrainPreparer is None or self.panel.preview_doc_name not in App.listDocuments():
+                return
+            doc = App.getDocument(self.panel.preview_doc_name)
+            checked = grain_cb.isChecked()
+            axis = grain_combo.currentText() if grain_combo else 'X'
+            self._set_group_grain(doc, group_names, axis if checked else None)
+            if not checked:
+                for name in group_names:
+                    GrainPreparer.remove_grain_arrow(self.panel.preview_doc_name, name)
+                try:
+                    GrainPreparer.remove_grain_arrow(self.panel.preview_doc_name, "Group_" + str(group_names[0]))
+                except Exception:
+                    pass
+            doc.recompute()
+            self._apply_live_layout()
+        except Exception:
+            App.Console.PrintError(tr('grain_checkbox_callback_failed') + traceback.format_exc())
+
+    def _on_group_grain_axis_changed(self, group_names, grain_cb, grain_combo, index):
+        """Apply an axis change to a checked matched group immediately."""
+        try:
+            if not grain_cb.isChecked() or self.panel.preview_doc_name not in App.listDocuments():
+                return
+            doc = App.getDocument(self.panel.preview_doc_name)
+            self._set_group_grain(doc, group_names, grain_combo.currentText() if grain_combo else 'X')
+            self._apply_live_layout()
+        except Exception:
+            App.Console.PrintError(tr('grain_axis_callback_failed') + traceback.format_exc())
+
+    def _set_group_grain(self, doc, group_names, axis):
+        """Store (or clear) the group's texture axis in its saved definition."""
+        from Nesting1stGrainMatch import (read_groups, write_groups, row_kind,
+                                        GROUP_ROW_KIND, GROUP_NAMES_ROLE, rotate_preview_group)
+        groups = read_groups(doc)
+        target = set(group_names)
+        for group in groups:
+            if set(group.get('names', [])) == target:
+                row = next((r for r in range(self.panel.table.rowCount()-self.panel.control_rows)
+                            if row_kind(self.panel, r) == GROUP_ROW_KIND and
+                            set(json.loads(self.panel.table.item(r, 0).data(GROUP_NAMES_ROLE))) == target), None)
+                rotations = self.panel.table.item(row, 2).text() if row is not None else str(self.panel.get_default_rotations())
+                if axis in ('X', 'Y'):
+                    group.pop('custom_angle', None)
+                    if not group.get('grain'):
+                        group['standard_rotations'] = rotations
+                        for name in group_names:
+                            self._remember_standard_placement(doc.getObject(name), rotations)
+                    if axis == 'Y':
+                        rotate_preview_group(doc, group_names, -90)
+                    group['grain'] = 'X'
+                    if row is not None:
+                        self.panel._set_rotation_cell(row, '[0, 180]')
+                else:
+                    group.pop('grain', None)
+                    group.pop('custom_angle', None)
+                    for name in group_names:
+                        self._restore_standard_placement(doc.getObject(name))
+                    rotations = group.pop('standard_rotations', str(self.panel.get_default_rotations()))
+                    group['rotations'] = rotations
+                    if row is not None:
+                        self.panel._set_rotation_cell(row, rotations)
+                        widget = self.panel.table.cellWidget(row, 5)
+                        custom = widget.findChild(QtGui.QCheckBox) if widget else None
+                        if custom is not None:
+                            custom.setChecked(False)
+                if row is not None:
+                    widget = self.panel.table.cellWidget(row, 4)
+                    combo = widget.findChild(QtGui.QComboBox) if widget else None
+                    if combo is not None:
+                        blocked = combo.blockSignals(True)
+                        try:
+                            combo.setCurrentIndex(0)
+                        finally:
+                            combo.blockSignals(blocked)
+                write_groups(doc, groups)
+                return
+
+    def _on_bulk_grain_changed(self, index):
+        """Apply the axis to all checked rows, then rebuild the preview only once."""
+        try:
+            if self.panel.preview_doc_name not in App.listDocuments():
+                return
+            doc = App.getDocument(self.panel.preview_doc_name)
+            axis = self.panel.bulk_grain_combo.currentText()
+            changed = False
+            for _, names, cb, combo in self._rows():
+                if cb is None or not cb.isChecked():
+                    continue
+                if combo is not None:
+                    blocked = combo.blockSignals(True)
+                    try:
+                        combo.setCurrentIndex(1 if axis == 'Y' else 0)
+                    finally:
+                        combo.blockSignals(blocked)
+                self._set_axis(doc, names, axis)
+                changed = True
+            from Nesting1stGrainMatch import GROUP_ROW_KIND, GROUP_NAMES_ROLE, row_kind
+            for row in range(self.panel.table.rowCount()-self.panel.control_rows):
+                if row_kind(self.panel, row) != GROUP_ROW_KIND:
+                    continue
+                widget = self.panel.table.cellWidget(row, 4)
+                cb = widget.findChild(QtGui.QCheckBox) if widget else None
+                if cb is not None and cb.isChecked():
+                    names = json.loads(self.panel.table.item(row, 0).data(GROUP_NAMES_ROLE))
+                    self._set_group_grain(doc, names, axis)
+                    changed = True
+            if changed:
+                self._apply_live_layout()
+        except Exception:
+            App.Console.PrintError(tr('bulk_grain_changed_callback_failed') + traceback.format_exc())
+
+    # Compute delta degrees (range [-180..180]) so that after rotation the grain angle becomes 0
+    # (arrow parallel to +X).
+    def _delta_to_align_grain_to_pos_x(self, angle_deg):
+        """
+        Compute delta degrees (range [-180..180]) so that after rotation
+        the grain angle becomes 0 (arrow parallel to +X).
+        """
+        try:
+            a = int(angle_deg) % 360
+        except Exception:
+            a = 0
+        delta = (-a) % 360
+        if delta > 180:
+            delta -= 360
+        return int(delta)
+    
+    # Align grain parts to +X, pack both groups and separate their labelled perimeters.
+    def update_grain_layout_and_perimeters(self, preserve_standard_layout=False):
+        """
+        Split standard and grain parts, align grain to +X and pack both groups.
+
+        Place the grain group below the standard group with clearance for both
+        perimeter margins, its caption and a gap proportional to the lower perimeter height.
+        Redraw labels/arrows and save the applied checkbox-state snapshot.
+        """
+        if GrainPreparer is None:
+            return
+
+        try:
+            from Nesting1stGrainMatch import (
+                GROUP_ROW_KIND, MEMBER_ROW_KIND, ROW_KIND_ROLE, GROUP_NAMES_ROLE,
+            )
+        except Exception:
+            GROUP_ROW_KIND = MEMBER_ROW_KIND = ROW_KIND_ROLE = GROUP_NAMES_ROLE = None
+
+        try:
+            p_doc = App.getDocument(self.panel.preview_doc_name) if self.panel.preview_doc_name in App.listDocuments() else None
+            if not p_doc:
+                return
+
+            from Nesting1stGrainMatch import prepare_preview_groups
+            prepare_preview_groups(self.panel, p_doc)
+
+            data_rows = self.panel.table.rowCount() - self.panel.control_rows
+            for row in range(data_rows):
+                header = self.panel.table.verticalHeaderItem(row)
+                if header is None or header.text() != str(row+1):
+                    self.panel.table.setVerticalHeaderItem(row, QtGui.QTableWidgetItem(str(row+1)))
+
+            standard_parts = []
+            grain_parts = []
+            matched_parts = []
+            group_grain_names = set()
+            grain_groups = []
+            grain_axis_by_name = {}
+
+            for r in range(data_rows):
+                name_item = self.panel.table.item(r, 0)
+                if not name_item:
+                    continue
+
+                kind = name_item.data(ROW_KIND_ROLE) if ROW_KIND_ROLE is not None else None
+
+                # Texture-matched members are nested as one rigid unit and are
+                # handled through their summary row below.
+                if kind == MEMBER_ROW_KIND:
+                    continue
+
+                if kind == GROUP_ROW_KIND:
+                    # A matched group is one part. Its grain checkbox decides
+                    # whether it sits in the green (matched) or blue (grain) box.
+                    group_names = name_item.data(GROUP_NAMES_ROLE)
+                    if isinstance(group_names, str):
+                        try:
+                            group_names = json.loads(group_names)
+                        except Exception:
+                            group_names = []
+                    if not isinstance(group_names, (list, tuple)):
+                        group_names = []
+                    if not group_names:
+                        continue
+
+                    is_grain = False
+                    axis = "X"
+                    try:
+                        grain_widget = self.panel.table.cellWidget(r, 4)
+                        if grain_widget:
+                            cb = grain_widget.findChild(QtGui.QCheckBox)
+                            is_grain = bool(cb and cb.isChecked())
+                            combo = grain_widget.findChild(QtGui.QComboBox)
+                            if combo:
+                                axis = combo.currentText() or "X"
+                    except Exception:
+                        axis = "X"
+
+                    if is_grain:
+                        self.panel._set_rotation_cell(r, '[0, 180]')
+                        if axis == 'Y':
+                            self._set_group_grain(p_doc, group_names, axis)
+                            axis = 'X'
+                        for nm in group_names:
+                            grain_axis_by_name[nm] = axis
+                        grain_parts.extend(group_names)
+                        group_grain_names.update(group_names)
+                        grain_groups.append(list(group_names))
+                    else:
+                        matched_parts.extend(group_names)
+                    continue
+
+                # Get names
+                names = []
+                try:
+                    list_data = name_item.data(QtCore.Qt.UserRole + 1)
+                    if list_data:
+                        if isinstance(list_data, list):
+                            names = list(list_data)
+                        else:
+                            names = json.loads(list_data)
+                    else:
+                        primary = name_item.data(QtCore.Qt.UserRole)
+                        if primary:
+                            names = [primary]
+                except Exception:
+                    pass
+
+                if not names:
+                    continue
+
+                # Check grain checkbox
+                is_grain = False
+                try:
+                    grain_widget = self.panel.table.cellWidget(r, 4)
+                    if grain_widget:
+                        cb = grain_widget.findChild(QtGui.QCheckBox)
+                        if cb and cb.isChecked():
+                            is_grain = True
+                except Exception:
+                    pass
+
+                if is_grain:
+                    item = self.panel.table.item(r, 2)
+                    rotations = item.text() if item is not None else str(self.panel.get_default_rotations())
+                    for nm in names:
+                        self._remember_standard_placement(p_doc.getObject(nm), rotations)
+                    self.panel._set_rotation_cell(r, '[0, 180]')
+                    grain_parts.extend(names)
+
+                    # remember per-object axis so we can redraw arrows correctly after moving parts
+                    axis = "X"
+                    try:
+                        grain_widget = self.panel.table.cellWidget(r, 4)
+                        if grain_widget:
+                            combo = grain_widget.findChild(QtGui.QComboBox)
+                            if combo:
+                                axis = combo.currentText() or "X"
+                    except Exception:
+                        axis = "X"
+
+                    for nm in names:
+                        grain_axis_by_name[nm] = axis
+                else:
+                    standard_parts.extend(names)
+
+            # Compute combined XY bounds for the named preview shapes and report whether any
+            # were found.
+            def _bbox_for_names(names_list):
+                found = False
+                min_x = min_y = float("inf")
+                max_x = max_y = float("-inf")
+                for nm in names_list or []:
+                    try:
+                        obj = p_doc.getObject(nm)
+                        if not obj or not hasattr(obj, "Shape") or obj.Shape is None:
+                            continue
+                        bb = obj.Shape.BoundBox
+                        if bb.XMax <= bb.XMin and bb.YMax <= bb.YMin:
+                            continue
+                        min_x = min(min_x, bb.XMin)
+                        min_y = min(min_y, bb.YMin)
+                        max_x = max(max_x, bb.XMax)
+                        max_y = max(max_y, bb.YMax)
+                        found = True
+                    except Exception:
+                        continue
+                return found, min_x, min_y, max_x, max_y
+
+            # Translate the named preview objects along Y while preserving X, Z and rotation.
+            def _shift_names_y(names_list, dy):
+                if not names_list:
+                    return
+                for nm in names_list:
+                    try:
+                        obj = p_doc.getObject(nm)
+                        if not obj:
+                            continue
+                        base = obj.Placement.Base
+                        obj.Placement.Base = App.Vector(base.x, base.y + float(dy), base.z)
+                    except Exception:
+                        continue
+
+            # Translate the named preview objects along X while preserving Y, Z and rotation.
+            def _shift_names_x(names_list, dx):
+                if not names_list:
+                    return
+                for nm in names_list:
+                    try:
+                        obj = p_doc.getObject(nm)
+                        if not obj:
+                            continue
+                        base = obj.Placement.Base
+                        obj.Placement.Base = App.Vector(base.x + float(dx), base.y, base.z)
+                    except Exception:
+                        continue
+
+            # --- NEW: Re-pack STANDARD (red) group too, so red parts compact after moving items back ---
+            # Keep the red group's current TOP as an anchor so it doesn't jump around.
+            red_anchor_y = None
+            try:
+                red_found0, _, _, _, red_max_y0 = _bbox_for_names(standard_parts)
+                if red_found0:
+                    red_anchor_y = float(red_max_y0)
+            except Exception:
+                red_anchor_y = None
+
+            if standard_parts and not preserve_standard_layout:
+                try:
+                    target_y_red = red_anchor_y if red_anchor_y is not None else 0.0
+                    GrainPreparer.pack_grain_parts(
+                        self.panel.preview_doc_name,
+                        standard_parts,
+                        target_x=0.0,
+                        target_y=target_y_red
+                    )
+                except TypeError:
+                    # Backward compat if pack_grain_parts signature differs
+                    try:
+                        GrainPreparer.pack_grain_parts(self.panel.preview_doc_name, standard_parts)
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+            
+            # NEW STEP: rotate all grain parts so their grain direction becomes parallel to +X
+            try:
+                for nm in grain_parts:
+                    if nm in group_grain_names:
+                        continue
+                    try:
+                        obj = p_doc.getObject(nm)
+                        if not obj:
+                            continue
+
+                        # Read absolute grain angle (degrees vs +X)
+                        angle = 0
+                        if hasattr(obj, "GrainAngleDeg"):
+                            try:
+                                angle = int(obj.GrainAngleDeg) % 360
+                            except Exception:
+                                angle = 0
+                        else:
+                            # If no custom angle exists yet, derive from UI axis:
+                            # X -> 0°, Y -> 90°
+                            axis = grain_axis_by_name.get(nm, "X")
+                            angle = 0 if str(axis).upper() == "X" else 90
+
+                            # Persist it so next Apply Grain is stable
+                            try:
+                                obj.addProperty(
+                                    "App::PropertyInteger",
+                                    "GrainAngleDeg",
+                                    "1st Nesting",
+                                    tr('absolute_grain_angle_in_degrees_vs_x')
+                                )
+                            except Exception:
+                                pass
+                            try:
+                                obj.GrainAngleDeg = int(angle) % 360
+                            except Exception:
+                                pass
+
+                        delta = self._delta_to_align_grain_to_pos_x(angle)
+                        if delta != 0:
+                            self.panel._rotate_preview_parts_about_z(p_doc, [nm], delta)
+
+                        # After normalization, grain is aligned to +X.
+                        try:
+                            obj.GrainAngleDeg = 0
+                        except Exception:
+                            pass
+
+                        # The part has now been rotated so that its grain direction
+                        # is parallel to the global X axis. Keep the table dropdown
+                        # synchronized with the actual displayed orientation.
+                        try:
+                            grain_axis_by_name[nm] = "X"
+
+                            data_rows = (
+                                self.panel.table.rowCount()
+                                - self.panel.control_rows
+                            )
+
+                            for row_index in range(data_rows):
+                                name_item = self.panel.table.item(
+                                    row_index,
+                                    0
+                                )
+
+                                if not name_item:
+                                    continue
+
+                                row_names = []
+
+                                try:
+                                    names_data = name_item.data(
+                                        QtCore.Qt.UserRole + 1
+                                    )
+
+                                    if names_data:
+                                        if isinstance(
+                                            names_data,
+                                            list
+                                        ):
+                                            row_names = list(names_data)
+                                        else:
+                                            row_names = json.loads(
+                                                names_data
+                                            )
+                                except Exception:
+                                    row_names = []
+
+                                if not row_names:
+                                    try:
+                                        primary_name = name_item.data(
+                                            QtCore.Qt.UserRole
+                                        )
+
+                                        if primary_name:
+                                            row_names = [
+                                                primary_name
+                                            ]
+                                    except Exception:
+                                        row_names = []
+
+                                if nm not in row_names:
+                                    continue
+
+                                grain_widget = self.panel.table.cellWidget(
+                                    row_index,
+                                    4
+                                )
+
+                                if not grain_widget:
+                                    break
+
+                                grain_combo = grain_widget.findChild(
+                                    QtGui.QComboBox
+                                )
+
+                                if grain_combo:
+                                    # X is the first item in the dropdown.
+                                    # Block the signal because the part has already
+                                    # been rotated and must not be rotated again.
+                                    grain_combo.blockSignals(True)
+
+                                    try:
+                                        grain_combo.setCurrentIndex(0)
+                                    finally:
+                                        grain_combo.blockSignals(False)
+
+                                break
+                        except Exception:
+                            App.Console.PrintError(
+                                tr('failed_to_synchronize_grain_dropdown_to_x_for_s_s')
+                                % (
+                                    str(nm),
+                                    traceback.format_exc()
+                                )
+                            )
+
+                    except Exception:
+                        continue
+
+                try:
+                    p_doc.recompute()
+                except Exception:
+                    pass
+            except Exception:
+                pass
+            
+            # 1) Pack grain and matched parts to a temporary stable location first.
+            if grain_parts:
+                try:
+                    GrainPreparer.pack_grain_parts(self.panel.preview_doc_name, grain_parts, target_x=0.0, target_y=0.0)
+                except TypeError:
+                    GrainPreparer.pack_grain_parts(self.panel.preview_doc_name, grain_parts)
+            if matched_parts:
+                try:
+                    GrainPreparer.pack_grain_parts(self.panel.preview_doc_name, matched_parts, target_x=0.0, target_y=0.0)
+                except TypeError:
+                    GrainPreparer.pack_grain_parts(self.panel.preview_doc_name, matched_parts)
+
+            # 2) Place the groups using their perimeter margins: green (matched)
+            # sits to the RIGHT of red (standard), and blue (grain) sits BELOW
+            # the combined red + green row.
+            def _stack_lower_below_upper(upper_parts, lower_parts):
+                if not lower_parts:
+                    return
+                upper_found, _, upper_min_y, _, _ = _bbox_for_names(upper_parts)
+                lower_found, _, lower_min_y, _, lower_max_y = _bbox_for_names(lower_parts)
+                if not upper_found or not lower_found:
+                    return
+                upper_info = GrainPreparer.get_subset_bbox_and_margin(
+                    self.panel.preview_doc_name, subset_names=upper_parts)
+                lower_info = GrainPreparer.get_subset_bbox_and_margin(
+                    self.panel.preview_doc_name, subset_names=lower_parts)
+                upper_margin = float(upper_info[6]) if upper_info and upper_info[0] else 0.0
+                lower_margin = float(lower_info[6]) if lower_info and lower_info[0] else 0.0
+                if upper_info and upper_info[0]:
+                    upper_min_y = float(upper_info[2])
+                if lower_info and lower_info[0]:
+                    lower_min_y = float(lower_info[2])
+                    lower_max_y = float(lower_info[4])
+                lower_h = max(1e-6, float(lower_max_y - lower_min_y))
+                gap = (GrainPreparer._compute_group_gap(self.panel.preview_doc_name, p_doc, lower_info)
+                       if lower_info and lower_info[0] else 0.30 * lower_h)
+                desired_lower_max_y = float(upper_min_y) - upper_margin - float(gap) - lower_margin
+                dy = desired_lower_max_y - float(lower_max_y)
+                _shift_names_y(lower_parts, dy)
+
+            def _place_right_of_left(left_parts, right_parts):
+                if not right_parts:
+                    return
+                left_found, _, _, left_max_x, left_max_y = _bbox_for_names(left_parts)
+                right_found, right_min_x, _, _, right_max_y = _bbox_for_names(right_parts)
+                if not left_found or not right_found:
+                    return
+                left_info = GrainPreparer.get_subset_bbox_and_margin(
+                    self.panel.preview_doc_name, subset_names=left_parts)
+                right_info = GrainPreparer.get_subset_bbox_and_margin(
+                    self.panel.preview_doc_name, subset_names=right_parts)
+                left_margin = float(left_info[6]) if left_info and left_info[0] else 0.0
+                right_margin = float(right_info[6]) if right_info and right_info[0] else 0.0
+                if left_info and left_info[0]:
+                    left_max_x = float(left_info[3])
+                    left_max_y = float(left_info[4])
+                if right_info and right_info[0]:
+                    right_min_x = float(right_info[1])
+                    right_max_y = float(right_info[4])
+                # A caption is drawn above each box, so a horizontal gap only
+                # needs proportional whitespace between the two borders.
+                gap = 2.0 * right_margin
+                desired_right_min_x = float(left_max_x) + left_margin + gap + right_margin
+                dx = desired_right_min_x - float(right_min_x)
+                # Align the top border of the right (green) box with the top
+                # border of the left (red) box, so both captions sit level.
+                desired_right_max_y = float(left_max_y) + left_margin
+                dy = desired_right_max_y - (float(right_max_y) + right_margin)
+                _shift_names_x(right_parts, dx)
+                _shift_names_y(right_parts, dy)
+
+            _place_right_of_left(standard_parts, matched_parts)
+
+            upper_parts = list(standard_parts) + list(matched_parts)
+            _stack_lower_below_upper(upper_parts, grain_parts)
+
+            # --- NEW: auto-rotate grain parts to X if GrainAngleDeg not 0/180 ---
+            try:
+                # Only rotate checked grain parts; apply once after moving
+                for nm in grain_parts:
+                    if nm in group_grain_names:
+                        continue
+                    try:
+                        obj = p_doc.getObject(nm)
+                        if not obj:
+                            continue
+
+                        # If no GrainAngleDeg -> treat as 0 (already parallel to X)
+                        angle = 0
+                        if hasattr(obj, "GrainAngleDeg"):
+                            try:
+                                angle = int(obj.GrainAngleDeg) % 360
+                            except Exception:
+                                angle = 0
+
+                        # If already parallel to X (0 or 180) -> skip
+                        if angle in (0, 180):
+                            continue
+
+                        # Rotate to nearest of 0 or 180
+                        target = 0 if angle < 90 or angle > 270 else 180
+                        delta = (target - angle) % 360
+                        if delta > 180:
+                            delta -= 360  # keep minimal rotation (-180..180)
+
+                        # Use existing helper from Nesting1stGui
+                        self.panel._rotate_preview_parts_about_z(p_doc, [nm], delta)
+
+                        # Persist corrected angle
+                        try:
+                            obj.GrainAngleDeg = int(target) % 360
+                        except Exception:
+                            pass
+
+                    except Exception:
+                        continue
+            except Exception:
+                pass    
+
+            try:
+                p_doc.recompute()
+            except Exception:
+                pass
+
+            # 5) Draw Standard Perimeter (red)
+            GrainPreparer.draw_perimeter_and_label(
+                self.panel.preview_doc_name,
+                subset_names=standard_parts,
+                custom_label="Parts without texture direction"
+            )
+
+            # 6) Draw Matched Perimeter (green)
+            GrainPreparer.draw_perimeter_and_label(
+                self.panel.preview_doc_name,
+                subset_names=matched_parts,
+                custom_label="Texture matched parts",
+                matched=True
+            )
+
+            # 7) Draw Grain Perimeter (blue handled in Nesting1stGrain.py)
+            if grain_parts:
+                GrainPreparer.draw_perimeter_and_label(
+                    self.panel.preview_doc_name,
+                    subset_names=grain_parts,
+                    custom_label="Parts with texture direction"
+                )
+            else:
+                GrainPreparer.draw_perimeter_and_label(
+                    self.panel.preview_doc_name,
+                    subset_names=[],
+                    custom_label="Parts with texture direction"
+                )
+
+            # 7b) Highlight each texture-matched group inside the grain box with a
+            # thick green outline so it stays visible as one rigid unit.
+            try:
+                GrainPreparer.draw_group_highlights(
+                    self.panel.preview_doc_name,
+                    [list(g) for g in grain_groups]
+                )
+            except Exception:
+                pass
+
+            # 8) Redraw grain arrows after the parts have been moved.
+            #
+            # Every checked part and rigid group has been aligned with global X.
+            try:
+                if grain_parts:
+                    # Redraw a single arrow for every standalone grain part...
+                    for nm in grain_parts:
+                        if nm in group_grain_names:
+                            continue
+                        try:
+                            GrainPreparer.update_grain_arrow(
+                                self.panel.preview_doc_name,
+                                nm,
+                                enable=True,
+                                axis=grain_axis_by_name.get(nm, "X")
+                            )
+
+                        except Exception:
+                            App.Console.PrintError(
+                                tr('failed_to_redraw_final_horizontal_grain_arrow_for_s_s')
+                                % (
+                                    str(nm),
+                                    traceback.format_exc()
+                                )
+                            )
+                    # ...and one shared arrow per matched group so the whole
+                    # rigid unit is indicated by a single direction marker.
+                    for grp in grain_groups:
+                        try:
+                            axis = "X"
+                            for nm in grp:
+                                if nm in grain_axis_by_name:
+                                    axis = grain_axis_by_name[nm]
+                                    break
+                            GrainPreparer.update_group_grain_arrow(
+                                self.panel.preview_doc_name,
+                                list(grp),
+                                enable=True,
+                                axis=axis
+                            )
+                        except Exception:
+                            App.Console.PrintError(
+                                tr('failed_to_redraw_final_horizontal_grain_arrow_for_s_s')
+                                % (
+                                    str(grp),
+                                    traceback.format_exc()
+                                )
+                            )
+                else:
+                    # Remove all arrows when there are no grain parts.
+                    try:
+                        GrainPreparer.remove_all_grain_arrows(
+                            self.panel.preview_doc_name
+                        )
+                    except Exception:
+                        pass
+
+            except Exception:
+                App.Console.PrintError(
+                    tr('final_grain_arrow_redraw_failed')
+                    + traceback.format_exc()
+                )
+            
+            # Record the checkbox state after the immediate layout update.
+            try:
+                self._last_applied_grain_state = self._get_current_grain_state()
+            except Exception:
+                pass
+
+        except Exception:
+            App.Console.PrintError(tr('update_grain_layout_and_perimeters_failed') + traceback.format_exc())
+            
+    # inside class GrainUIController:
+
+    # Save object's current rotation as 'standard' rotation (only once).
+    def _ensure_saved_std_rotation(self, obj):
+        """Save object's current rotation as 'standard' rotation (only once)."""
+        try:
+            if obj is None:
+                return
+
+            # If already saved, do not overwrite (first-time only)
+            if hasattr(obj, "IPNestingStdRotAngleDeg"):
+                return
+
+            rot = obj.Placement.Rotation
+            axis = rot.Axis
+            # FreeCAD's Rotation.Angle is radians in many versions; convert to degrees safely
+            try:
+                angle_deg = float(rot.Angle) * 180.0 / 3.141592653589793
+            except Exception:
+                angle_deg = 0.0
+
+            try:
+                obj.addProperty("App::PropertyFloat", "IPNestingStdRotAxisX", "1st Nesting", tr('saved_standard_rotation_axis_x'))
+                obj.addProperty("App::PropertyFloat", "IPNestingStdRotAxisY", "1st Nesting", tr('saved_standard_rotation_axis_y'))
+                obj.addProperty("App::PropertyFloat", "IPNestingStdRotAxisZ", "1st Nesting", tr('saved_standard_rotation_axis_z'))
+                obj.addProperty("App::PropertyFloat", "IPNestingStdRotAngleDeg", "1st Nesting", tr('saved_standard_rotation_angle_deg'))
+            except Exception:
+                # properties might already exist or addProperty can fail in some contexts
+                pass
+
+            try:
+                obj.IPNestingStdRotAxisX = float(axis.x)
+                obj.IPNestingStdRotAxisY = float(axis.y)
+                obj.IPNestingStdRotAxisZ = float(axis.z)
+                obj.IPNestingStdRotAngleDeg = float(angle_deg)
+            except Exception:
+                pass
+
+        except Exception:
+            pass
+
+
+    # Restore object's saved 'standard' rotation if available; keeps Base position intact.
+    def _restore_saved_std_rotation(self, obj):
+        """Restore object's saved 'standard' rotation if available; keeps Base position intact."""
+        try:
+            if obj is None:
+                return False
+            if not hasattr(obj, "IPNestingStdRotAngleDeg"):
+                return False
+
+            try:
+                ax = float(getattr(obj, "IPNestingStdRotAxisX", 0.0))
+                ay = float(getattr(obj, "IPNestingStdRotAxisY", 0.0))
+                az = float(getattr(obj, "IPNestingStdRotAxisZ", 1.0))
+                ang = float(getattr(obj, "IPNestingStdRotAngleDeg", 0.0))
+            except Exception:
+                return False
+
+            # Rebuild rotation and apply while preserving translation
+            base = obj.Placement.Base
+            rot = App.Rotation(App.Vector(ax, ay, az), float(ang))
+            obj.Placement = App.Placement(base, rot)
+            return True
+
+        except Exception:
+            return False
