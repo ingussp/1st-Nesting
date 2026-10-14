@@ -621,5 +621,8 @@
   "bridge.duplicate": "Pont diġà jgħaqqad dawn iż-żewġ punti.",
   "bridge.failed": "Ma setgħetx toħloq ir-riżultat bridged: %s",
   "bridge.joined_parts": "Partijiet magħqudin",
-  "bridge.join_failed": "Il-partijiet 3D magħżula ma setgħux jingħaqdu f'solidu wieħed. Iċċekkja l-għoli tagħhom u l-punti tat-twaħħil tal-pont."
+  "bridge.join_failed": "Il-partijiet 3D magħżula ma setgħux jingħaqdu f'solidu wieħed. Iċċekkja l-għoli tagħhom u l-punti tat-twaħħil tal-pont.",
+  "dxf.export": "Esportazzjoni lejn DXF",
+  "dxf.tooltip": "Esportazzjoni tar-riżultat attiv tat-tbejjit jew bridged bħala kontorni eżatti 2D CAD f'millimetri.",
+  "dxf.failed": "Ma setgħetx tesporta DXF."
 }

@@ -621,5 +621,8 @@
   "bridge.duplicate": "Silta yhdistää jo nämä kaksi pistettä.",
   "bridge.failed": "Sillattua tulosta ei voitu luoda: %s",
   "bridge.joined_parts": "Yhdistetyt osat",
-  "bridge.join_failed": "Valittuja 3D-osia ei voitu yhdistää yhdeksi kokonaisuudeksi. Tarkista niiden korkeus ja sillan kiinnityspisteet."
+  "bridge.join_failed": "Valittuja 3D-osia ei voitu yhdistää yhdeksi kokonaisuudeksi. Tarkista niiden korkeus ja sillan kiinnityspisteet.",
+  "dxf.export": "Vie malliin DXF",
+  "dxf.tooltip": "Vie aktiivinen sisäkkäinen tai siltatulos tarkkoina 2D CAD -ääriviivoina millimetreinä.",
+  "dxf.failed": "Ei voitu viedä DXF."
 }

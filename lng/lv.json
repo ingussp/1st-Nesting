@@ -621,5 +621,8 @@
   "bridge.duplicate": "Šos divus punktus jau savieno tiltiņš.",
   "bridge.failed": "Neizdevās izveidot rezultātu ar tiltiņiem: %s",
   "bridge.joined_parts": "Apvienotās detaļas",
-  "bridge.join_failed": "Neizdevās apvienot izvēlētās 3D detaļas vienā cietķermenī. Pārbaudi to augstumu un tiltiņu pievienošanas punktus."
+  "bridge.join_failed": "Neizdevās apvienot izvēlētās 3D detaļas vienā cietķermenī. Pārbaudi to augstumu un tiltiņu pievienošanas punktus.",
+  "dxf.export": "Eksportēt uz DXF",
+  "dxf.tooltip": "Eksportēt aktīvo nestinga vai tiltiņu rezultātu kā precīzas 2D CAD kontūras milimetros.",
+  "dxf.failed": "Neizdevās eksportēt DXF."
 }

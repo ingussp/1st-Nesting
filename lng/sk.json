@@ -621,5 +621,8 @@
   "bridge.duplicate": "Tieto dva body už spája most.",
   "bridge.failed": "Nepodarilo sa vytvoriť premostený výsledok: %s",
   "bridge.joined_parts": "Spojené časti",
-  "bridge.join_failed": "Vybrané diely 3D nebolo možné spojiť do jedného telesa. Skontrolujte ich výšku a upevňovacie body mostíka."
+  "bridge.join_failed": "Vybrané diely 3D nebolo možné spojiť do jedného telesa. Skontrolujte ich výšku a upevňovacie body mostíka.",
+  "dxf.export": "Exportovať do DXF",
+  "dxf.tooltip": "Exportujte výsledok aktívneho vnorenia alebo premostenia ako presné obrysy 2D CAD v milimetroch.",
+  "dxf.failed": "Nepodarilo sa exportovať DXF."
 }

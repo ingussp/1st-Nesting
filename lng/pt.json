@@ -621,5 +621,8 @@
   "bridge.duplicate": "Uma ponte já liga esses dois pontos.",
   "bridge.failed": "Não foi possível criar o resultado em ponte: %s",
   "bridge.joined_parts": "Peças unidas",
-  "bridge.join_failed": "As peças 3D selecionadas não puderam ser unidas em um sólido. Verifique suas alturas e pontos de fixação da ponte."
+  "bridge.join_failed": "As peças 3D selecionadas não puderam ser unidas em um sólido. Verifique suas alturas e pontos de fixação da ponte.",
+  "dxf.export": "Exportar para DXF",
+  "dxf.tooltip": "Exporte o resultado do aninhamento ativo ou da ponte como contornos 2D CAD exatos em milímetros.",
+  "dxf.failed": "Não foi possível exportar DXF."
 }

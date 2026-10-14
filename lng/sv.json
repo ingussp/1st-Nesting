@@ -621,5 +621,8 @@
   "bridge.duplicate": "En bro förbinder redan dessa två punkter.",
   "bridge.failed": "Det gick inte att skapa det överbryggade resultatet: %s",
   "bridge.joined_parts": "Sammanfogade delar",
-  "bridge.join_failed": "De utvalda 3D-delarna kunde inte sammanfogas till en solid. Kontrollera deras höjder och brofästen."
+  "bridge.join_failed": "De utvalda 3D-delarna kunde inte sammanfogas till en solid. Kontrollera deras höjder och brofästen.",
+  "dxf.export": "Exportera till DXF",
+  "dxf.tooltip": "Exportera det aktiva kapslings- eller överbryggade resultatet som exakta 2D CAD-konturer i millimeter.",
+  "dxf.failed": "Kunde inte exportera DXF."
 }

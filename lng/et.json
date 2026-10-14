@@ -621,5 +621,8 @@
   "bridge.duplicate": "Neid kahte punkti ühendab juba sild.",
   "bridge.failed": "Sillatud tulemust ei saanud luua: %s",
   "bridge.joined_parts": "Ühendatud osad",
-  "bridge.join_failed": "Valitud 3D osi ei saanud üheks tervikuks ühendada. Kontrollige nende kõrgust ja silla kinnituspunkte."
+  "bridge.join_failed": "Valitud 3D osi ei saanud üheks tervikuks ühendada. Kontrollige nende kõrgust ja silla kinnituspunkte.",
+  "dxf.export": "Ekspordi DXF",
+  "dxf.tooltip": "Eksportige aktiivne pesa- või sillatulemus täpsete 2D CAD kontuuridena millimeetrites.",
+  "dxf.failed": "DXF ei saanud eksportida."
 }

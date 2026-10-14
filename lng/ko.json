@@ -621,5 +621,8 @@
   "bridge.duplicate": "다리는 이미 이 두 지점을 연결하고 있습니다.",
   "bridge.failed": "연결된 결과를 생성할 수 없습니다: %s",
   "bridge.joined_parts": "결합된 부품",
-  "bridge.join_failed": "선택한 3D 부품을 하나의 솔리드로 결합할 수 없습니다. 높이와 교량 부착 지점을 확인하세요."
+  "bridge.join_failed": "선택한 3D 부품을 하나의 솔리드로 결합할 수 없습니다. 높이와 교량 부착 지점을 확인하세요.",
+  "dxf.export": "DXF로 내보내기",
+  "dxf.tooltip": "활성 중첩 또는 브리지 결과를 밀리미터 단위의 정확한 2D CAD 윤곽선으로 내보냅니다.",
+  "dxf.failed": "DXF를 내보낼 수 없습니다."
 }

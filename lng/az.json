@@ -621,5 +621,8 @@
   "bridge.duplicate": "Bu iki nöqtəni artıq körpü birləşdirir.",
   "bridge.failed": "Körpülənmiş nəticəni yaratmaq mümkün olmadı: %s",
   "bridge.joined_parts": "Birləşdirilmiş hissələr",
-  "bridge.join_failed": "Seçilmiş 3D hissələri bir bərk hissəyə birləşdirilə bilməz. Onların hündürlüklərini və körpünün əlavə nöqtələrini yoxlayın."
+  "bridge.join_failed": "Seçilmiş 3D hissələri bir bərk hissəyə birləşdirilə bilməz. Onların hündürlüklərini və körpünün əlavə nöqtələrini yoxlayın.",
+  "dxf.export": "DXF-ə ixrac edin",
+  "dxf.tooltip": "Aktiv yuva və ya körpülənmiş nəticəni millimetrlərlə dəqiq 2D CAD konturları kimi ixrac edin.",
+  "dxf.failed": "DXF ixrac etmək mümkün olmadı."
 }

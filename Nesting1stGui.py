@@ -618,7 +618,13 @@ class NestingTaskPanel:
         self.export_result_svg_btn = ui_widget(QtGui.QPushButton, tr('export_nesting_result_to_svg'))
         ui_call(self.export_result_svg_btn, 'setToolTip', tr('export_nesting_result_svg_tooltip'))
         self.export_result_svg_btn.clicked.connect(self.export_nesting_result_svg)
-        self.layout.addWidget(self.export_result_svg_btn)
+        self.export_result_dxf_btn = ui_widget(QtGui.QPushButton, tr('dxf.export'))
+        ui_call(self.export_result_dxf_btn, 'setToolTip', tr('dxf.tooltip'))
+        self.export_result_dxf_btn.clicked.connect(self.export_nesting_result_dxf)
+        export_layout = QtGui.QHBoxLayout()
+        export_layout.addWidget(self.export_result_svg_btn, 1)
+        export_layout.addWidget(self.export_result_dxf_btn, 1)
+        self.layout.addLayout(export_layout)
         
         self._grain_angle_dialog_open = False
 
@@ -644,6 +650,10 @@ class NestingTaskPanel:
 
     def export_nesting_result_svg(self):
         from Nesting1stResultSVG import export_from_panel
+        export_from_panel(self)
+
+    def export_nesting_result_dxf(self):
+        from Nesting1stResultDXF import export_from_panel
         export_from_panel(self)
 
     # Recompute the preview and display a textual diagnostic report.

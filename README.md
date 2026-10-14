@@ -44,6 +44,7 @@ On first use, the workbench offers to download the latest stable CLI-nesting rel
 - Reconstruct results from original geometry, preserving machining details and the displayed top/bottom orientation.
 - Add [manual cutting bridges](docs/BRIDGES.md) to join nested parts into one 3D solid or 2D cutting profile, with collision checks and editable mm/inch widths.
 - Export a coloured SVG report with part legends, positions, angles, areas and sheet utilisation.
+- [Export a 2D DXF](docs/DXF_EXPORT.md) from placed CAD geometry, preserving circles, arcs and splines for FreeCAD, STEP, DXF and SVG inputs.
 - Use an offline interface in 50 languages, including Latvian.
 
 ## Requirements and installation

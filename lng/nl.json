@@ -621,5 +621,8 @@
   "bridge.duplicate": "Een brug verbindt deze twee punten al.",
   "bridge.failed": "Kan het overbrugde resultaat niet maken: %s",
   "bridge.joined_parts": "Gekoppelde delen",
-  "bridge.join_failed": "De geselecteerde 3D-onderdelen konden niet tot één volume worden samengevoegd. Controleer hun hoogte en bevestigingspunten van de brug."
+  "bridge.join_failed": "De geselecteerde 3D-onderdelen konden niet tot één volume worden samengevoegd. Controleer hun hoogte en bevestigingspunten van de brug.",
+  "dxf.export": "Exporteren naar DXF",
+  "dxf.tooltip": "Exporteer het actieve nest- of brugresultaat als exacte 2D CAD-contouren in millimeters.",
+  "dxf.failed": "Kan DXF niet exporteren."
 }

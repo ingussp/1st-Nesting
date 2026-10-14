@@ -621,5 +621,8 @@
   "bridge.duplicate": "A bridge already connects these two points.",
   "bridge.failed": "Could not create the bridged result: %s",
   "bridge.joined_parts": "Joined parts",
-  "bridge.join_failed": "The selected 3D parts could not be joined into one solid. Check their heights and bridge attachment points."
+  "bridge.join_failed": "The selected 3D parts could not be joined into one solid. Check their heights and bridge attachment points.",
+  "dxf.export": "Export to DXF",
+  "dxf.tooltip": "Export the active nesting or bridged result as exact 2D CAD contours in millimetres.",
+  "dxf.failed": "Could not export DXF."
 }
