@@ -35,6 +35,7 @@ On first use, the workbench offers to download the latest stable CLI-nesting rel
 
 - Add selected FreeCAD parts, including solids imported from STEP.
 - Import DXF and SVG contours; import several DXF files in one operation.
+- [Import multiple SVG files](docs/SVG_IMPORT.md) and split independent parts into separate table rows, preserving each part's holes.
 - Set quantities, allowed rotations and texture direction per part or group.
 - Nest on rectangular sheets and irregular DXF offcuts, including selected holes.
 - Edit sheet dimensions, contours, quantities and grain direction.

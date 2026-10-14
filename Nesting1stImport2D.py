@@ -14,7 +14,9 @@ Notes:
 from Nesting1stLanguages import tr
 
 import os
+import tempfile
 import traceback
+import xml.etree.ElementTree as ET
 
 import FreeCAD as App
 
@@ -64,20 +66,33 @@ def _import_dxf(path, doc_name):
 # Import SVG into doc_name.
 def _import_svg(path, doc_name):
     """Import SVG into doc_name."""
-    try:
-        import importSVG
-        importSVG.insert(path, doc_name)
-        return True
-    except Exception:
-        pass
-
-    try:
-        import ImportGui
-        ImportGui.insert(path, doc_name)
-        return True
-    except Exception:
-        pass
-
+    # Filled paths trigger different automatic cuts in FreeCAD 1.0 and 1.1.
+    # Import unchanged vector boundaries as wires, then determine part/hole
+    # topology ourselves. Preserve transforms, units, namespaces and styles.
+    for _, (prefix, uri) in ET.iterparse(path, events=('start-ns',)):
+        if prefix != 'xml' and not (prefix.startswith('ns') and prefix[2:].isdigit()):
+            ET.register_namespace(prefix, uri)
+    ET.register_namespace('', 'http://www.w3.org/2000/svg')
+    tree = ET.parse(path)
+    for element in tree.iter():
+        if element.tag.rsplit('}', 1)[-1] in ('path', 'rect', 'circle', 'ellipse', 'polygon', 'polyline'):
+            element.set('fill', 'none')
+            element.set('style', element.get('style', '').rstrip(';') + ';fill:none')
+    with tempfile.TemporaryDirectory(prefix='1stnesting-svg-') as directory:
+        vector_path = os.path.join(directory, os.path.basename(path))
+        tree.write(vector_path, encoding='utf-8', xml_declaration=True)
+        try:
+            import importSVG
+            importSVG.insert(vector_path, doc_name)
+            return True
+        except Exception:
+            pass
+        try:
+            import ImportGui
+            ImportGui.insert(vector_path, doc_name)
+            return True
+        except Exception:
+            pass
     return False
 
 
@@ -183,8 +198,86 @@ def _try_make_faces_from_wires(shp):
 
 
 # Import DXF/SVG into Nesting_Preview and convert to stable Part::Feature.
+def _split_svg_shapes(shapes):
+    """One part per exterior contour, with directly enclosed holes attached.
+
+    Work from exact imported wires, including subpaths of a single SVG path.
+    Containment depth handles holes and material islands independently of
+    SVG object/group boundaries. Overlapping exterior contours stay separate.
+    """
+    profiles = []
+    tolerance = 1e-7
+    for shape in shapes:
+        wires = list(shape.Wires)
+        if not wires and shape.Edges:
+            wires = [Part.Wire(group) for group in Part.sortEdges(shape.Edges)]
+        for wire in wires:
+            if not wire.isClosed():
+                raise ValueError('SVG parts must have closed contours.')
+            face = Part.Face(wire)
+            if not face.isValid() or face.Area <= tolerance or face.BoundBox.ZLength > tolerance:
+                raise ValueError('SVG contains an invalid or non-planar contour.')
+            u0, u1, v0, v1 = face.ParameterRange
+            if face.normalAt((u0 + u1) / 2, (v0 + v1) / 2).z < 0:
+                face.reverse()
+            box = face.BoundBox
+            def same_bounds(other):
+                return all(abs(a - b) <= tolerance for a, b in zip(
+                    (box.XMin, box.YMin, box.XMax, box.YMax),
+                    (other.XMin, other.YMin, other.XMax, other.YMax)))
+            # Fill/stroke imports can produce coincident copies. Never make
+            # an identical contour into another part or a zero-area hole.
+            duplicate = False
+            for old in profiles:
+                if same_bounds(old['face'].BoundBox) and abs(face.Area - old['face'].Area) <= max(tolerance, face.Area * 1e-9):
+                    area_tolerance = max(tolerance, face.Area * 1e-9)
+                    if face.cut(old['face']).Area <= area_tolerance and old['face'].cut(face).Area <= area_tolerance:
+                        duplicate = True
+                        break
+            if not duplicate:
+                profiles.append(dict(wire=wire.copy(), face=face, parent=None))
+    if not profiles:
+        raise ValueError('SVG contains no closed part contours.')
+    for index, inner in enumerate(profiles):
+        inside = inner['face']
+        box = inside.BoundBox
+        candidates = []
+        for other_index, outer in enumerate(profiles):
+            outside = outer['face']
+            bigger = outside.BoundBox
+            if index == other_index or outside.Area <= inside.Area + tolerance:
+                continue
+            if (box.XMin < bigger.XMin - tolerance or box.YMin < bigger.YMin - tolerance or
+                    box.XMax > bigger.XMax + tolerance or box.YMax > bigger.YMax + tolerance):
+                continue
+            area_tolerance = max(tolerance, inside.Area * 1e-8)
+            if inside.cut(outside).Area <= area_tolerance and \
+                    outside.OuterWire.distToShape(inside.OuterWire)[0] > tolerance:
+                candidates.append((outside.Area, other_index))
+        if candidates:
+            inner['parent'] = min(candidates)[1]
+    components = []
+    for index, profile in enumerate(profiles):
+        depth = 0
+        parent = profile['parent']
+        while parent is not None:
+            depth += 1
+            parent = profiles[parent]['parent']
+        if depth % 2:
+            continue
+        holes = [child for child in profiles if child['parent'] == index]
+        material = profile['face']
+        for hole in holes:
+            material = material.cut(hole['face'])
+        if not material.isValid() or len(material.Faces) != 1 or material.Area <= tolerance:
+            raise ValueError('SVG contains overlapping or invalid hole contours.')
+        components.append((Part.makeCompound([profile['wire']] + [hole['wire'] for hole in holes]), material))
+    return components
+
+
+# Import DXF/SVG into Nesting_Preview and convert to stable Part::Feature.
 def import_2d_file_to_preview(panel, path, fmt=None, make_faces_if_possible=True,
-                             group_into_single_object=True, label_prefix=None):
+                             group_into_single_object=True, label_prefix=None, split_disconnected=False):
     """
     Import DXF/SVG into Nesting_Preview and convert to stable Part::Feature.
 
@@ -195,12 +288,15 @@ def import_2d_file_to_preview(panel, path, fmt=None, make_faces_if_possible=True
         make_faces_if_possible: try to create Faces from closed wires (optional)
         group_into_single_object: if True -> make ONE Part::Feature from all imported shapes
                                  if False -> make one Part::Feature per imported object (quick & simple)
+        split_disconnected: create one feature per outer contour, preserving holes
         label_prefix: label prefix for created features
 
     Returns:
         created_names: list[str] of created Part::Feature object Names in preview doc
     """
     created_names = []
+    p_doc = None
+    before = None
     try:
         if not path or not os.path.exists(path):
             App.Console.PrintError(tr('ipnestingimport2d_file_not_found_s') % str(path))
@@ -227,6 +323,10 @@ def import_2d_file_to_preview(panel, path, fmt=None, make_faces_if_possible=True
 
         if not ok:
             App.Console.PrintError(tr('ipnestingimport2d_import_failed_for_s') % path)
+            if split_disconnected:
+                for obj in reversed(list(p_doc.Objects)):
+                    if obj.Name not in before:
+                        p_doc.removeObject(obj.Name)
             return created_names
 
         try:
@@ -251,12 +351,28 @@ def import_2d_file_to_preview(panel, path, fmt=None, make_faces_if_possible=True
 
         if not imported_shapes:
             App.Console.PrintError(tr('ipnestingimport2d_imported_objects_had_no_usable_shape'))
+            if split_disconnected:
+                for obj in reversed(list(p_doc.Objects)):
+                    if obj.Name not in before:
+                        p_doc.removeObject(obj.Name)
             return created_names
 
         # Create stable Part::Feature(s)
         label_prefix = label_prefix or ("DXF" if fmt == "dxf" else "SVG")
 
-        if group_into_single_object:
+        if split_disconnected:
+            components = _split_svg_shapes(imported_shapes)
+            label = tr('s_s_d9cd37') % (label_prefix, os.path.basename(path))
+            for index, (wires, material) in enumerate(components, 1):
+                feat = p_doc.addObject('Part::Feature', 'Preview2D')
+                created_names.append(feat.Name)
+                feat.Label = label + (' [%d]' % index if len(components) > 1 else '')
+                feat.Shape = material if make_faces_if_possible else wires
+                feat.addProperty('App::PropertyString', 'SVGSourceFile', '1st Nesting')
+                feat.SVGSourceFile = os.path.basename(path)
+                feat.addProperty('App::PropertyInteger', 'SVGPartNumber', '1st Nesting')
+                feat.SVGPartNumber = index
+        elif group_into_single_object:
             compound = _shape_to_compound(imported_shapes)
             final_shape = compound
 
@@ -308,6 +424,12 @@ def import_2d_file_to_preview(panel, path, fmt=None, make_faces_if_possible=True
 
     except Exception:
         App.Console.PrintError(tr('ipnestingimport2d_import_2d_file_to_preview_failed') + traceback.format_exc())
+        if split_disconnected and p_doc is not None and before is not None:
+            # A failed file must not leave half a set of parts or raw objects.
+            for obj in reversed(list(p_doc.Objects)):
+                if obj.Name not in before:
+                    p_doc.removeObject(obj.Name)
+            created_names = []
         return created_names
 
 
@@ -317,10 +439,10 @@ def import_dxf_to_preview(panel, path, **kwargs):
     return import_2d_file_to_preview(panel, path, fmt="dxf", **kwargs)
 
 
-# Import an SVG into stable preview features, defaulting to wire geometry rather than faces.
+# Import independent SVG profiles as stable preview features with attached holes.
 def import_svg_to_preview(panel, path, **kwargs):
-    # SVG import often contains overlapping fill/stroke wires -> faces can overlap visually.
-    # For nesting/rotation we only need stable Shape + BoundBox, so default to wires (no faces).
+    # Preserve native curves and transparent hole outlines in the preview.
     if "make_faces_if_possible" not in kwargs:
         kwargs["make_faces_if_possible"] = False
+    kwargs.setdefault('split_disconnected', True)
     return import_2d_file_to_preview(panel, path, fmt="svg", **kwargs)

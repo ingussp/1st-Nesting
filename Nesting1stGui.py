@@ -4801,33 +4801,64 @@ class NestingTaskPanel:
         except Exception:
             App.Console.PrintError(tr('import_dxf_2d_failed') + traceback.format_exc())
 
-    # Choose an SVG, import wire geometry into the preview and add the resulting part row.
+    # Import every selected SVG, splitting its parts, then lay out the batch once.
     def import_svg_2d(self):
         try:
             if import_svg_to_preview is None:
                 QtGui.QMessageBox.warning(None, tr('import_svg_084c0a'), tr('svg_import_module_not_available'))
                 return
 
-            path, _ = QtGui.QFileDialog.getOpenFileName(
+            paths, _ = QtGui.QFileDialog.getOpenFileNames(
                 None, tr('import_svg_084c0a'), "", tr('svg_files_svg_svg_all_files')
             )
-            if not path:
+            if not paths:
                 return
 
             p_doc = self.ensure_preview_doc()
-            created = import_svg_to_preview(
-                self,
-                path,
-                make_faces_if_possible=False,
-                group_into_single_object=True
-            )
+            failed_paths = []
+            added = 0
+            previous_suppression = getattr(self, '_suppress_qty_update', False)
+            previous_signals = self.table.blockSignals(True)
+            previous_updates = self.table.updatesEnabled()
+            self.table.setUpdatesEnabled(False)
+            self._suppress_qty_update = True
+            try:
+                for path in paths:
+                    try:
+                        created = import_svg_to_preview(
+                            self,
+                            path,
+                            make_faces_if_possible=False,
+                            split_disconnected=True
+                        )
+                        if not created:
+                            failed_paths.append(path)
+                            continue
+                        for name in created:
+                            if self._add_preview_object_to_table(p_doc, name):
+                                added += 1
+                            else:
+                                failed_paths.append(path)
+                    except Exception:
+                        failed_paths.append(path)
+                        App.Console.PrintError(
+                            str(path) + "\n" + tr('import_svg_2d_failed') + traceback.format_exc()
+                        )
+            finally:
+                self._suppress_qty_update = previous_suppression
+                self.table.blockSignals(previous_signals)
+                self.table.setUpdatesEnabled(previous_updates)
 
-            if not created:
-                QtGui.QMessageBox.warning(None, tr('import_svg_084c0a'), tr('no_usable_geometry_imported'))
+            if failed_paths:
+                # One report for the batch, instead of a dialog for every bad file.
+                message = QtGui.QMessageBox(self.form)
+                message.setIcon(QtGui.QMessageBox.Warning)
+                message.setWindowTitle(tr('import_svg_084c0a'))
+                message.setText(tr('no_usable_geometry_imported'))
+                message.setDetailedText("\n".join(dict.fromkeys(failed_paths)))
+                message.exec_()
+            if not added:
                 return
-
-            for nm in created:
-                self._add_preview_object_to_table(p_doc, nm)
 
             try:
                 p_doc.recompute()
@@ -4836,10 +4867,11 @@ class NestingTaskPanel:
             except Exception:
                 pass
 
+            # update perimeters/layout
             try:
                 self.update_grain_layout_and_perimeters()
 
-                # Recenter the imported part together with its perimeters and arrows.
+                # Recenter the imported batch together with its perimeters and arrows.
                 self._fit_all_views()
             except Exception:
                 pass
@@ -4850,7 +4882,7 @@ class NestingTaskPanel:
 
         except Exception:
             App.Console.PrintError(tr('import_svg_2d_failed') + traceback.format_exc())
-    
+
     # Normalize the rotation count field.
     def _clamp_rotation_degrees_text(self, txt):
         """
