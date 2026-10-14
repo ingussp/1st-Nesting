@@ -624,5 +624,8 @@
   "bridge.join_failed": "Không thể nối các bộ phận 3D đã chọn thành một khối. Kiểm tra độ cao và điểm gắn cầu của chúng.",
   "dxf.export": "Xuất sang DXF",
   "dxf.tooltip": "Xuất kết quả lồng hoặc bắc cầu đang hoạt động dưới dạng đường viền 2D CAD chính xác tính bằng milimét.",
-  "dxf.failed": "Không thể xuất DXF."
+  "dxf.failed": "Không thể xuất DXF.",
+  "thickness.warning_title": "Độ dày các chi tiết khác nhau",
+  "thickness.warning": "Độ dày tham chiếu: %s.\nCác chi tiết có độ dày khác biệt được đánh dấu màu đỏ.",
+  "thickness.row_tooltip": "Độ dày: %s. Độ dày tham chiếu: %s."
 }

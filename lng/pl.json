@@ -624,5 +624,8 @@
   "bridge.join_failed": "Nie można połączyć wybranych części 3D w jedną bryłę. Sprawdź ich wysokość i punkty mocowania mostu.",
   "dxf.export": "Eksportuj do DXF",
   "dxf.tooltip": "Eksportuj aktywny wynik zagnieżdżenia lub mostkowania jako dokładne kontury 2D CAD w milimetrach.",
-  "dxf.failed": "Nie można wyeksportować DXF."
+  "dxf.failed": "Nie można wyeksportować DXF.",
+  "thickness.warning_title": "Różne grubości części",
+  "thickness.warning": "Grubość odniesienia: %s.\nCzęści o innej grubości są zaznaczone na czerwono.",
+  "thickness.row_tooltip": "Grubość: %s. Grubość odniesienia: %s."
 }

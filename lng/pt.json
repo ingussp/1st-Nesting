@@ -624,5 +624,8 @@
   "bridge.join_failed": "As peças 3D selecionadas não puderam ser unidas em um sólido. Verifique suas alturas e pontos de fixação da ponte.",
   "dxf.export": "Exportar para DXF",
   "dxf.tooltip": "Exporte o resultado do aninhamento ativo ou da ponte como contornos 2D CAD exatos em milímetros.",
-  "dxf.failed": "Não foi possível exportar DXF."
+  "dxf.failed": "Não foi possível exportar DXF.",
+  "thickness.warning_title": "Espessuras diferentes das peças",
+  "thickness.warning": "Espessura de referência: %s.\nAs peças com espessura diferente estão destacadas a vermelho.",
+  "thickness.row_tooltip": "Espessura: %s. Espessura de referência: %s."
 }

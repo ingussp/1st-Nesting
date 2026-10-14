@@ -624,5 +624,8 @@
   "bridge.join_failed": "선택한 3D 부품을 하나의 솔리드로 결합할 수 없습니다. 높이와 교량 부착 지점을 확인하세요.",
   "dxf.export": "DXF로 내보내기",
   "dxf.tooltip": "활성 중첩 또는 브리지 결과를 밀리미터 단위의 정확한 2D CAD 윤곽선으로 내보냅니다.",
-  "dxf.failed": "DXF를 내보낼 수 없습니다."
+  "dxf.failed": "DXF를 내보낼 수 없습니다.",
+  "thickness.warning_title": "부품 두께가 서로 다릅니다",
+  "thickness.warning": "기준 두께: %s.\n두께가 다른 부품은 빨간색으로 표시됩니다.",
+  "thickness.row_tooltip": "두께: %s. 기준 두께: %s."
 }

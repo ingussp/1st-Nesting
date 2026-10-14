@@ -624,5 +624,8 @@
   "bridge.join_failed": "Seçilen 3D parçaları tek bir katı halinde birleştirilemedi. Yüksekliklerini ve köprü bağlantı noktalarını kontrol edin.",
   "dxf.export": "DXF'ye aktar",
   "dxf.tooltip": "Etkin yerleştirme veya köprülenmiş sonucu milimetre cinsinden tam 2D CAD konturları olarak dışa aktarın.",
-  "dxf.failed": "DXF dışa aktarılamadı."
+  "dxf.failed": "DXF dışa aktarılamadı.",
+  "thickness.warning_title": "Parça kalınlıkları farklı",
+  "thickness.warning": "Referans kalınlığı: %s.\nFarklı kalınlıktaki parçalar kırmızı renkle vurgulanmıştır.",
+  "thickness.row_tooltip": "Kalınlık: %s. Referans kalınlığı: %s."
 }

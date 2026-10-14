@@ -624,5 +624,8 @@
   "bridge.join_failed": "Pasirinktų 3D dalių nepavyko sujungti į vieną kietą medžiagą. Patikrinkite jų aukštį ir tilto tvirtinimo taškus.",
   "dxf.export": "Eksportuoti į DXF",
   "dxf.tooltip": "Eksportuokite aktyvų lizdą arba sujungtą rezultatą kaip tikslius 2D CAD kontūrus milimetrais.",
-  "dxf.failed": "Nepavyko eksportuoti DXF."
+  "dxf.failed": "Nepavyko eksportuoti DXF.",
+  "thickness.warning_title": "Skirtingi detalių storiai",
+  "thickness.warning": "Atskaitos storis: %s.\nKitokio storio detalės pažymėtos raudonai.",
+  "thickness.row_tooltip": "Storis: %s. Atskaitos storis: %s."
 }

@@ -624,5 +624,8 @@
   "bridge.join_failed": "選択した 3D パーツを 1 つのソリッドに結合できませんでした。高さとブリッジの取り付け位置を確認してください。",
   "dxf.export": "DXF にエクスポート",
   "dxf.tooltip": "アクティブなネスティングまたはブリッジ結果を、ミリメートル単位の正確な 2D CAD 等高線としてエクスポートします。",
-  "dxf.failed": "DXF をエクスポートできませんでした。"
+  "dxf.failed": "DXF をエクスポートできませんでした。",
+  "thickness.warning_title": "部品の厚さが異なります",
+  "thickness.warning": "基準の厚さ: %s.\n厚さが異なる部品は赤色で表示されます。",
+  "thickness.row_tooltip": "厚さ: %s. 基準の厚さ: %s."
 }

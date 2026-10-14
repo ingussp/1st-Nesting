@@ -624,5 +624,8 @@
   "bridge.join_failed": "Bagian 3D yang dipilih tidak dapat digabungkan menjadi satu kesatuan. Periksa ketinggian dan titik pemasangan jembatannya.",
   "dxf.export": "Ekspor ke DXF",
   "dxf.tooltip": "Ekspor hasil nesting atau bridge aktif sesuai kontur 2D CAD dalam milimeter.",
-  "dxf.failed": "Tidak dapat mengekspor DXF."
+  "dxf.failed": "Tidak dapat mengekspor DXF.",
+  "thickness.warning_title": "Ketebalan komponen berbeda",
+  "thickness.warning": "Ketebalan acuan: %s.\nKomponen dengan ketebalan berbeda ditandai dengan warna merah.",
+  "thickness.row_tooltip": "Ketebalan: %s. Ketebalan acuan: %s."
 }

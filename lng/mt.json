@@ -624,5 +624,8 @@
   "bridge.join_failed": "Il-partijiet 3D magħżula ma setgħux jingħaqdu f'solidu wieħed. Iċċekkja l-għoli tagħhom u l-punti tat-twaħħil tal-pont.",
   "dxf.export": "Esportazzjoni lejn DXF",
   "dxf.tooltip": "Esportazzjoni tar-riżultat attiv tat-tbejjit jew bridged bħala kontorni eżatti 2D CAD f'millimetri.",
-  "dxf.failed": "Ma setgħetx tesporta DXF."
+  "dxf.failed": "Ma setgħetx tesporta DXF.",
+  "thickness.warning_title": "Ħxuna differenti tal-partijiet",
+  "thickness.warning": "Ħxuna ta’ referenza: %s.\nIl-partijiet bi ħxuna differenti huma mmarkati bl-aħmar.",
+  "thickness.row_tooltip": "Ħxuna: %s. Ħxuna ta’ referenza: %s."
 }

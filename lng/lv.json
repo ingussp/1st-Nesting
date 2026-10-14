@@ -624,5 +624,8 @@
   "bridge.join_failed": "Neizdevās apvienot izvēlētās 3D detaļas vienā cietķermenī. Pārbaudi to augstumu un tiltiņu pievienošanas punktus.",
   "dxf.export": "Eksportēt uz DXF",
   "dxf.tooltip": "Eksportēt aktīvo nestinga vai tiltiņu rezultātu kā precīzas 2D CAD kontūras milimetros.",
-  "dxf.failed": "Neizdevās eksportēt DXF."
+  "dxf.failed": "Neizdevās eksportēt DXF.",
+  "thickness.warning_title": "Atšķirīgi detaļu biezumi",
+  "thickness.warning": "Atskaites biezums: %s.\nDetaļas ar atšķirīgu biezumu tabulā ir iekrāsotas sarkanā krāsā.",
+  "thickness.row_tooltip": "Biezums: %s. Atskaites biezums: %s."
 }

@@ -624,5 +624,8 @@
   "bridge.join_failed": "The selected 3D parts could not be joined into one solid. Check their heights and bridge attachment points.",
   "dxf.export": "Export to DXF",
   "dxf.tooltip": "Export the active nesting or bridged result as exact 2D CAD contours in millimetres.",
-  "dxf.failed": "Could not export DXF."
+  "dxf.failed": "Could not export DXF.",
+  "thickness.warning_title": "Different part thicknesses",
+  "thickness.warning": "Reference thickness: %s.\nParts with a different thickness are highlighted in red.",
+  "thickness.row_tooltip": "Thickness: %s. Reference thickness: %s."
 }

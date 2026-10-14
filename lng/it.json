@@ -624,5 +624,8 @@
   "bridge.join_failed": "Impossibile unire le parti 3D selezionate in un unico solido. Controlla la loro altezza e i punti di attacco del ponte.",
   "dxf.export": "Esporta in DXF",
   "dxf.tooltip": "Esporta il risultato del Nesting o del Bridge attivo come contorni 2D CAD esatti in millimetri.",
-  "dxf.failed": "Impossibile esportare DXF."
+  "dxf.failed": "Impossibile esportare DXF.",
+  "thickness.warning_title": "Spessori diversi dei pezzi",
+  "thickness.warning": "Spessore di riferimento: %s.\nI pezzi con uno spessore diverso sono evidenziati in rosso.",
+  "thickness.row_tooltip": "Spessore: %s. Spessore di riferimento: %s."
 }

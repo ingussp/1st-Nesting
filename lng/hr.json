@@ -624,5 +624,8 @@
   "bridge.join_failed": "Odabrani dijelovi 3D nisu se mogli spojiti u jedno čvrsto tijelo. Provjerite njihove visine i točke pričvršćenja mosta.",
   "dxf.export": "Izvezi u DXF",
   "dxf.tooltip": "Izvezite aktivni ugniježđeni ili premošteni rezultat kao točne 2D CAD konture u milimetrima.",
-  "dxf.failed": "Nije moguće izvesti DXF."
+  "dxf.failed": "Nije moguće izvesti DXF.",
+  "thickness.warning_title": "Različite debljine dijelova",
+  "thickness.warning": "Referentna debljina: %s.\nDijelovi s različitom debljinom označeni su crvenom bojom.",
+  "thickness.row_tooltip": "Debljina: %s. Referentna debljina: %s."
 }

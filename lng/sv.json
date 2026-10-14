@@ -624,5 +624,8 @@
   "bridge.join_failed": "De utvalda 3D-delarna kunde inte sammanfogas till en solid. Kontrollera deras höjder och brofästen.",
   "dxf.export": "Exportera till DXF",
   "dxf.tooltip": "Exportera det aktiva kapslings- eller överbryggade resultatet som exakta 2D CAD-konturer i millimeter.",
-  "dxf.failed": "Kunde inte exportera DXF."
+  "dxf.failed": "Kunde inte exportera DXF.",
+  "thickness.warning_title": "Olika detaljtjocklekar",
+  "thickness.warning": "Referenstjocklek: %s.\nDetaljer med avvikande tjocklek är markerade med rött.",
+  "thickness.row_tooltip": "Tjocklek: %s. Referenstjocklek: %s."
 }

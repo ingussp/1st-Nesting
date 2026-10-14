@@ -624,5 +624,8 @@
   "bridge.join_failed": "Níorbh fhéidir na codanna roghnaithe 3D a cheangal le solad amháin. Seiceáil a n-airde agus pointí ceangail droichead.",
   "dxf.export": "Easpórtáil go DXF",
   "dxf.tooltip": "Easpórtáil an neadú gníomhach nó an toradh droichid mar chomhrianta beachta 2D CAD i milliméadair.",
-  "dxf.failed": "Níorbh fhéidir DXF a onnmhairiú."
+  "dxf.failed": "Níorbh fhéidir DXF a onnmhairiú.",
+  "thickness.warning_title": "Tiúis éagsúla páirteanna",
+  "thickness.warning": "Tiús tagartha: %s.\nTá na páirteanna a bhfuil tiús difriúil acu aibhsithe i ndearg.",
+  "thickness.row_tooltip": "Tiús: %s. Tiús tagartha: %s."
 }

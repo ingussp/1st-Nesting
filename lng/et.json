@@ -624,5 +624,8 @@
   "bridge.join_failed": "Valitud 3D osi ei saanud üheks tervikuks ühendada. Kontrollige nende kõrgust ja silla kinnituspunkte.",
   "dxf.export": "Ekspordi DXF",
   "dxf.tooltip": "Eksportige aktiivne pesa- või sillatulemus täpsete 2D CAD kontuuridena millimeetrites.",
-  "dxf.failed": "DXF ei saanud eksportida."
+  "dxf.failed": "DXF ei saanud eksportida.",
+  "thickness.warning_title": "Detailide erinevad paksused",
+  "thickness.warning": "Võrdluspaksus: %s.\nErineva paksusega detailid on tähistatud punasega.",
+  "thickness.row_tooltip": "Paksus: %s. Võrdluspaksus: %s."
 }

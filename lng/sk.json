@@ -624,5 +624,8 @@
   "bridge.join_failed": "Vybrané diely 3D nebolo možné spojiť do jedného telesa. Skontrolujte ich výšku a upevňovacie body mostíka.",
   "dxf.export": "Exportovať do DXF",
   "dxf.tooltip": "Exportujte výsledok aktívneho vnorenia alebo premostenia ako presné obrysy 2D CAD v milimetroch.",
-  "dxf.failed": "Nepodarilo sa exportovať DXF."
+  "dxf.failed": "Nepodarilo sa exportovať DXF.",
+  "thickness.warning_title": "Rozdielne hrúbky dielov",
+  "thickness.warning": "Referenčná hrúbka: %s.\nDiely s odlišnou hrúbkou sú označené červenou farbou.",
+  "thickness.row_tooltip": "Hrúbka: %s. Referenčná hrúbka: %s."
 }

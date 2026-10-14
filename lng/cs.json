@@ -624,5 +624,8 @@
   "bridge.join_failed": "Vybrané díly 3D nebylo možné spojit do jednoho tělesa. Zkontrolujte jejich výšku a upevňovací body mostu.",
   "dxf.export": "Export do DXF",
   "dxf.tooltip": "Exportujte aktivní výsledek vnoření nebo přemostění jako přesné obrysy 2D CAD v milimetrech.",
-  "dxf.failed": "Nelze exportovat DXF."
+  "dxf.failed": "Nelze exportovat DXF.",
+  "thickness.warning_title": "Rozdílné tloušťky dílů",
+  "thickness.warning": "Referenční tloušťka: %s.\nDíly s odlišnou tloušťkou jsou označeny červeně.",
+  "thickness.row_tooltip": "Tloušťka: %s. Referenční tloušťka: %s."
 }

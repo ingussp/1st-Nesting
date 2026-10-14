@@ -624,5 +624,8 @@
   "bridge.join_failed": "De valgte 3D-dele kunne ikke samles til ét fast stof. Tjek deres højder og brofastgørelsespunkter.",
   "dxf.export": "Eksporter til DXF",
   "dxf.tooltip": "Eksporter det aktive indlejrede eller brokoblede resultat som nøjagtige 2D CAD-konturer i millimeter.",
-  "dxf.failed": "Kunne ikke eksportere DXF."
+  "dxf.failed": "Kunne ikke eksportere DXF.",
+  "thickness.warning_title": "Forskellige emnetykkelser",
+  "thickness.warning": "Referencetykkelse: %s.\nEmner med en anden tykkelse er markeret med rødt.",
+  "thickness.row_tooltip": "Tykkelse: %s. Referencetykkelse: %s."
 }

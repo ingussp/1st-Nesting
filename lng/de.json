@@ -624,5 +624,8 @@
   "bridge.join_failed": "Die ausgewählten 3D-Teile konnten nicht zu einem Volumenkörper verbunden werden. Überprüfen Sie deren Höhen und Brückenbefestigungspunkte.",
   "dxf.export": "Export nach DXF",
   "dxf.tooltip": "Exportieren Sie das aktive Verschachtelungs- oder Brückenergebnis als exakte 2D CAD Konturen in Millimetern.",
-  "dxf.failed": "DXF konnte nicht exportiert werden."
+  "dxf.failed": "DXF konnte nicht exportiert werden.",
+  "thickness.warning_title": "Unterschiedliche Teildicken",
+  "thickness.warning": "Referenzdicke: %s.\nTeile mit abweichender Dicke sind rot hervorgehoben.",
+  "thickness.row_tooltip": "Dicke: %s. Referenzdicke: %s."
 }

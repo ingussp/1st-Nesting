@@ -624,5 +624,8 @@
   "bridge.join_failed": "所选的 3D 零件无法连接成一个实体。检查它们的高度和桥梁附着点。",
   "dxf.export": "导出至 DXF",
   "dxf.tooltip": "将活动嵌套或桥接结果导出为精确的 2D CAD 轮廓（以毫米为单位）。",
-  "dxf.failed": "无法导出 DXF。"
+  "dxf.failed": "无法导出 DXF。",
+  "thickness.warning_title": "零件厚度不同",
+  "thickness.warning": "参考厚度: %s.\n厚度不同的零件已用红色标记。",
+  "thickness.row_tooltip": "厚度: %s. 参考厚度: %s."
 }

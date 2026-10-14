@@ -624,5 +624,8 @@
   "bridge.join_failed": "A kiválasztott 3D alkatrészeket nem lehetett egyetlen szilárd testté egyesíteni. Ellenőrizze a magasságukat és a híd rögzítési pontjait.",
   "dxf.export": "Exportálás a DXF formátumba",
   "dxf.tooltip": "Exportálja az aktív egymásba ágyazott vagy áthidaló eredményt pontos 2D CAD kontúrokként milliméterben.",
-  "dxf.failed": "A DXF nem exportálható."
+  "dxf.failed": "A DXF nem exportálható.",
+  "thickness.warning_title": "Eltérő alkatrészvastagságok",
+  "thickness.warning": "Referenciavastagság: %s.\nAz eltérő vastagságú alkatrészek pirossal vannak kiemelve.",
+  "thickness.row_tooltip": "Vastagság: %s. Referenciavastagság: %s."
 }

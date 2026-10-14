@@ -624,5 +624,8 @@
   "bridge.join_failed": "Bahagian 3D yang dipilih tidak dapat dicantumkan menjadi satu pepejal. Semak ketinggian dan titik lampiran jambatan mereka.",
   "dxf.export": "Eksport ke DXF",
   "dxf.tooltip": "Eksport hasil sarang aktif atau terjebak sebagai kontur 2D CAD yang tepat dalam milimeter.",
-  "dxf.failed": "Tidak dapat mengeksport DXF."
+  "dxf.failed": "Tidak dapat mengeksport DXF.",
+  "thickness.warning_title": "Ketebalan bahagian berbeza",
+  "thickness.warning": "Ketebalan rujukan: %s.\nBahagian dengan ketebalan berbeza ditandakan dengan warna merah.",
+  "thickness.row_tooltip": "Ketebalan: %s. Ketebalan rujukan: %s."
 }

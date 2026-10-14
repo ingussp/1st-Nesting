@@ -624,5 +624,8 @@
   "bridge.join_failed": "Seçilmiş 3D hissələri bir bərk hissəyə birləşdirilə bilməz. Onların hündürlüklərini və körpünün əlavə nöqtələrini yoxlayın.",
   "dxf.export": "DXF-ə ixrac edin",
   "dxf.tooltip": "Aktiv yuva və ya körpülənmiş nəticəni millimetrlərlə dəqiq 2D CAD konturları kimi ixrac edin.",
-  "dxf.failed": "DXF ixrac etmək mümkün olmadı."
+  "dxf.failed": "DXF ixrac etmək mümkün olmadı.",
+  "thickness.warning_title": "Detalların qalınlıqları fərqlidir",
+  "thickness.warning": "İstinad qalınlığı: %s.\nFərqli qalınlıqdakı detallar qırmızı rənglə işarələnib.",
+  "thickness.row_tooltip": "Qalınlıq: %s. İstinad qalınlığı: %s."
 }

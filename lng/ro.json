@@ -624,5 +624,8 @@
   "bridge.join_failed": "Părțile 3D selectate nu au putut fi unite într-un singur solid. Verificați înălțimile acestora și punctele de atașare a podurilor.",
   "dxf.export": "Exportați în DXF",
   "dxf.tooltip": "Exportați rezultatul de imbricare activă sau cu punte ca contururi exacte 2D CAD, în milimetri.",
-  "dxf.failed": "Nu s-a putut exporta DXF."
+  "dxf.failed": "Nu s-a putut exporta DXF.",
+  "thickness.warning_title": "Grosimi diferite ale pieselor",
+  "thickness.warning": "Grosime de referință: %s.\nPiesele cu grosime diferită sunt evidențiate cu roșu.",
+  "thickness.row_tooltip": "Grosime: %s. Grosime de referință: %s."
 }

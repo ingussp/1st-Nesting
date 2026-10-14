@@ -647,6 +647,8 @@ class NestingTaskPanel:
         )
         self.form.destroyed.connect(lambda: self._nesting_manager.shutdown())
         register_window(self.form)
+        from Nesting1stThickness import ThicknessChecker
+        self._thickness_checker = ThicknessChecker(self)
 
     def export_nesting_result_svg(self):
         from Nesting1stResultSVG import export_from_panel
@@ -2924,6 +2926,8 @@ class NestingTaskPanel:
     def update_grain_layout_and_perimeters(self, preserve_standard_layout=False):
         """Update perimeters, optionally preserving the standard group's placements."""
         self._grain.update_grain_layout_and_perimeters(preserve_standard_layout=preserve_standard_layout)
+        if hasattr(self, '_thickness_checker'):
+            self._thickness_checker.schedule()
 
     # Fit every visible object in the active FreeCAD view after preview geometry changes.
     def _fit_all_views(self):
@@ -3490,6 +3494,7 @@ class NestingTaskPanel:
                 return
 
             input_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "input.json")
+            self._thickness_checker.refresh(force=True)
             self._nesting_manager.prepare_and_start(input_path)
         except Exception:
             self._nesting_manager._finish_failure(traceback.format_exc())
@@ -3499,6 +3504,7 @@ class NestingTaskPanel:
         return True
 
     def reject(self):
+        self._thickness_checker.timer.stop()
         self._nesting_manager.shutdown()
         if getattr(self, "_gpu_discovery", None) is not None:
             self._gpu_discovery.cancel()
@@ -4064,6 +4070,8 @@ class NestingTaskPanel:
                 bridge_popup = getattr(self, '_active_bridge_dialog', None)
                 if bridge_popup is not None:
                     bridge_popup.set_display_units(self.display_units)
+                if hasattr(self, '_thickness_checker'):
+                    self._thickness_checker.refresh(warn=False)
 
             finally:
                 self._units_change_guard = False

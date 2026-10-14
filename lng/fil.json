@@ -624,5 +624,8 @@
   "bridge.join_failed": "Ang mga napiling bahagi ng 3D ay hindi maaaring pagsamahin sa isang solid. Suriin ang kanilang mga taas at bridge attachment point.",
   "dxf.export": "I-export sa DXF",
   "dxf.tooltip": "I-export ang aktibong nesting o bridged na resulta bilang eksaktong 2D CAD contours sa milimetro.",
-  "dxf.failed": "Hindi ma-export ang DXF."
+  "dxf.failed": "Hindi ma-export ang DXF.",
+  "thickness.warning_title": "Magkakaiba ang kapal ng mga bahagi",
+  "thickness.warning": "Batayang kapal: %s.\nAng mga bahaging may ibang kapal ay minarkahan ng pula.",
+  "thickness.row_tooltip": "Kapal: %s. Batayang kapal: %s."
 }
