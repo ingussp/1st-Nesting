@@ -3,6 +3,7 @@ Material preview cards with grain, contour exclusion and shared-clearance contro
 Supports rectangular sheets and DXF offcuts with resizable, zoomable previews.
 """
 from Nesting1stLanguages import tr, translate_buttons, ui_call, ui_widget, register_window
+from Nesting1stViewPreferences import wheel_zoom_settings
 
 import traceback
 import math
@@ -910,15 +911,7 @@ class _OffcutPreview(QtGui.QGraphicsView):
 
     # Mouse wheel zoom.
     def wheelEvent(self, event):
-        """
-        Mouse wheel zoom.
-
-        Scroll up:
-            zoom in
-
-        Scroll down:
-            zoom out
-        """
+        """Mouse wheel zoom following FreeCAD's navigation preferences."""
         try:
             delta = event.angleDelta().y()
 
@@ -926,10 +919,8 @@ class _OffcutPreview(QtGui.QGraphicsView):
                 event.ignore()
                 return
 
-            if delta > 0:
-                factor = 1.20
-            else:
-                factor = 1.0 / 1.20
+            factor, at_cursor = wheel_zoom_settings(delta)
+            self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse if at_cursor else QtGui.QGraphicsView.AnchorViewCenter)
 
             new_zoom = self._zoom * factor
             new_zoom = max(
