@@ -621,5 +621,8 @@
   "bridge.duplicate": "Bu iki noktayı zaten bir köprü birbirine bağlıyor.",
   "bridge.failed": "Köprülü sonuç oluşturulamadı: %s",
   "bridge.joined_parts": "Birleştirilen parçalar",
-  "bridge.join_failed": "Seçilen 3D parçaları tek bir katı halinde birleştirilemedi. Yüksekliklerini ve köprü bağlantı noktalarını kontrol edin."
+  "bridge.join_failed": "Seçilen 3D parçaları tek bir katı halinde birleştirilemedi. Yüksekliklerini ve köprü bağlantı noktalarını kontrol edin.",
+  "dxf.export": "DXF'ye aktar",
+  "dxf.tooltip": "Etkin yerleştirme veya köprülenmiş sonucu milimetre cinsinden tam 2D CAD konturları olarak dışa aktarın.",
+  "dxf.failed": "DXF dışa aktarılamadı."
 }

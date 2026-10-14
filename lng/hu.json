@@ -621,5 +621,8 @@
   "bridge.duplicate": "Már híd köti össze ezt a két pontot.",
   "bridge.failed": "Nem sikerült létrehozni az áthidalt eredményt: %s",
   "bridge.joined_parts": "Összeillesztett részek",
-  "bridge.join_failed": "A kiválasztott 3D alkatrészeket nem lehetett egyetlen szilárd testté egyesíteni. Ellenőrizze a magasságukat és a híd rögzítési pontjait."
+  "bridge.join_failed": "A kiválasztott 3D alkatrészeket nem lehetett egyetlen szilárd testté egyesíteni. Ellenőrizze a magasságukat és a híd rögzítési pontjait.",
+  "dxf.export": "Exportálás a DXF formátumba",
+  "dxf.tooltip": "Exportálja az aktív egymásba ágyazott vagy áthidaló eredményt pontos 2D CAD kontúrokként milliméterben.",
+  "dxf.failed": "A DXF nem exportálható."
 }

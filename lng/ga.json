@@ -621,5 +621,8 @@
   "bridge.duplicate": "Ceanglaíonn droichead an dá phointe seo cheana féin.",
   "bridge.failed": "Níorbh fhéidir an toradh idirlinne a chruthú: %s",
   "bridge.joined_parts": "Páirteanna ceangailte",
-  "bridge.join_failed": "Níorbh fhéidir na codanna roghnaithe 3D a cheangal le solad amháin. Seiceáil a n-airde agus pointí ceangail droichead."
+  "bridge.join_failed": "Níorbh fhéidir na codanna roghnaithe 3D a cheangal le solad amháin. Seiceáil a n-airde agus pointí ceangail droichead.",
+  "dxf.export": "Easpórtáil go DXF",
+  "dxf.tooltip": "Easpórtáil an neadú gníomhach nó an toradh droichid mar chomhrianta beachta 2D CAD i milliméadair.",
+  "dxf.failed": "Níorbh fhéidir DXF a onnmhairiú."
 }

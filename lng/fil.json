@@ -621,5 +621,8 @@
   "bridge.duplicate": "Isang tulay ang nag-uugnay sa dalawang puntong ito.",
   "bridge.failed": "Hindi magawa ang naka-bridge na resulta: %s",
   "bridge.joined_parts": "Pinagsamang mga bahagi",
-  "bridge.join_failed": "Ang mga napiling bahagi ng 3D ay hindi maaaring pagsamahin sa isang solid. Suriin ang kanilang mga taas at bridge attachment point."
+  "bridge.join_failed": "Ang mga napiling bahagi ng 3D ay hindi maaaring pagsamahin sa isang solid. Suriin ang kanilang mga taas at bridge attachment point.",
+  "dxf.export": "I-export sa DXF",
+  "dxf.tooltip": "I-export ang aktibong nesting o bridged na resulta bilang eksaktong 2D CAD contours sa milimetro.",
+  "dxf.failed": "Hindi ma-export ang DXF."
 }

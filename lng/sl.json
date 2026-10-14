@@ -621,5 +621,8 @@
   "bridge.duplicate": "Ti dve točki že povezuje most.",
   "bridge.failed": "Ni bilo mogoče ustvariti premoščenega rezultata: %s",
   "bridge.joined_parts": "Spojeni deli",
-  "bridge.join_failed": "Izbranih delov 3D ni bilo mogoče združiti v eno trdno snov. Preverite njihove višine in pritrdilne točke mostov."
+  "bridge.join_failed": "Izbranih delov 3D ni bilo mogoče združiti v eno trdno snov. Preverite njihove višine in pritrdilne točke mostov.",
+  "dxf.export": "Izvozi v DXF",
+  "dxf.tooltip": "Izvozite rezultat aktivnega gnezdenja ali premostitve kot natančne konture 2D CAD v milimetrih.",
+  "dxf.failed": "Ni bilo mogoče izvoziti DXF."
 }

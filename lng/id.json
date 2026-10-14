@@ -621,5 +621,8 @@
   "bridge.duplicate": "Sebuah jembatan sudah menghubungkan kedua titik ini.",
   "bridge.failed": "Tidak dapat membuat hasil yang dijembatani: %s",
   "bridge.joined_parts": "Bagian yang bergabung",
-  "bridge.join_failed": "Bagian 3D yang dipilih tidak dapat digabungkan menjadi satu kesatuan. Periksa ketinggian dan titik pemasangan jembatannya."
+  "bridge.join_failed": "Bagian 3D yang dipilih tidak dapat digabungkan menjadi satu kesatuan. Periksa ketinggian dan titik pemasangan jembatannya.",
+  "dxf.export": "Ekspor ke DXF",
+  "dxf.tooltip": "Ekspor hasil nesting atau bridge aktif sesuai kontur 2D CAD dalam milimeter.",
+  "dxf.failed": "Tidak dapat mengekspor DXF."
 }

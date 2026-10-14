@@ -621,5 +621,8 @@
   "bridge.duplicate": "Một cây cầu đã kết nối hai điểm này.",
   "bridge.failed": "Không thể tạo kết quả bắc cầu: %s",
   "bridge.joined_parts": "Các bộ phận đã nối",
-  "bridge.join_failed": "Không thể nối các bộ phận 3D đã chọn thành một khối. Kiểm tra độ cao và điểm gắn cầu của chúng."
+  "bridge.join_failed": "Không thể nối các bộ phận 3D đã chọn thành một khối. Kiểm tra độ cao và điểm gắn cầu của chúng.",
+  "dxf.export": "Xuất sang DXF",
+  "dxf.tooltip": "Xuất kết quả lồng hoặc bắc cầu đang hoạt động dưới dạng đường viền 2D CAD chính xác tính bằng milimét.",
+  "dxf.failed": "Không thể xuất DXF."
 }

@@ -621,5 +621,8 @@
   "bridge.duplicate": "Un pont relie déjà ces deux points.",
   "bridge.failed": "Impossible de créer le résultat ponté : %s",
   "bridge.joined_parts": "Pièces jointes",
-  "bridge.join_failed": "Les pièces 3D sélectionnées n'ont pas pu être jointes en un seul solide. Vérifiez leurs hauteurs et les points de fixation du pont."
+  "bridge.join_failed": "Les pièces 3D sélectionnées n'ont pas pu être jointes en un seul solide. Vérifiez leurs hauteurs et les points de fixation du pont.",
+  "dxf.export": "Exporter vers DXF",
+  "dxf.tooltip": "Exportez l'imbrication active ou le résultat ponté sous forme de contours 2D CAD exacts en millimètres.",
+  "dxf.failed": "Impossible d'exporter DXF."
 }

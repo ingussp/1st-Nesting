@@ -621,5 +621,8 @@
   "bridge.duplicate": "一座桥已经连接了这两点。",
   "bridge.failed": "无法创建桥接结果：%s",
   "bridge.joined_parts": "连接件",
-  "bridge.join_failed": "所选的 3D 零件无法连接成一个实体。检查它们的高度和桥梁附着点。"
+  "bridge.join_failed": "所选的 3D 零件无法连接成一个实体。检查它们的高度和桥梁附着点。",
+  "dxf.export": "导出至 DXF",
+  "dxf.tooltip": "将活动嵌套或桥接结果导出为精确的 2D CAD 轮廓（以毫米为单位）。",
+  "dxf.failed": "无法导出 DXF。"
 }

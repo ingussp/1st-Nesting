@@ -621,5 +621,8 @@
   "bridge.duplicate": "Un pod leagă deja aceste două puncte.",
   "bridge.failed": "Nu s-a putut crea rezultatul conectat: %s",
   "bridge.joined_parts": "Piese imbinate",
-  "bridge.join_failed": "Părțile 3D selectate nu au putut fi unite într-un singur solid. Verificați înălțimile acestora și punctele de atașare a podurilor."
+  "bridge.join_failed": "Părțile 3D selectate nu au putut fi unite într-un singur solid. Verificați înălțimile acestora și punctele de atașare a podurilor.",
+  "dxf.export": "Exportați în DXF",
+  "dxf.tooltip": "Exportați rezultatul de imbricare activă sau cu punte ca contururi exacte 2D CAD, în milimetri.",
+  "dxf.failed": "Nu s-a putut exporta DXF."
 }

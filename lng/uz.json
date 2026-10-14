@@ -621,5 +621,8 @@
   "bridge.duplicate": "Ko'prik allaqachon bu ikki nuqtani bog'laydi.",
   "bridge.failed": "Ko‘prik natijasini yaratib bo‘lmadi: %s",
   "bridge.joined_parts": "Birlashtirilgan qismlar",
-  "bridge.join_failed": "Tanlangan 3D qismlarini bitta qattiq jismga birlashtirib bo'lmadi. Ularning balandligini va ko'prikni ulash joylarini tekshiring."
+  "bridge.join_failed": "Tanlangan 3D qismlarini bitta qattiq jismga birlashtirib bo'lmadi. Ularning balandligini va ko'prikni ulash joylarini tekshiring.",
+  "dxf.export": "DXF ga eksport qiling",
+  "dxf.tooltip": "Faol joylashtirish yoki ko'prikli natijani millimetrda aniq 2D CAD konturlari sifatida eksport qiling.",
+  "dxf.failed": "DXF eksport qilinmadi."
 }

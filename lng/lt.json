@@ -621,5 +621,8 @@
   "bridge.duplicate": "Šiuos du taškus jau jungia tiltas.",
   "bridge.failed": "Nepavyko sukurti sujungto rezultato: %s",
   "bridge.joined_parts": "Sujungtos dalys",
-  "bridge.join_failed": "Pasirinktų 3D dalių nepavyko sujungti į vieną kietą medžiagą. Patikrinkite jų aukštį ir tilto tvirtinimo taškus."
+  "bridge.join_failed": "Pasirinktų 3D dalių nepavyko sujungti į vieną kietą medžiagą. Patikrinkite jų aukštį ir tilto tvirtinimo taškus.",
+  "dxf.export": "Eksportuoti į DXF",
+  "dxf.tooltip": "Eksportuokite aktyvų lizdą arba sujungtą rezultatą kaip tikslius 2D CAD kontūrus milimetrais.",
+  "dxf.failed": "Nepavyko eksportuoti DXF."
 }

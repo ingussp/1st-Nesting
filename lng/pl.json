@@ -621,5 +621,8 @@
   "bridge.duplicate": "Most łączy już te dwa punkty.",
   "bridge.failed": "Nie można utworzyć wyniku mostkowania: %s",
   "bridge.joined_parts": "Połączone części",
-  "bridge.join_failed": "Nie można połączyć wybranych części 3D w jedną bryłę. Sprawdź ich wysokość i punkty mocowania mostu."
+  "bridge.join_failed": "Nie można połączyć wybranych części 3D w jedną bryłę. Sprawdź ich wysokość i punkty mocowania mostu.",
+  "dxf.export": "Eksportuj do DXF",
+  "dxf.tooltip": "Eksportuj aktywny wynik zagnieżdżenia lub mostkowania jako dokładne kontury 2D CAD w milimetrach.",
+  "dxf.failed": "Nie można wyeksportować DXF."
 }

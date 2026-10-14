@@ -621,5 +621,8 @@
   "bridge.duplicate": "Un puente ya conecta estos dos puntos.",
   "bridge.failed": "No se pudo crear el resultado puenteado: %s",
   "bridge.joined_parts": "Piezas unidas",
-  "bridge.join_failed": "Las piezas 3D seleccionadas no se pudieron unir en un sólido. Comprobar sus alturas y puntos de fijación del puente."
+  "bridge.join_failed": "Las piezas 3D seleccionadas no se pudieron unir en un sólido. Comprobar sus alturas y puntos de fijación del puente.",
+  "dxf.export": "Exportar a DXF",
+  "dxf.tooltip": "Exporte el resultado de anidamiento activo o puenteado como contornos exactos 2D CAD en milímetros.",
+  "dxf.failed": "No se pudo exportar DXF."
 }

@@ -621,5 +621,8 @@
   "bridge.duplicate": "Eine Brücke verbindet diese beiden Punkte bereits.",
   "bridge.failed": "Das überbrückte Ergebnis konnte nicht erstellt werden: %s",
   "bridge.joined_parts": "Zusammengefügte Teile",
-  "bridge.join_failed": "Die ausgewählten 3D-Teile konnten nicht zu einem Volumenkörper verbunden werden. Überprüfen Sie deren Höhen und Brückenbefestigungspunkte."
+  "bridge.join_failed": "Die ausgewählten 3D-Teile konnten nicht zu einem Volumenkörper verbunden werden. Überprüfen Sie deren Höhen und Brückenbefestigungspunkte.",
+  "dxf.export": "Export nach DXF",
+  "dxf.tooltip": "Exportieren Sie das aktive Verschachtelungs- oder Brückenergebnis als exakte 2D CAD Konturen in Millimetern.",
+  "dxf.failed": "DXF konnte nicht exportiert werden."
 }

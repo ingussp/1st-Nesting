@@ -621,5 +621,8 @@
   "bridge.duplicate": "En bro forbinder allerede disse to punkter.",
   "bridge.failed": "Kunne ikke oprette det brokoblede resultat: %s",
   "bridge.joined_parts": "Sammenføjede dele",
-  "bridge.join_failed": "De valgte 3D-dele kunne ikke samles til ét fast stof. Tjek deres højder og brofastgørelsespunkter."
+  "bridge.join_failed": "De valgte 3D-dele kunne ikke samles til ét fast stof. Tjek deres højder og brofastgørelsespunkter.",
+  "dxf.export": "Eksporter til DXF",
+  "dxf.tooltip": "Eksporter det aktive indlejrede eller brokoblede resultat som nøjagtige 2D CAD-konturer i millimeter.",
+  "dxf.failed": "Kunne ikke eksportere DXF."
 }
