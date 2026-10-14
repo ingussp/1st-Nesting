@@ -2044,6 +2044,10 @@ class NestingTaskPanel:
             self.match_grain_btn.setMinimumWidth(160)
             self.match_grain_btn.clicked.connect(self._on_match_grain_clicked)
             matching_layout.addWidget(self.match_grain_btn)
+            self.bridges_btn = ui_widget(QtGui.QPushButton, tr('bridge.title'))
+            self.bridges_btn.setMinimumWidth(160)
+            self.bridges_btn.clicked.connect(self._on_bridges_clicked)
+            matching_layout.addWidget(self.bridges_btn)
             matching_layout.addStretch()
             self.table.setCellWidget(match_idx, 0, matching_container)
             self.table.setSpan(match_idx, 0, 1, self.table.columnCount())
@@ -2057,6 +2061,14 @@ class NestingTaskPanel:
 
         except Exception:
             App.Console.PrintError(tr('failed_to_create_control_rows') + traceback.format_exc())
+
+    def _on_bridges_clicked(self):
+        from Nesting1stBridges import open_editor
+        try:
+            open_editor(self)
+        except Exception as exc:
+            App.Console.PrintError(str(exc) + '\n')
+            QtGui.QMessageBox.warning(self.form, tr('bridge.title'), tr('bridge.failed') % str(exc))
 
     def _on_match_grain_clicked(self):
         from Nesting1stGrainMatch import open_editor, text as matching_text
@@ -4038,6 +4050,10 @@ class NestingTaskPanel:
                         )
                     except Exception:
                         pass
+
+                bridge_popup = getattr(self, '_active_bridge_dialog', None)
+                if bridge_popup is not None:
+                    bridge_popup.set_display_units(self.display_units)
 
             finally:
                 self._units_change_guard = False

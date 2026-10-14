@@ -42,6 +42,7 @@ On first use, the workbench offers to download the latest stable CLI-nesting rel
 - Export curved and concave part perimeters instead of replacing them with bounding boxes.
 - Choose Fast or Continuous search, an optional Continuous deadline and CPU settings; optionally use OpenCL.
 - Reconstruct results from original geometry, preserving machining details and the displayed top/bottom orientation.
+- Add [manual cutting bridges](docs/BRIDGES.md) to join nested parts into one 3D solid or 2D cutting profile, with collision checks and editable mm/inch widths.
 - Export a coloured SVG report with part legends, positions, angles, areas and sheet utilisation.
 - Use an offline interface in 50 languages, including Latvian.
 

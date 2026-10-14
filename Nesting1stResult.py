@@ -430,6 +430,9 @@ class NestingResultImporter(object):
             self._create_result_info()
             self._create_unplaced_group()
 
+            from Nesting1stBridgeModel import store_result_data
+            store_result_data(self.result_doc, self.result_data, self._result_object_name)
+
             self.result_doc.recompute()
             transaction_doc.commitTransaction()
             transaction_doc = None

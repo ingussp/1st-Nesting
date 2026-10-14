@@ -6,20 +6,12 @@ import Part
 from PySide import QtCore, QtGui
 from Nesting1stLanguages import tr, ui_call, ui_widget, register_window
 from Nesting1stGrainMatchModel import polygon, transform, normalize_poses, definition_poses, _convex_hull
+from Nesting1stViewPreferences import wheel_zoom_settings
 
 
 def text(key):
     aliases = {'cancel': 'common.cancel', 'rotate': 'rotate', 'matched': 'perimeter.matched'}
     return tr(aliases.get(key, 'grain_match.'+key))
-
-
-def _invert_zoom():
-    """Read FreeCAD's 'invert zoom' preference so the preview matches the main window."""
-    try:
-        params = App.ParamGet('User parameter:BaseApp/Preferences/View')
-        return bool(params.GetBool('InvertZoom', False))
-    except Exception:
-        return False
 
 
 class ZoomView(QtGui.QGraphicsView):
@@ -62,8 +54,8 @@ class ZoomView(QtGui.QGraphicsView):
         if delta == 0:
             event.ignore()
             return
-        forward = (delta > 0) != _invert_zoom()
-        factor = 1.15 if forward else 1.0 / 1.15
+        factor, at_cursor = wheel_zoom_settings(delta)
+        self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse if at_cursor else QtGui.QGraphicsView.AnchorViewCenter)
         self.scale(factor, factor)
         event.accept()
 
