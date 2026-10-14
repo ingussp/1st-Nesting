@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
+  <name>1stNesting</name>
+  <version>1.00</version>
+  <date>2026-10-14</date>
+  <description>A free, open-source FreeCAD workbench for arranging 2D and 3D parts on sheets and reusable offcuts using CLI-Nesting. Prepare quantities and rotations, match texture, create cutting bridges, and export nesting results to SVG or DXF.</description>
+  <maintainer email="info@1nesting.com">Inguss Pusmucans (ingussp)</maintainer>
+  <author email="ingussp@gmail.com">Inguss Pusmucans (ingussp)</author>
+  <license file="LICENSE">MIT</license>
+  <url type="repository" branch="main">https://github.com/ingussp/1st-Nesting</url>
+  <url type="readme">https://github.com/ingussp/1st-Nesting/blob/main/README.md</url>
+  <url type="website">https://1nesting.com/</url>
+  <url type="documentation">https://1nesting.com/freecad/</url>
+  <url type="bugtracker">https://github.com/ingussp/1st-Nesting/issues</url>
+  <icon>icons/nesting_icon.png</icon>
+  <freecadmin>1.0.0</freecadmin>
+  <tag>nesting</tag>
+  <tag>manufacturing</tag>
+  <tag>CAM</tag>
+  <content>
+    <workbench>
+      <name>1st Nesting</name>
+      <classname>Nesting1stWorkbench</classname>
+      <subdirectory>./</subdirectory>
+      <icon>icons/nesting_icon.png</icon>
+    </workbench>
+  </content>
+</package>
