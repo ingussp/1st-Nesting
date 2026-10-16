@@ -629,5 +629,8 @@
   "thickness.warning": "İstinad qalınlığı: %s.\nFərqli qalınlıqdakı detallar qırmızı rənglə işarələnib.",
   "thickness.row_tooltip": "Qalınlıq: %s. İstinad qalınlığı: %s.",
   "result_info_single_piece_offcut": "Birparça qalıq: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Birparça qalıq: mövcud deyil"
+  "result_info_single_piece_offcut_unavailable": "Birparça qalıq: mövcud deyil",
+  "fill_direction": "Yerləşdirmə istiqaməti",
+  "fill_direction_narrow_to_wide": "Dardan enliyə",
+  "fill_direction_wide_to_narrow": "Enlidən dara"
 }

@@ -629,5 +629,8 @@
   "thickness.warning": "Độ dày tham chiếu: %s.\nCác chi tiết có độ dày khác biệt được đánh dấu màu đỏ.",
   "thickness.row_tooltip": "Độ dày: %s. Độ dày tham chiếu: %s.",
   "result_info_single_piece_offcut": "Phần dư liền một mảnh: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Phần dư liền một mảnh: không khả dụng"
+  "result_info_single_piece_offcut_unavailable": "Phần dư liền một mảnh: không khả dụng",
+  "fill_direction": "Hướng sắp xếp",
+  "fill_direction_narrow_to_wide": "Từ hẹp đến rộng",
+  "fill_direction_wide_to_narrow": "Từ rộng đến hẹp"
 }

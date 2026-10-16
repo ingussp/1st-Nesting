@@ -629,5 +629,8 @@
   "thickness.warning": "Referenstjocklek: %s.\nDetaljer med avvikande tjocklek är markerade med rött.",
   "thickness.row_tooltip": "Tjocklek: %s. Referenstjocklek: %s.",
   "result_info_single_piece_offcut": "Restbit i ett stycke: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Restbit i ett stycke: inte tillgänglig"
+  "result_info_single_piece_offcut_unavailable": "Restbit i ett stycke: inte tillgänglig",
+  "fill_direction": "Placeringsriktning",
+  "fill_direction_narrow_to_wide": "Från smalt till brett",
+  "fill_direction_wide_to_narrow": "Från brett till smalt"
 }

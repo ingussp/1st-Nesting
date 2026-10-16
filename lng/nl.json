@@ -629,5 +629,8 @@
   "thickness.warning": "Referentiedikte: %s.\nOnderdelen met een afwijkende dikte zijn rood gemarkeerd.",
   "thickness.row_tooltip": "Dikte: %s. Referentiedikte: %s.",
   "result_info_single_piece_offcut": "Aaneengesloten reststuk: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Aaneengesloten reststuk: niet beschikbaar"
+  "result_info_single_piece_offcut_unavailable": "Aaneengesloten reststuk: niet beschikbaar",
+  "fill_direction": "Plaatsingsrichting",
+  "fill_direction_narrow_to_wide": "Van smal naar breed",
+  "fill_direction_wide_to_narrow": "Van breed naar smal"
 }

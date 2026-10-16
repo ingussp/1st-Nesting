@@ -629,5 +629,8 @@
   "thickness.warning": "עובי הייחוס: %s.\nחלקים בעלי עובי שונה מסומנים באדום.",
   "thickness.row_tooltip": "עובי: %s. עובי הייחוס: %s.",
   "result_info_single_piece_offcut": "שארית בחלק אחד: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "שארית בחלק אחד: לא זמין"
+  "result_info_single_piece_offcut_unavailable": "שארית בחלק אחד: לא זמין",
+  "fill_direction": "כיוון הסידור",
+  "fill_direction_narrow_to_wide": "מהצר לרחב",
+  "fill_direction_wide_to_narrow": "מהרחב לצר"
 }

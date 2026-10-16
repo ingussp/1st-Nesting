@@ -629,5 +629,8 @@
   "thickness.warning": "Batayang kapal: %s.\nAng mga bahaging may ibang kapal ay minarkahan ng pula.",
   "thickness.row_tooltip": "Kapal: %s. Batayang kapal: %s.",
   "result_info_single_piece_offcut": "Isang buong tirang piraso: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Isang buong tirang piraso: hindi available"
+  "result_info_single_piece_offcut_unavailable": "Isang buong tirang piraso: hindi available",
+  "fill_direction": "Direksiyon ng pag-aayos",
+  "fill_direction_narrow_to_wide": "Mula makitid patungo sa malapad",
+  "fill_direction_wide_to_narrow": "Mula malapad patungo sa makitid"
 }

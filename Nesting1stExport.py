@@ -1220,6 +1220,7 @@ def build_nesting_config(
     spacing=0.0,
     sheet_margin=0.0,
     hole_clearance=0.0,
+    fill_direction="narrow-to-wide",
 ):
     # Migrate script-created panels and jobs saved by the older three-mode UI.
     mode = normalize_search_mode(mode)
@@ -1246,6 +1247,7 @@ def build_nesting_config(
 
     config = {
         "mode": mode,
+        "fillDirection": normalize_fill_direction(fill_direction),
         "resolution": resolution,
         "threads": threads,
         "curveTolerance": curve,
@@ -1293,6 +1295,18 @@ def _read_combo_text(panel, attr, default):
         return str(widget.currentText()) if widget is not None else str(default)
     except Exception:
         return str(default)
+
+
+def normalize_fill_direction(value):
+    return value if value in ('narrow-to-wide', 'wide-to-narrow') else 'narrow-to-wide'
+
+
+def _read_fill_direction(panel):
+    widget = getattr(panel, 'fill_direction_combo', None)
+    try:
+        return normalize_fill_direction(widget.currentData())
+    except (AttributeError, RuntimeError):
+        return 'narrow-to-wide'
 
 
 def normalize_search_mode(value, default='first'):
@@ -1529,6 +1543,7 @@ def export_nesting_steps(panel):
             spacing=spacing,
             sheet_margin=sheet_margin,
             hole_clearance=hole_clearance,
+            fill_direction=_read_fill_direction(panel),
         )
 
         # Validate the entire order before writing either job file.

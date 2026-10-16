@@ -629,5 +629,8 @@
   "thickness.warning": "सन्दर्भ मोटाइ: %s.\nफरक मोटाइ भएका भागहरू रातो रङमा चिन्ह लगाइएका छन्।",
   "thickness.row_tooltip": "मोटाइ: %s. सन्दर्भ मोटाइ: %s.",
   "result_info_single_piece_offcut": "एकै टुक्रामा बाँकी भाग: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "एकै टुक्रामा बाँकी भाग: उपलब्ध छैन"
+  "result_info_single_piece_offcut_unavailable": "एकै टुक्रामा बाँकी भाग: उपलब्ध छैन",
+  "fill_direction": "विन्यासको दिशा",
+  "fill_direction_narrow_to_wide": "साँघुरोबाट फराकिलोतर्फ",
+  "fill_direction_wide_to_narrow": "फराकिलोबाट साँघुरोतर्फ"
 }

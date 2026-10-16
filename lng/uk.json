@@ -629,5 +629,8 @@
   "thickness.warning": "Еталонна товщина: %s.\nДеталі з іншою товщиною виділено червоним кольором.",
   "thickness.row_tooltip": "Товщина: %s. Еталонна товщина: %s.",
   "result_info_single_piece_offcut": "Цілісний залишок: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Цілісний залишок: недоступно"
+  "result_info_single_piece_offcut_unavailable": "Цілісний залишок: недоступно",
+  "fill_direction": "Напрямок розміщення",
+  "fill_direction_narrow_to_wide": "Від вузького боку до широкого",
+  "fill_direction_wide_to_narrow": "Від широкого боку до вузького"
 }

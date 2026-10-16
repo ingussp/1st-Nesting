@@ -629,5 +629,8 @@
   "thickness.warning": "Referans kalınlığı: %s.\nFarklı kalınlıktaki parçalar kırmızı renkle vurgulanmıştır.",
   "thickness.row_tooltip": "Kalınlık: %s. Referans kalınlığı: %s.",
   "result_info_single_piece_offcut": "Tek parça artık: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Tek parça artık: kullanılamıyor"
+  "result_info_single_piece_offcut_unavailable": "Tek parça artık: kullanılamıyor",
+  "fill_direction": "Yerleştirme yönü",
+  "fill_direction_narrow_to_wide": "Dar taraftan geniş tarafa",
+  "fill_direction_wide_to_narrow": "Geniş taraftan dar tarafa"
 }

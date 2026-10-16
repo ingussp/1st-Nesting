@@ -629,5 +629,8 @@
   "thickness.warning": "Referenciavastagság: %s.\nAz eltérő vastagságú alkatrészek pirossal vannak kiemelve.",
   "thickness.row_tooltip": "Vastagság: %s. Referenciavastagság: %s.",
   "result_info_single_piece_offcut": "Egybefüggő maradék: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Egybefüggő maradék: nem érhető el"
+  "result_info_single_piece_offcut_unavailable": "Egybefüggő maradék: nem érhető el",
+  "fill_direction": "Elhelyezés iránya",
+  "fill_direction_narrow_to_wide": "Keskenytől a széles felé",
+  "fill_direction_wide_to_narrow": "Szélestől a keskeny felé"
 }

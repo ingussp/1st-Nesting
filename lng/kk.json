@@ -629,5 +629,8 @@
   "thickness.warning": "Анықтамалық қалыңдық: %s.\nҚалыңдығы өзгеше бөлшектер қызыл түспен белгіленген.",
   "thickness.row_tooltip": "Қалыңдық: %s. Анықтамалық қалыңдық: %s.",
   "result_info_single_piece_offcut": "Біртұтас қалдық: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Біртұтас қалдық: қолжетімсіз"
+  "result_info_single_piece_offcut_unavailable": "Біртұтас қалдық: қолжетімсіз",
+  "fill_direction": "Орналастыру бағыты",
+  "fill_direction_narrow_to_wide": "Тар жағынан кең жағына",
+  "fill_direction_wide_to_narrow": "Кең жағынан тар жағына"
 }

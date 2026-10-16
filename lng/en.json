@@ -629,5 +629,8 @@
   "thickness.warning": "Reference thickness: %s.\nParts with a different thickness are highlighted in red.",
   "thickness.row_tooltip": "Thickness: %s. Reference thickness: %s.",
   "result_info_single_piece_offcut": "Single-piece offcut: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Single-piece offcut: unavailable"
+  "result_info_single_piece_offcut_unavailable": "Single-piece offcut: unavailable",
+  "fill_direction": "Fill direction",
+  "fill_direction_narrow_to_wide": "Narrow to wide",
+  "fill_direction_wide_to_narrow": "Wide to narrow"
 }

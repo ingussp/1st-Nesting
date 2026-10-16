@@ -629,5 +629,8 @@
   "thickness.warning": "基準の厚さ: %s.\n厚さが異なる部品は赤色で表示されます。",
   "thickness.row_tooltip": "厚さ: %s. 基準の厚さ: %s.",
   "result_info_single_piece_offcut": "一体の端材: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "一体の端材: 利用不可"
+  "result_info_single_piece_offcut_unavailable": "一体の端材: 利用不可",
+  "fill_direction": "配置方向",
+  "fill_direction_narrow_to_wide": "狭い側から広い側へ",
+  "fill_direction_wide_to_narrow": "広い側から狭い側へ"
 }

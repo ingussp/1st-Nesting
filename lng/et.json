@@ -629,5 +629,8 @@
   "thickness.warning": "Võrdluspaksus: %s.\nErineva paksusega detailid on tähistatud punasega.",
   "thickness.row_tooltip": "Paksus: %s. Võrdluspaksus: %s.",
   "result_info_single_piece_offcut": "Ühes tükis jääk: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Ühes tükis jääk: pole saadaval"
+  "result_info_single_piece_offcut_unavailable": "Ühes tükis jääk: pole saadaval",
+  "fill_direction": "Paigutamise suund",
+  "fill_direction_narrow_to_wide": "Kitsamast laiemasse",
+  "fill_direction_wide_to_narrow": "Laiemast kitsamasse"
 }

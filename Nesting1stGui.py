@@ -17,7 +17,7 @@ import Part
 from Nesting1stRelayout import NestingRelayoutManager
 from functools import partial
 from Nesting1stExport import remember_hole_selection, current_selected_holes
-from Nesting1stExport import normalize_rotation_text, _extract_part_contours, _read_boundary_deflection, _read_search_mode, normalize_search_mode
+from Nesting1stExport import normalize_rotation_text, _extract_part_contours, _read_boundary_deflection, _read_search_mode, normalize_search_mode, _read_fill_direction
 from Nesting1stSettings import read_search_settings
 from Nesting1stGrainUI import GrainUIController
 from Nesting1stPreviewDoc import PreviewDocManager
@@ -137,6 +137,7 @@ class NestingTaskPanel:
     )
     CLI_COMBO_SETTINGS = (
         ("mode_combo", "SearchMode", "first"),
+        ("fill_direction_combo", "FillDirection", "narrow-to-wide"),
     )
     CLI_BOOL_SETTINGS = (
         ("gpu_enabled_combo", "GpuEnabled", False),
@@ -1726,6 +1727,14 @@ class NestingTaskPanel:
             "30",
             tr('continuous_round_seconds_tooltip'),
         )
+
+        self.fill_direction_combo = self._create_combo_setting(
+            lay, tr('fill_direction'),
+            [tr('fill_direction_narrow_to_wide'), tr('fill_direction_wide_to_narrow')],
+            0, tr('fill_direction'),
+        )
+        for index, direction in enumerate(('narrow-to-wide', 'wide-to-narrow')):
+            self.fill_direction_combo.setItemData(index, direction)
 
         # GPU acceleration section.
         gpu_header = ui_widget(QtGui.QLabel, tr('gpu'))
@@ -4120,6 +4129,7 @@ class NestingTaskPanel:
                 self.units_combo,
                 self.cpu_cores_combo,
                 self.gpu_device_combo,
+                self.fill_direction_combo,
             ]
             for w in widgets:
                 try:
@@ -4257,6 +4267,9 @@ class NestingTaskPanel:
                         if p.GetString(key, default) == 'timed':
                             p.SetString(key, saved)
                         index = widget.findData(saved)
+                    elif attr == 'fill_direction_combo':
+                        index = widget.findData(saved)
+                        if index < 0: index = 0
                     else:
                         index = widget.findText(saved)
                     if index >= 0:
@@ -4353,6 +4366,8 @@ class NestingTaskPanel:
                 try:
                     if attr == 'mode_combo':
                         value = _read_search_mode(self)
+                    elif attr == 'fill_direction_combo':
+                        value = _read_fill_direction(self)
                     else:
                         value = widget.currentText()
                     p.SetString(key, str(value))

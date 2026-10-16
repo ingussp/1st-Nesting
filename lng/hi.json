@@ -629,5 +629,8 @@
   "thickness.warning": "संदर्भ मोटाई: %s.\nअलग मोटाई वाले भाग लाल रंग में चिह्नित हैं।",
   "thickness.row_tooltip": "मोटाई: %s. संदर्भ मोटाई: %s.",
   "result_info_single_piece_offcut": "एक टुकड़े में बचा हुआ भाग: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "एक टुकड़े में बचा हुआ भाग: उपलब्ध नहीं"
+  "result_info_single_piece_offcut_unavailable": "एक टुकड़े में बचा हुआ भाग: उपलब्ध नहीं",
+  "fill_direction": "विन्यास की दिशा",
+  "fill_direction_narrow_to_wide": "संकीर्ण से चौड़े की ओर",
+  "fill_direction_wide_to_narrow": "चौड़े से संकीर्ण की ओर"
 }

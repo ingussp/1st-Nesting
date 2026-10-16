@@ -629,5 +629,8 @@
   "thickness.warning": "Épaisseur de référence: %s.\nLes pièces dont l’épaisseur diffère sont surlignées en rouge.",
   "thickness.row_tooltip": "Épaisseur: %s. Épaisseur de référence: %s.",
   "result_info_single_piece_offcut": "Chute d’un seul tenant: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Chute d’un seul tenant: indisponible"
+  "result_info_single_piece_offcut_unavailable": "Chute d’un seul tenant: indisponible",
+  "fill_direction": "Sens de placement",
+  "fill_direction_narrow_to_wide": "Du plus étroit au plus large",
+  "fill_direction_wide_to_narrow": "Du plus large au plus étroit"
 }

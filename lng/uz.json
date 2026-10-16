@@ -629,5 +629,8 @@
   "thickness.warning": "Etalon qalinlik: %s.\nQalinligi farq qiluvchi detallar qizil rang bilan belgilangan.",
   "thickness.row_tooltip": "Qalinlik: %s. Etalon qalinlik: %s.",
   "result_info_single_piece_offcut": "Yaxlit qoldiq: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Yaxlit qoldiq: mavjud emas"
+  "result_info_single_piece_offcut_unavailable": "Yaxlit qoldiq: mavjud emas",
+  "fill_direction": "Joylashtirish yo‘nalishi",
+  "fill_direction_narrow_to_wide": "Tor tomondan keng tomonga",
+  "fill_direction_wide_to_narrow": "Keng tomondan tor tomonga"
 }

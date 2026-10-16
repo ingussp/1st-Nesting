@@ -629,5 +629,8 @@
   "thickness.warning": "Tiús tagartha: %s.\nTá na páirteanna a bhfuil tiús difriúil acu aibhsithe i ndearg.",
   "thickness.row_tooltip": "Tiús: %s. Tiús tagartha: %s.",
   "result_info_single_piece_offcut": "Fuíoll in aon phíosa: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Fuíoll in aon phíosa: níl sé ar fáil"
+  "result_info_single_piece_offcut_unavailable": "Fuíoll in aon phíosa: níl sé ar fáil",
+  "fill_direction": "Treo leagan amach",
+  "fill_direction_narrow_to_wide": "Ó chúng go leathan",
+  "fill_direction_wide_to_narrow": "Ó leathan go cúng"
 }

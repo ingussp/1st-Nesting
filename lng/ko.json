@@ -629,5 +629,8 @@
   "thickness.warning": "기준 두께: %s.\n두께가 다른 부품은 빨간색으로 표시됩니다.",
   "thickness.row_tooltip": "두께: %s. 기준 두께: %s.",
   "result_info_single_piece_offcut": "하나로 연결된 잔재: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "하나로 연결된 잔재: 사용 불가"
+  "result_info_single_piece_offcut_unavailable": "하나로 연결된 잔재: 사용 불가",
+  "fill_direction": "배치 방향",
+  "fill_direction_narrow_to_wide": "좁은 쪽에서 넓은 쪽으로",
+  "fill_direction_wide_to_narrow": "넓은 쪽에서 좁은 쪽으로"
 }

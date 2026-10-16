@@ -629,5 +629,8 @@
   "thickness.warning": "Referenzdicke: %s.\nTeile mit abweichender Dicke sind rot hervorgehoben.",
   "thickness.row_tooltip": "Dicke: %s. Referenzdicke: %s.",
   "result_info_single_piece_offcut": "Zusammenhängendes Reststück: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Zusammenhängendes Reststück: nicht verfügbar"
+  "result_info_single_piece_offcut_unavailable": "Zusammenhängendes Reststück: nicht verfügbar",
+  "fill_direction": "Anordnungsrichtung",
+  "fill_direction_narrow_to_wide": "Von schmal nach breit",
+  "fill_direction_wide_to_narrow": "Von breit nach schmal"
 }

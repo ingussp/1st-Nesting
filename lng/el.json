@@ -629,5 +629,8 @@
   "thickness.warning": "Πάχος αναφοράς: %s.\nΤα εξαρτήματα με διαφορετικό πάχος επισημαίνονται με κόκκινο.",
   "thickness.row_tooltip": "Πάχος: %s. Πάχος αναφοράς: %s.",
   "result_info_single_piece_offcut": "Ενιαίο υπόλοιπο υλικού: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Ενιαίο υπόλοιπο υλικού: μη διαθέσιμο"
+  "result_info_single_piece_offcut_unavailable": "Ενιαίο υπόλοιπο υλικού: μη διαθέσιμο",
+  "fill_direction": "Κατεύθυνση τοποθέτησης",
+  "fill_direction_narrow_to_wide": "Από το στενό στο φαρδύ",
+  "fill_direction_wide_to_narrow": "Από το φαρδύ στο στενό"
 }

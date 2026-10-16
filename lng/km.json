@@ -629,5 +629,8 @@
   "thickness.warning": "កម្រាស់យោង: %s.\nផ្នែកដែលមានកម្រាស់ខុសគ្នាត្រូវបានសម្គាល់ជាពណ៌ក្រហម។",
   "thickness.row_tooltip": "កម្រាស់: %s. កម្រាស់យោង: %s.",
   "result_info_single_piece_offcut": "សំណល់ជាបំណែកតែមួយ: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "សំណល់ជាបំណែកតែមួយ: មិនមាន"
+  "result_info_single_piece_offcut_unavailable": "សំណល់ជាបំណែកតែមួយ: មិនមាន",
+  "fill_direction": "ទិសដៅរៀបចំ",
+  "fill_direction_narrow_to_wide": "ពីផ្នែកចង្អៀតទៅផ្នែកទូលាយ",
+  "fill_direction_wide_to_narrow": "ពីផ្នែកទូលាយទៅផ្នែកចង្អៀត"
 }

@@ -629,5 +629,8 @@
   "thickness.warning": "Referentna debljina: %s.\nDijelovi s različitom debljinom označeni su crvenom bojom.",
   "thickness.row_tooltip": "Debljina: %s. Referentna debljina: %s.",
   "result_info_single_piece_offcut": "Ostatak u jednom komadu: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Ostatak u jednom komadu: nije dostupno"
+  "result_info_single_piece_offcut_unavailable": "Ostatak u jednom komadu: nije dostupno",
+  "fill_direction": "Smjer raspoređivanja",
+  "fill_direction_narrow_to_wide": "Od uže prema široj strani",
+  "fill_direction_wide_to_narrow": "Od šire prema užoj strani"
 }

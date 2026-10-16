@@ -629,5 +629,8 @@
   "thickness.warning": "Atskaitos storis: %s.\nKitokio storio detalės pažymėtos raudonai.",
   "thickness.row_tooltip": "Storis: %s. Atskaitos storis: %s.",
   "result_info_single_piece_offcut": "Vientisa atraiža: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Vientisa atraiža: neprieinama"
+  "result_info_single_piece_offcut_unavailable": "Vientisa atraiža: neprieinama",
+  "fill_direction": "Išdėstymo kryptis",
+  "fill_direction_narrow_to_wide": "Nuo siauresnės iki platesnės pusės",
+  "fill_direction_wide_to_narrow": "Nuo platesnės iki siauresnės pusės"
 }

@@ -629,5 +629,8 @@
   "thickness.warning": "Vertailupaksuus: %s.\nPaksuudeltaan poikkeavat osat on merkitty punaisella.",
   "thickness.row_tooltip": "Paksuus: %s. Vertailupaksuus: %s.",
   "result_info_single_piece_offcut": "Yhtenäinen jäännöspala: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Yhtenäinen jäännöspala: ei saatavilla"
+  "result_info_single_piece_offcut_unavailable": "Yhtenäinen jäännöspala: ei saatavilla",
+  "fill_direction": "Sijoittelusuunta",
+  "fill_direction_narrow_to_wide": "Kapeasta leveään",
+  "fill_direction_wide_to_narrow": "Leveästä kapeaan"
 }

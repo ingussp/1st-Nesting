@@ -629,5 +629,8 @@
   "thickness.warning": "参考厚度: %s.\n厚度不同的零件已用红色标记。",
   "thickness.row_tooltip": "厚度: %s. 参考厚度: %s.",
   "result_info_single_piece_offcut": "单块余料: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "单块余料: 不可用"
+  "result_info_single_piece_offcut_unavailable": "单块余料: 不可用",
+  "fill_direction": "排布方向",
+  "fill_direction_narrow_to_wide": "从窄侧到宽侧",
+  "fill_direction_wide_to_narrow": "从宽侧到窄侧"
 }

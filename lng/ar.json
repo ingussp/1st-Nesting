@@ -629,5 +629,8 @@
   "thickness.warning": "السماكة المرجعية: %s.\nالأجزاء ذات السماكة المختلفة مميزة باللون الأحمر.",
   "thickness.row_tooltip": "السماكة: %s. السماكة المرجعية: %s.",
   "result_info_single_piece_offcut": "قصاصة من قطعة واحدة: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "قصاصة من قطعة واحدة: غير متاح"
+  "result_info_single_piece_offcut_unavailable": "قصاصة من قطعة واحدة: غير متاح",
+  "fill_direction": "اتجاه الترتيب",
+  "fill_direction_narrow_to_wide": "من الأضيق إلى الأوسع",
+  "fill_direction_wide_to_narrow": "من الأوسع إلى الأضيق"
 }

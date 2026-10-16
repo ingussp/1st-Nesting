@@ -629,5 +629,8 @@
   "thickness.warning": "Эталонная толщина: %s.\nДетали с отличающейся толщиной выделены красным цветом.",
   "thickness.row_tooltip": "Толщина: %s. Эталонная толщина: %s.",
   "result_info_single_piece_offcut": "Цельный остаток: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Цельный остаток: недоступно"
+  "result_info_single_piece_offcut_unavailable": "Цельный остаток: недоступно",
+  "fill_direction": "Направление размещения",
+  "fill_direction_narrow_to_wide": "От узкой стороны к широкой",
+  "fill_direction_wide_to_narrow": "От широкой стороны к узкой"
 }

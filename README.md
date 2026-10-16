@@ -4,8 +4,8 @@
 
 The workbench is named **1st Nesting**. Its Python modules use the `Nesting1st` prefix
 (for example, `Nesting1stGui.py`); Python's normal import syntax cannot use a module
-identifier beginning with a digit. The repository URL and installation folder remain
-`IP-Nesting` for this rename. See [rename compatibility](docs/RENAME_COMPATIBILITY.md)
+identifier beginning with a digit. The repository is `ingussp/1st-Nesting`; new installations use the
+`1stNesting` folder inside FreeCAD’s `Mod` directory. See [rename compatibility](docs/RENAME_COMPATIBILITY.md)
 for saved-document and preference compatibility.
 
 [User guide with screenshots](docs/USER_GUIDE.md) · [Repository description](docs/REPOSITORY_DESCRIPTION.md) · [MIT licence](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
@@ -61,8 +61,8 @@ On first use, the workbench offers to download the latest stable CLI-nesting rel
 ### Windows
 
 1. Close FreeCAD before installing or replacing workbench files.
-2. Download this repository or clone it into `%APPDATA%\FreeCAD\Mod\IP-Nesting`.
-3. Ensure `InitGui.py` is directly inside `IP-Nesting`, without an extra nested archive folder.
+2. Open `C:\Users\YOUR_USER_NAME\AppData\Roaming\FreeCAD\Mod` and place the downloaded workbench files in a subfolder named `1stNesting`.
+3. Ensure `InitGui.py` is directly inside `1stNesting`, without an extra nested archive folder.
 4. Start FreeCAD and select **1st Nesting** in the workbench selector.
 5. Accept the first-use offer to download the engine for your system, or install later from Settings.
 6. Open **Nesting Tool** from its toolbar/menu. The gear button opens settings; settings are also available from the workbench menu.
@@ -71,7 +71,7 @@ For a new installation with Git:
 
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:APPDATA\FreeCAD\Mod"
-git clone https://github.com/ingussp/IP-Nesting.git "$env:APPDATA\FreeCAD\Mod\IP-Nesting"
+git clone https://github.com/ingussp/1st-Nesting.git "$env:APPDATA\FreeCAD\Mod\1stNesting"
 ```
 
 The clone command requires a destination that does not already contain a checkout. Preserve your local changes, job files and results before updating an existing installation. To locate FreeCAD's actual user data folder, run `App.getUserAppDataDir()` in its Python console.
@@ -171,6 +171,31 @@ The group is exported as **one part in its displayed arrangement**, with ordinar
 
 The session records each original member and its relative position/angle. A placed group is reconstructed as separate original FreeCAD parts and separate SVG contours. If source geometry changes, reopen and confirm the group; if the required spacing increases beyond its saved gaps, edit the arrangement before nesting.
 
+## Filling direction (version 1.02)
+
+The **Fill direction** dropdown is immediately above **GPU** in the main
+panel. Choose:
+
+- **Narrow to wide** (default): start near the narrow side and fill toward the
+  wider area. On rectangular stock, start at a short edge and progress along
+  the long dimension.
+- **Wide to narrow**: prefer the wider side first. On rectangular stock, start
+  at a long edge instead.
+
+The choice is saved automatically and works with First and Continuous modes.
+Irregular sheets select their start edge from the average usable material width
+near each bounding-box side, with stock holes excluded. Each sheet is evaluated
+separately. Parts that cannot fit at the narrow end can be placed farther along.
+The direction changes search order and compaction preferences while retaining
+part quantities, allowed rotations, texture direction, holes and clearances.
+Placed count and used-sheet waste remain higher priorities than direction.
+
+The workbench exports the stable value as `config.fillDirection` in
+`input.json`; translated dropdown captions never enter the engine protocol.
+This setting requires **CLI-Nesting 1.02 or newer**. The local Windows engine
+provided with this change has been rebuilt as 1.02. Millimetres remain the
+engine's canonical units even when the interface displays inches.
+
 ## Search and settings
 
 ### Search modes
@@ -193,7 +218,7 @@ CPU choices reflect available logical cores, capped at 16. GPU use is optional. 
 
 ### Settings menu
 
-Settings are available from the gear button or the workbench menu, even without an open task panel. Preferences are stored under `BaseApp/Preferences/Mod/IPNesting`.
+Settings are available from the gear button or the workbench menu, even without an open task panel. Preferences are saved automatically and retained when updating.
 
 | Setting | Initial value | Purpose |
 | --- | --- | --- |
@@ -236,7 +261,7 @@ The following files are created **in the workbench folder**, not beside the plat
 | `result.json` | Latest complete engine snapshot |
 | `results/resultN.json` | Improving snapshots from Continuous mode |
 | `clinesting.log` | Engine diagnostics |
-| `.ipnesting-job.lock`, `.clinesting-results.lock` | Exclusive job/result ownership |
+| Job ownership lock, `.clinesting-results.lock` | Exclusive job/result ownership |
 | `.clinesting-cancel-*` | Job-specific cancellation marker |
 
 Input, session and result share a job UUID; mismatched results are rejected. Original geometry is frozen at export, so results do not depend on a subsequently changed or closed preview document. Keep the session with its matching result for geometry reconstruction.
@@ -253,7 +278,7 @@ User-defined part labels and technical identifiers remain unchanged. Automated c
 
 | Symptom | What to check |
 | --- | --- |
-| Workbench is missing | Correct `Mod/IP-Nesting` location, direct `InitGui.py`, then restart FreeCAD |
+| Workbench is missing | Correct `Mod/1stNesting` location, direct `InitGui.py`, then restart FreeCAD |
 | Executable not found | Correct platform folder; only Windows x64 is bundled |
 | Job files cannot be written | Write access to the workbench folder |
 | GPU list is empty | Use Show GPUs and check the installed OpenCL driver; try CPU mode |
@@ -301,7 +326,7 @@ Geometry and GUI checks need **FreeCAD's bundled Python**, including its Part an
 
 Other native checks are `freecad_grain_controls.py`, `freecad_grain_matching.py`, `freecad_result_svg.py`, `freecad_progress_and_view.py`, `freecad_dxf_batch_import.py`, `freecad_search_settings.py` and `gui_language_smoke.py` in `tests/`. GUI scripts use offscreen Qt where appropriate; integration checks use disposable job folders. Adjust the Python path to your FreeCAD installation. The matching test accepts `CLINESTING_EXE` for a compatible test engine and `GRAIN_MATCH_SCREENSHOT` for a preview screenshot destination.
 
-Report bugs or suggest improvements through [GitHub issues](https://github.com/ingussp/IP-Nesting/issues). Include a minimal example and expected versus actual behaviour. Preserve translation placeholders, millimetre job coordinates and input/session/result identity checks when contributing.
+Report bugs or suggest improvements through [GitHub issues](https://github.com/ingussp/1st-Nesting/issues). Include a minimal example and expected versus actual behaviour. Preserve translation placeholders, millimetre job coordinates and input/session/result identity checks when contributing.
 
 ## Licensing
 

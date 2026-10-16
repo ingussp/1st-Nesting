@@ -629,5 +629,8 @@
   "thickness.warning": "Atskaites biezums: %s.\nDetaļas ar atšķirīgu biezumu tabulā ir iekrāsotas sarkanā krāsā.",
   "thickness.row_tooltip": "Biezums: %s. Atskaites biezums: %s.",
   "result_info_single_piece_offcut": "Viena gabala atgriezums: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Viena gabala atgriezums: nav pieejams"
+  "result_info_single_piece_offcut_unavailable": "Viena gabala atgriezums: nav pieejams",
+  "fill_direction": "Izvietošanas virziens",
+  "fill_direction_narrow_to_wide": "No šaurākās uz platāko pusi",
+  "fill_direction_wide_to_narrow": "No platākās uz šaurāko pusi"
 }

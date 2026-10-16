@@ -629,5 +629,8 @@
   "thickness.warning": "Referencetykkelse: %s.\nEmner med en anden tykkelse er markeret med rødt.",
   "thickness.row_tooltip": "Tykkelse: %s. Referencetykkelse: %s.",
   "result_info_single_piece_offcut": "Reststykke i ét stykke: %.2f %s (%.2f %%)",
-  "result_info_single_piece_offcut_unavailable": "Reststykke i ét stykke: ikke tilgængeligt"
+  "result_info_single_piece_offcut_unavailable": "Reststykke i ét stykke: ikke tilgængeligt",
+  "fill_direction": "Placeringsretning",
+  "fill_direction_narrow_to_wide": "Fra smal til bred",
+  "fill_direction_wide_to_narrow": "Fra bred til smal"
 }
