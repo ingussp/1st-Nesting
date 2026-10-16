@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Fdal f’biċċa waħda: mhux disponibbli",
   "fill_direction": "Direzzjoni tat-tqegħid",
   "fill_direction_narrow_to_wide": "Mill-parti dejqa għall-wiesgħa",
-  "fill_direction_wide_to_narrow": "Mill-parti wiesgħa għad-dejqa"
+  "fill_direction_wide_to_narrow": "Mill-parti wiesgħa għad-dejqa",
+  "select_all": "Agħżel kollha"
 }

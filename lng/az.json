@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Birparça qalıq: mövcud deyil",
   "fill_direction": "Yerləşdirmə istiqaməti",
   "fill_direction_narrow_to_wide": "Dardan enliyə",
-  "fill_direction_wide_to_narrow": "Enlidən dara"
+  "fill_direction_wide_to_narrow": "Enlidən dara",
+  "select_all": "Hamısını seçin"
 }

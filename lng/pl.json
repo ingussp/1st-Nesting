@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Odpad w jednym kawałku: niedostępny",
   "fill_direction": "Kierunek rozmieszczania",
   "fill_direction_narrow_to_wide": "Od węższej do szerszej strony",
-  "fill_direction_wide_to_narrow": "Od szerszej do węższej strony"
+  "fill_direction_wide_to_narrow": "Od szerszej do węższej strony",
+  "select_all": "Zaznacz wszystko"
 }

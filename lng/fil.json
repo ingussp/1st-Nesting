@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Isang buong tirang piraso: hindi available",
   "fill_direction": "Direksiyon ng pag-aayos",
   "fill_direction_narrow_to_wide": "Mula makitid patungo sa malapad",
-  "fill_direction_wide_to_narrow": "Mula malapad patungo sa makitid"
+  "fill_direction_wide_to_narrow": "Mula malapad patungo sa makitid",
+  "select_all": "Piliin lahat"
 }

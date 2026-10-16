@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Retal de una sola pieza: no disponible",
   "fill_direction": "Dirección de colocación",
   "fill_direction_narrow_to_wide": "De estrecho a ancho",
-  "fill_direction_wide_to_narrow": "De ancho a estrecho"
+  "fill_direction_wide_to_narrow": "De ancho a estrecho",
+  "select_all": "Seleccionar todo"
 }

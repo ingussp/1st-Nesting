@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "قصاصة من قطعة واحدة: غير متاح",
   "fill_direction": "اتجاه الترتيب",
   "fill_direction_narrow_to_wide": "من الأضيق إلى الأوسع",
-  "fill_direction_wide_to_narrow": "من الأوسع إلى الأضيق"
+  "fill_direction_wide_to_narrow": "من الأوسع إلى الأضيق",
+  "select_all": "حدد الكل"
 }

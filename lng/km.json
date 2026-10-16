@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "សំណល់ជាបំណែកតែមួយ: មិនមាន",
   "fill_direction": "ទិសដៅរៀបចំ",
   "fill_direction_narrow_to_wide": "ពីផ្នែកចង្អៀតទៅផ្នែកទូលាយ",
-  "fill_direction_wide_to_narrow": "ពីផ្នែកទូលាយទៅផ្នែកចង្អៀត"
+  "fill_direction_wide_to_narrow": "ពីផ្នែកទូលាយទៅផ្នែកចង្អៀត",
+  "select_all": "ជ្រើសរើសទាំងអស់។"
 }

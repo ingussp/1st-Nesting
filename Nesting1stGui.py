@@ -253,7 +253,7 @@ class NestingTaskPanel:
         self.grid_spacing = 250 
 
         # Number of control rows at bottom of table (rotate, grain, mark holes)
-        self.control_rows = 4
+        self.control_rows = 6
 
         self._suppress_selection_update = False
         self._suppress_qty_update = False
@@ -563,7 +563,9 @@ class NestingTaskPanel:
         # rotator instance
         self._rotator = NestingRotator(self.preview_doc_name) if NestingRotator is not None else None
 
-        # Create two control rows
+        from Nesting1stBulkEdit import BulkPartEditor
+        self._bulk_editor = BulkPartEditor(self)
+        # Create the master edit row followed by four button rows.
         self._create_control_rows()
 
         # Initialize grain UI controller (handles blinking and grain operations)
@@ -1910,7 +1912,7 @@ class NestingTaskPanel:
         self._grain._connect_grain_widgets(grain_cb, grain_combo, preview_obj_name)
 
     def _create_control_rows(self):
-        """Create four control rows at the bottom:
+        """Create a separator, Select all row and four button rows at the bottom:
            - row (table.rowCount()-4): Rotate controls
            - row (table.rowCount()-3): Change grain direction controls
            - row (table.rowCount()-2): Mark selected part holes
@@ -1920,7 +1922,8 @@ class NestingTaskPanel:
             total_rows = self.table.rowCount()
             # ensure we have exactly control_rows rows reserved at bottom; they are already created at init
             # Top control row index:
-            top_idx = total_rows - self.control_rows
+            self._bulk_editor.build_row()
+            top_idx = total_rows - 4
             bottom_idx = total_rows - 3
             mark_idx = total_rows - 2
             match_idx = total_rows - 1
@@ -2999,6 +3002,9 @@ class NestingTaskPanel:
 
             row = item.row()
             col = item.column()
+
+            if self._bulk_editor.handle_item_changed(item):
+                return
 
             # Ignore control rows.
             if row >= (

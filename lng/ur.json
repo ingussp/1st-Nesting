@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "ایک ٹکڑے میں بچا ہوا مواد: دستیاب نہیں",
   "fill_direction": "ترتیب کی سمت",
   "fill_direction_narrow_to_wide": "تنگ سے چوڑی طرف",
-  "fill_direction_wide_to_narrow": "چوڑی سے تنگ طرف"
+  "fill_direction_wide_to_narrow": "چوڑی سے تنگ طرف",
+  "select_all": "سبھی کو منتخب کریں۔"
 }

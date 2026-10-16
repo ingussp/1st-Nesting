@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Aaneengesloten reststuk: niet beschikbaar",
   "fill_direction": "Plaatsingsrichting",
   "fill_direction_narrow_to_wide": "Van smal naar breed",
-  "fill_direction_wide_to_narrow": "Van breed naar smal"
+  "fill_direction_wide_to_narrow": "Van breed naar smal",
+  "select_all": "Selecteer alles"
 }

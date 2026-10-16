@@ -102,6 +102,8 @@ class GrainUIController:
             obj.GrainAngleDeg = 90 if str(axis).upper() == 'Y' else 0
 
     def _apply_live_layout(self):
+        if getattr(self.panel, '_bulk_edit_active', False):
+            return
         self.update_grain_layout_and_perimeters(preserve_standard_layout=True)
         # The layout aligns all grain arrows with X; keep the bulk selector in sync.
         combo = getattr(self.panel, 'bulk_grain_combo', None)

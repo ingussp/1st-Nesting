@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Reststykke i ét stykke: ikke tilgængeligt",
   "fill_direction": "Placeringsretning",
   "fill_direction_narrow_to_wide": "Fra smal til bred",
-  "fill_direction_wide_to_narrow": "Fra bred til smal"
+  "fill_direction_wide_to_narrow": "Fra bred til smal",
+  "select_all": "Vælg alle"
 }

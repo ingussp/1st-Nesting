@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "باقی‌ماندهٔ یکپارچه: در دسترس نیست",
   "fill_direction": "جهت چیدمان",
   "fill_direction_narrow_to_wide": "از باریک به پهن",
-  "fill_direction_wide_to_narrow": "از پهن به باریک"
+  "fill_direction_wide_to_narrow": "از پهن به باریک",
+  "select_all": "همه را انتخاب کنید"
 }

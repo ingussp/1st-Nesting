@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Yaxlit qoldiq: mavjud emas",
   "fill_direction": "Joylashtirish yo‘nalishi",
   "fill_direction_narrow_to_wide": "Tor tomondan keng tomonga",
-  "fill_direction_wide_to_narrow": "Keng tomondan tor tomonga"
+  "fill_direction_wide_to_narrow": "Keng tomondan tor tomonga",
+  "select_all": "Hammasini tanlang"
 }

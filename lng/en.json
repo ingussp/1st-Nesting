@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Single-piece offcut: unavailable",
   "fill_direction": "Fill direction",
   "fill_direction_narrow_to_wide": "Narrow to wide",
-  "fill_direction_wide_to_narrow": "Wide to narrow"
+  "fill_direction_wide_to_narrow": "Wide to narrow",
+  "select_all": "Select all"
 }

@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Fuíoll in aon phíosa: níl sé ar fáil",
   "fill_direction": "Treo leagan amach",
   "fill_direction_narrow_to_wide": "Ó chúng go leathan",
-  "fill_direction_wide_to_narrow": "Ó leathan go cúng"
+  "fill_direction_wide_to_narrow": "Ó leathan go cúng",
+  "select_all": "Roghnaigh go léir"
 }

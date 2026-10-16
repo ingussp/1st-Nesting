@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "一体の端材: 利用不可",
   "fill_direction": "配置方向",
   "fill_direction_narrow_to_wide": "狭い側から広い側へ",
-  "fill_direction_wide_to_narrow": "広い側から狭い側へ"
+  "fill_direction_wide_to_narrow": "広い側から狭い側へ",
+  "select_all": "すべて選択"
 }

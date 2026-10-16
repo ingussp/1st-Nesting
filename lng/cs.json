@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Jednodílný odřezek: není k dispozici",
   "fill_direction": "Směr rozmístění",
   "fill_direction_narrow_to_wide": "Od užší k širší straně",
-  "fill_direction_wide_to_narrow": "Od širší k užší straně"
+  "fill_direction_wide_to_narrow": "Od širší k užší straně",
+  "select_all": "Vyberte vše"
 }

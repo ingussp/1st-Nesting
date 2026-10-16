@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Цілісний залишок: недоступно",
   "fill_direction": "Напрямок розміщення",
   "fill_direction_narrow_to_wide": "Від вузького боку до широкого",
-  "fill_direction_wide_to_narrow": "Від широкого боку до вузького"
+  "fill_direction_wide_to_narrow": "Від широкого боку до вузького",
+  "select_all": "Вибрати все"
 }

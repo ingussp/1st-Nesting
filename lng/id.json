@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Sisa satu bagian utuh: tidak tersedia",
   "fill_direction": "Arah penempatan",
   "fill_direction_narrow_to_wide": "Dari sempit ke lebar",
-  "fill_direction_wide_to_narrow": "Dari lebar ke sempit"
+  "fill_direction_wide_to_narrow": "Dari lebar ke sempit",
+  "select_all": "Pilih semua"
 }

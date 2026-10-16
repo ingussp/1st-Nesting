@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Zusammenhängendes Reststück: nicht verfügbar",
   "fill_direction": "Anordnungsrichtung",
   "fill_direction_narrow_to_wide": "Von schmal nach breit",
-  "fill_direction_wide_to_narrow": "Von breit nach schmal"
+  "fill_direction_wide_to_narrow": "Von breit nach schmal",
+  "select_all": "Alles auswählen"
 }

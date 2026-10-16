@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Tek parça artık: kullanılamıyor",
   "fill_direction": "Yerleştirme yönü",
   "fill_direction_narrow_to_wide": "Dar taraftan geniş tarafa",
-  "fill_direction_wide_to_narrow": "Geniş taraftan dar tarafa"
+  "fill_direction_wide_to_narrow": "Geniş taraftan dar tarafa",
+  "select_all": "Tümünü seç"
 }

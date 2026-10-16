@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "တစ်ဆက်တည်း ကျန်ပစ္စည်းအပိုင်း: မရရှိနိုင်ပါ",
   "fill_direction": "နေရာချထားသည့် ဦးတည်ချက်",
   "fill_direction_narrow_to_wide": "ကျဉ်းရာမှ ကျယ်ရာသို့",
-  "fill_direction_wide_to_narrow": "ကျယ်ရာမှ ကျဉ်းရာသို့"
+  "fill_direction_wide_to_narrow": "ကျယ်ရာမှ ကျဉ်းရာသို့",
+  "select_all": "အားလုံးကို ရွေးပါ။"
 }

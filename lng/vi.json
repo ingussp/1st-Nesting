@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Phần dư liền một mảnh: không khả dụng",
   "fill_direction": "Hướng sắp xếp",
   "fill_direction_narrow_to_wide": "Từ hẹp đến rộng",
-  "fill_direction_wide_to_narrow": "Từ rộng đến hẹp"
+  "fill_direction_wide_to_narrow": "Từ rộng đến hẹp",
+  "select_all": "Chọn tất cả"
 }

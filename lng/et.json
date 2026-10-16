@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Ühes tükis jääk: pole saadaval",
   "fill_direction": "Paigutamise suund",
   "fill_direction_narrow_to_wide": "Kitsamast laiemasse",
-  "fill_direction_wide_to_narrow": "Laiemast kitsamasse"
+  "fill_direction_wide_to_narrow": "Laiemast kitsamasse",
+  "select_all": "Valige kõik"
 }

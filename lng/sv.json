@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Restbit i ett stycke: inte tillgänglig",
   "fill_direction": "Placeringsriktning",
   "fill_direction_narrow_to_wide": "Från smalt till brett",
-  "fill_direction_wide_to_narrow": "Från brett till smalt"
+  "fill_direction_wide_to_narrow": "Från brett till smalt",
+  "select_all": "Välj alla"
 }

@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Цельный остаток: недоступно",
   "fill_direction": "Направление размещения",
   "fill_direction_narrow_to_wide": "От узкой стороны к широкой",
-  "fill_direction_wide_to_narrow": "От широкой стороны к узкой"
+  "fill_direction_wide_to_narrow": "От широкой стороны к узкой",
+  "select_all": "Выбрать все"
 }

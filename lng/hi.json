@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "एक टुकड़े में बचा हुआ भाग: उपलब्ध नहीं",
   "fill_direction": "विन्यास की दिशा",
   "fill_direction_narrow_to_wide": "संकीर्ण से चौड़े की ओर",
-  "fill_direction_wide_to_narrow": "चौड़े से संकीर्ण की ओर"
+  "fill_direction_wide_to_narrow": "चौड़े से संकीर्ण की ओर",
+  "select_all": "सभी का चयन करें"
 }

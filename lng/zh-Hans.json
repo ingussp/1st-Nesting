@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "单块余料: 不可用",
   "fill_direction": "排布方向",
   "fill_direction_narrow_to_wide": "从窄侧到宽侧",
-  "fill_direction_wide_to_narrow": "从宽侧到窄侧"
+  "fill_direction_wide_to_narrow": "从宽侧到窄侧",
+  "select_all": "选择全部"
 }

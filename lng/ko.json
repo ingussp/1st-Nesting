@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "하나로 연결된 잔재: 사용 불가",
   "fill_direction": "배치 방향",
   "fill_direction_narrow_to_wide": "좁은 쪽에서 넓은 쪽으로",
-  "fill_direction_wide_to_narrow": "넓은 쪽에서 좁은 쪽으로"
+  "fill_direction_wide_to_narrow": "넓은 쪽에서 좁은 쪽으로",
+  "select_all": "모두 선택"
 }

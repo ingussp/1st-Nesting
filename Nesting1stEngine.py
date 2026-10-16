@@ -67,6 +67,15 @@ def version_key(value):
     return tuple(parts)
 
 
+def download_url(target, tag=None):
+    """Public asset URL, before a version is known or pinned to a release."""
+    prefix = 'https://github.com/' + REPOSITORY + '/releases/'
+    if tag is None:
+        return prefix + 'latest/download/' + target.asset
+    version_key(tag)
+    return prefix + 'download/' + quote(tag, safe='') + '/' + target.asset
+
+
 def digest(path):
     checksum = hashlib.sha256()
     with open(path, 'rb') as stream:
@@ -104,7 +113,7 @@ def latest_release(target, cancelled=None, opener=open_url):
     if len(matches) != 1:
         raise ValueError('No matching release asset: ' + target.asset)
     asset = matches[0]
-    expected_url = 'https://github.com/' + REPOSITORY + '/releases/download/' + quote(tag, safe='') + '/' + target.asset
+    expected_url = download_url(target, tag)
     if asset.get('browser_download_url') != expected_url:
         raise ValueError('Unexpected release asset URL')
     if not re.fullmatch(r'sha256:[0-9a-fA-F]{64}', str(asset.get('digest', ''))):
@@ -138,7 +147,13 @@ def installed_info(workbench, target, probe=probe_version):
         receipt = json.loads((Path(executable).parent / RECEIPT).read_text(encoding='utf-8'))
         if receipt['platform'] == target.folder and receipt['sha256'] == checksum:
             version_key(receipt['version'])
-            return dict(version=receipt['version'], digest=checksum, executable=executable)
+            info = dict(version=receipt['version'], digest=checksum, executable=executable)
+            # Only report a source recorded for this exact installed executable.
+            tag = receipt.get('tag')
+            if (tag and version_key(tag) == version_key(receipt['version'])
+                    and receipt.get('asset_url') == download_url(target, tag)):
+                info['asset_url'] = receipt['asset_url']
+            return info
     except (OSError, ValueError, KeyError, TypeError):
         pass
     return dict(version=probe(executable), digest=checksum, executable=executable)

@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Yhtenäinen jäännöspala: ei saatavilla",
   "fill_direction": "Sijoittelusuunta",
   "fill_direction_narrow_to_wide": "Kapeasta leveään",
-  "fill_direction_wide_to_narrow": "Leveästä kapeaan"
+  "fill_direction_wide_to_narrow": "Leveästä kapeaan",
+  "select_all": "Valitse kaikki"
 }

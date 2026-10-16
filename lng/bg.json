@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Едноцелен остатък: няма данни",
   "fill_direction": "Посока на подреждане",
   "fill_direction_narrow_to_wide": "От тясната към широката страна",
-  "fill_direction_wide_to_narrow": "От широката към тясната страна"
+  "fill_direction_wide_to_narrow": "От широката към тясната страна",
+  "select_all": "Изберете всички"
 }

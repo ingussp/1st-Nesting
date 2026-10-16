@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Боқимондаи якпорча: дастрас нест",
   "fill_direction": "Самти ҷойгиркунӣ",
   "fill_direction_narrow_to_wide": "Аз тарафи танг ба васеъ",
-  "fill_direction_wide_to_narrow": "Аз тарафи васеъ ба танг"
+  "fill_direction_wide_to_narrow": "Аз тарафи васеъ ба танг",
+  "select_all": "Ҳамаро интихоб кунед"
 }

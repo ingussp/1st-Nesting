@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "שארית בחלק אחד: לא זמין",
   "fill_direction": "כיוון הסידור",
   "fill_direction_narrow_to_wide": "מהצר לרחב",
-  "fill_direction_wide_to_narrow": "מהרחב לצר"
+  "fill_direction_wide_to_narrow": "מהרחב לצר",
+  "select_all": "בחר הכל"
 }

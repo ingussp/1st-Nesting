@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Ενιαίο υπόλοιπο υλικού: μη διαθέσιμο",
   "fill_direction": "Κατεύθυνση τοποθέτησης",
   "fill_direction_narrow_to_wide": "Από το στενό στο φαρδύ",
-  "fill_direction_wide_to_narrow": "Από το φαρδύ στο στενό"
+  "fill_direction_wide_to_narrow": "Από το φαρδύ στο στενό",
+  "select_all": "Επιλέξτε όλα"
 }

@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Rest dintr-o singură bucată: indisponibil",
   "fill_direction": "Direcția de așezare",
   "fill_direction_narrow_to_wide": "De la îngust la lat",
-  "fill_direction_wide_to_narrow": "De la lat la îngust"
+  "fill_direction_wide_to_narrow": "De la lat la îngust",
+  "select_all": "Selectați toate"
 }

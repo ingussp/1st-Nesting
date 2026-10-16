@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Retalho de uma só peça: indisponível",
   "fill_direction": "Direção de disposição",
   "fill_direction_narrow_to_wide": "Do lado estreito para o largo",
-  "fill_direction_wide_to_narrow": "Do lado largo para o estreito"
+  "fill_direction_wide_to_narrow": "Do lado largo para o estreito",
+  "select_all": "Selecionar tudo"
 }

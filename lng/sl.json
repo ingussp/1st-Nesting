@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Ostanek v enem kosu: ni na voljo",
   "fill_direction": "Smer razporejanja",
   "fill_direction_narrow_to_wide": "Od ožje proti širši strani",
-  "fill_direction_wide_to_narrow": "Od širše proti ožji strani"
+  "fill_direction_wide_to_narrow": "Od širše proti ožji strani",
+  "select_all": "Izberite vse"
 }

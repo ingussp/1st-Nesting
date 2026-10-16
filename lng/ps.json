@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "په یوه ټوټه کې پاتې مواد: شتون نه لري",
   "fill_direction": "د ځای پر ځای کولو لوری",
   "fill_direction_narrow_to_wide": "له تنګې خوا څخه پراخې خوا ته",
-  "fill_direction_wide_to_narrow": "له پراخې خوا څخه تنګې خوا ته"
+  "fill_direction_wide_to_narrow": "له پراخې خوا څخه تنګې خوا ته",
+  "select_all": "ټول وټاکئ"
 }

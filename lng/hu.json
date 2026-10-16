@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Egybefüggő maradék: nem érhető el",
   "fill_direction": "Elhelyezés iránya",
   "fill_direction_narrow_to_wide": "Keskenytől a széles felé",
-  "fill_direction_wide_to_narrow": "Szélestől a keskeny felé"
+  "fill_direction_wide_to_narrow": "Szélestől a keskeny felé",
+  "select_all": "Válassza ki az összeset"
 }

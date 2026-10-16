@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Chute d’un seul tenant: indisponible",
   "fill_direction": "Sens de placement",
   "fill_direction_narrow_to_wide": "Du plus étroit au plus large",
-  "fill_direction_wide_to_narrow": "Du plus large au plus étroit"
+  "fill_direction_wide_to_narrow": "Du plus large au plus étroit",
+  "select_all": "Tout sélectionner"
 }

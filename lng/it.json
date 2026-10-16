@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Sfrido in un unico pezzo: non disponibile",
   "fill_direction": "Direzione di disposizione",
   "fill_direction_narrow_to_wide": "Dal lato stretto al lato largo",
-  "fill_direction_wide_to_narrow": "Dal lato largo al lato stretto"
+  "fill_direction_wide_to_narrow": "Dal lato largo al lato stretto",
+  "select_all": "Seleziona tutto"
 }

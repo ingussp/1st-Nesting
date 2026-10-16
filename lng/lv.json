@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Viena gabala atgriezums: nav pieejams",
   "fill_direction": "Izvietošanas virziens",
   "fill_direction_narrow_to_wide": "No šaurākās uz platāko pusi",
-  "fill_direction_wide_to_narrow": "No platākās uz šaurāko pusi"
+  "fill_direction_wide_to_narrow": "No platākās uz šaurāko pusi",
+  "select_all": "Atlasīt visu"
 }

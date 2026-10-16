@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "එක් කැබැල්ලක ඉතිරි ද්‍රව්‍ය: ලබා ගත නොහැක",
   "fill_direction": "සැකසුම් දිශාව",
   "fill_direction_narrow_to_wide": "පටු පැත්තේ සිට පළල් පැත්තට",
-  "fill_direction_wide_to_narrow": "පළල් පැත්තේ සිට පටු පැත්තට"
+  "fill_direction_wide_to_narrow": "පළල් පැත්තේ සිට පටු පැත්තට",
+  "select_all": "සියල්ල තෝරන්න"
 }

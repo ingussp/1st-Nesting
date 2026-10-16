@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Біртұтас қалдық: қолжетімсіз",
   "fill_direction": "Орналастыру бағыты",
   "fill_direction_narrow_to_wide": "Тар жағынан кең жағына",
-  "fill_direction_wide_to_narrow": "Кең жағынан тар жағына"
+  "fill_direction_wide_to_narrow": "Кең жағынан тар жағына",
+  "select_all": "Барлығын таңдаңыз"
 }

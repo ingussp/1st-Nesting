@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "Ostatak u jednom komadu: nije dostupno",
   "fill_direction": "Smjer raspoređivanja",
   "fill_direction_narrow_to_wide": "Od uže prema široj strani",
-  "fill_direction_wide_to_narrow": "Od šire prema užoj strani"
+  "fill_direction_wide_to_narrow": "Od šire prema užoj strani",
+  "select_all": "Odaberite sve"
 }

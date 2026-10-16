@@ -1,5 +1,6 @@
 """First-use setup and explicit, cancellable engine updates on the Qt UI thread."""
 import os
+from html import escape
 from pathlib import Path
 from PySide import QtCore, QtGui
 import FreeCAD as App
@@ -29,22 +30,32 @@ class EngineUpdater(QtCore.QObject):
         if parent is not None:
             parent.destroyed.connect(self.cancel)
 
-    def _question(self, message):
+    @staticmethod
+    def _source_link(asset_url):
+        url = escape(asset_url, quote=True)
+        return '<a href="' + url + '">' + url + '</a>'
+
+    def _question(self, message, asset_url=None):
         box = QtGui.QMessageBox(self.parent_window)
         box.setWindowTitle(tr('engine.title'))
         box.setIcon(QtGui.QMessageBox.Question)
         box.setText(message)
-        box.setInformativeText('<a href="https://github.com/ingussp/CLI-nesting/releases">GitHub: ingussp/CLI-nesting</a>')
+        box.setInformativeText(self._source_link(asset_url) if asset_url else
+                               '<a href="https://github.com/ingussp/CLI-nesting/releases">GitHub: ingussp/CLI-nesting</a>')
+        box.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         box.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
         box.setDefaultButton(QtGui.QMessageBox.No)
         self._translate_buttons(box)
         register_window(box)
         return box.exec_() == QtGui.QMessageBox.Yes
 
-    def _info(self, message):
+    def _info(self, message, asset_url=None):
         box = QtGui.QMessageBox(self.parent_window)
         box.setWindowTitle(tr('engine.title'))
         box.setText(message)
+        if asset_url:
+            box.setInformativeText(self._source_link(asset_url))
+            box.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         box.setStandardButtons(QtGui.QMessageBox.Ok)
         self._translate_buttons(box)
         register_window(box)
@@ -76,7 +87,7 @@ class EngineUpdater(QtCore.QObject):
             if preferences.GetBool(key, False):
                 return
             preferences.SetBool(key, True)
-            if self._question(tr('engine.first_run') % target.caption):
+            if self._question(tr('engine.first_run') % target.caption, engine.download_url(target)):
                 self.check_updates(install_requested=True)
         except Exception as exc:
             self._error(exc)
@@ -100,15 +111,21 @@ class EngineUpdater(QtCore.QObject):
                 release = engine.latest_release(target, cancelled)
                 return release, installed
 
-            self._start(check, self._checked, tr('engine.checking'))
+            self._start(check, self._checked, tr('engine.checking'), asset_url=engine.download_url(target))
         except Exception as exc:
             self._finish()
             self._error(exc)
 
-    def _start(self, action, done, message, discard=None):
+    def _start(self, action, done, message, discard=None, asset_url=None):
         self.done = done
         self.dialog = NestingWaitDialog(self.cancel, self.parent_window,
                                         message=message, title=tr('engine.title'))
+        if asset_url:
+            source = QtGui.QLabel(self._source_link(asset_url))
+            source.setWordWrap(True)
+            source.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
+            source.setOpenExternalLinks(True)
+            self.dialog.layout().insertWidget(1, source)
         self.dialog.setWindowModality(QtCore.Qt.WindowModal)
         self.dialog.show()
 
@@ -152,14 +169,18 @@ class EngineUpdater(QtCore.QObject):
         release, installed = result
         if not engine.needs_update(release, installed):
             self._finish()
-            self._info(tr('engine.current') % installed['version'])
+            # Legacy/manual installs have no verified receipt: show the public
+            # update endpoint rather than attributing an unrecorded release URL.
+            self._info(tr('engine.current') % installed['version'],
+                       installed.get('asset_url') or engine.download_url(release['target']))
             return
-        if not self.install_requested and not self._question(tr('engine.download_offer') % (release['tag'], release['target'].caption)):
+        asset_url = release['asset']['browser_download_url']
+        if not self.install_requested and not self._question(tr('engine.download_offer') % (release['tag'], release['target'].caption), asset_url):
             self._finish()
             return
         self._start(lambda cancelled: engine.prepare_download(self.workbench, release, installed, cancelled),
                     self._downloaded, tr('engine.downloading') % release['tag'],
-                    discard=lambda prepared: prepared.cleanup())
+                    discard=lambda prepared: prepared.cleanup(), asset_url=asset_url)
 
     def _downloaded(self, prepared):
         job_lock = QtCore.QLockFile(os.path.join(self.workbench, '.ipnesting-job.lock'))
@@ -172,7 +193,7 @@ class EngineUpdater(QtCore.QObject):
             job_lock.unlock()
             prepared.cleanup()
             self._finish()
-        self._info(tr('engine.installed') % prepared.receipt['version'])
+        self._info(tr('engine.installed') % prepared.receipt['version'], prepared.receipt.get('asset_url'))
 
     def _finish(self):
         self._close_progress()

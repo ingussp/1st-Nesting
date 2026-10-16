@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "একখণ্ড অবশিষ্টাংশ: উপলব্ধ নয়",
   "fill_direction": "বিন্যাসের দিক",
   "fill_direction_narrow_to_wide": "সরু থেকে চওড়া",
-  "fill_direction_wide_to_narrow": "চওড়া থেকে সরু"
+  "fill_direction_wide_to_narrow": "চওড়া থেকে সরু",
+  "select_all": "সব নির্বাচন করুন"
 }

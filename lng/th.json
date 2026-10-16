@@ -632,5 +632,6 @@
   "result_info_single_piece_offcut_unavailable": "เศษวัสดุชิ้นเดียว: ไม่พร้อมใช้งาน",
   "fill_direction": "ทิศทางการจัดวาง",
   "fill_direction_narrow_to_wide": "จากด้านแคบไปด้านกว้าง",
-  "fill_direction_wide_to_narrow": "จากด้านกว้างไปด้านแคบ"
+  "fill_direction_wide_to_narrow": "จากด้านกว้างไปด้านแคบ",
+  "select_all": "เลือกทั้งหมด"
 }
