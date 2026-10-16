@@ -627,5 +627,7 @@
   "dxf.failed": "Tidak dapat mengekspor DXF.",
   "thickness.warning_title": "Ketebalan komponen berbeda",
   "thickness.warning": "Ketebalan acuan: %s.\nKomponen dengan ketebalan berbeda ditandai dengan warna merah.",
-  "thickness.row_tooltip": "Ketebalan: %s. Ketebalan acuan: %s."
+  "thickness.row_tooltip": "Ketebalan: %s. Ketebalan acuan: %s.",
+  "result_info_single_piece_offcut": "Sisa satu bagian utuh: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Sisa satu bagian utuh: tidak tersedia"
 }

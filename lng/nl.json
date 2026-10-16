@@ -627,5 +627,7 @@
   "dxf.failed": "Kan DXF niet exporteren.",
   "thickness.warning_title": "Verschillende onderdeeldiktes",
   "thickness.warning": "Referentiedikte: %s.\nOnderdelen met een afwijkende dikte zijn rood gemarkeerd.",
-  "thickness.row_tooltip": "Dikte: %s. Referentiedikte: %s."
+  "thickness.row_tooltip": "Dikte: %s. Referentiedikte: %s.",
+  "result_info_single_piece_offcut": "Aaneengesloten reststuk: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Aaneengesloten reststuk: niet beschikbaar"
 }

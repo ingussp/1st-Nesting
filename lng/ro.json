@@ -627,5 +627,7 @@
   "dxf.failed": "Nu s-a putut exporta DXF.",
   "thickness.warning_title": "Grosimi diferite ale pieselor",
   "thickness.warning": "Grosime de referință: %s.\nPiesele cu grosime diferită sunt evidențiate cu roșu.",
-  "thickness.row_tooltip": "Grosime: %s. Grosime de referință: %s."
+  "thickness.row_tooltip": "Grosime: %s. Grosime de referință: %s.",
+  "result_info_single_piece_offcut": "Rest dintr-o singură bucată: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Rest dintr-o singură bucată: indisponibil"
 }

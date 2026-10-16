@@ -627,5 +627,7 @@
   "dxf.failed": "DXF dışa aktarılamadı.",
   "thickness.warning_title": "Parça kalınlıkları farklı",
   "thickness.warning": "Referans kalınlığı: %s.\nFarklı kalınlıktaki parçalar kırmızı renkle vurgulanmıştır.",
-  "thickness.row_tooltip": "Kalınlık: %s. Referans kalınlığı: %s."
+  "thickness.row_tooltip": "Kalınlık: %s. Referans kalınlığı: %s.",
+  "result_info_single_piece_offcut": "Tek parça artık: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Tek parça artık: kullanılamıyor"
 }

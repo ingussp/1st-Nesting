@@ -627,5 +627,7 @@
   "dxf.failed": "Impossibile esportare DXF.",
   "thickness.warning_title": "Spessori diversi dei pezzi",
   "thickness.warning": "Spessore di riferimento: %s.\nI pezzi con uno spessore diverso sono evidenziati in rosso.",
-  "thickness.row_tooltip": "Spessore: %s. Spessore di riferimento: %s."
+  "thickness.row_tooltip": "Spessore: %s. Spessore di riferimento: %s.",
+  "result_info_single_piece_offcut": "Sfrido in un unico pezzo: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Sfrido in un unico pezzo: non disponibile"
 }

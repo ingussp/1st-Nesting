@@ -627,5 +627,7 @@
   "dxf.failed": "DXF صادر نشو کولی.",
   "thickness.warning_title": "د برخو ضخامتونه توپیر لري",
   "thickness.warning": "د مرجع ضخامت: %s.\nهغه برخې چې ضخامت یې توپیر لري په سور رنګ نښه شوې دي.",
-  "thickness.row_tooltip": "ضخامت: %s. د مرجع ضخامت: %s."
+  "thickness.row_tooltip": "ضخامت: %s. د مرجع ضخامت: %s.",
+  "result_info_single_piece_offcut": "په یوه ټوټه کې پاتې مواد: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "په یوه ټوټه کې پاتې مواد: شتون نه لري"
 }

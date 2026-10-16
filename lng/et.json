@@ -627,5 +627,7 @@
   "dxf.failed": "DXF ei saanud eksportida.",
   "thickness.warning_title": "Detailide erinevad paksused",
   "thickness.warning": "Võrdluspaksus: %s.\nErineva paksusega detailid on tähistatud punasega.",
-  "thickness.row_tooltip": "Paksus: %s. Võrdluspaksus: %s."
+  "thickness.row_tooltip": "Paksus: %s. Võrdluspaksus: %s.",
+  "result_info_single_piece_offcut": "Ühes tükis jääk: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Ühes tükis jääk: pole saadaval"
 }

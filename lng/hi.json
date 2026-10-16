@@ -627,5 +627,7 @@
   "dxf.failed": "DXF निर्यात नहीं किया जा सका.",
   "thickness.warning_title": "भागों की मोटाई अलग है",
   "thickness.warning": "संदर्भ मोटाई: %s.\nअलग मोटाई वाले भाग लाल रंग में चिह्नित हैं।",
-  "thickness.row_tooltip": "मोटाई: %s. संदर्भ मोटाई: %s."
+  "thickness.row_tooltip": "मोटाई: %s. संदर्भ मोटाई: %s.",
+  "result_info_single_piece_offcut": "एक टुकड़े में बचा हुआ भाग: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "एक टुकड़े में बचा हुआ भाग: उपलब्ध नहीं"
 }

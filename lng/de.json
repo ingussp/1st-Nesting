@@ -627,5 +627,7 @@
   "dxf.failed": "DXF konnte nicht exportiert werden.",
   "thickness.warning_title": "Unterschiedliche Teildicken",
   "thickness.warning": "Referenzdicke: %s.\nTeile mit abweichender Dicke sind rot hervorgehoben.",
-  "thickness.row_tooltip": "Dicke: %s. Referenzdicke: %s."
+  "thickness.row_tooltip": "Dicke: %s. Referenzdicke: %s.",
+  "result_info_single_piece_offcut": "Zusammenhängendes Reststück: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Zusammenhängendes Reststück: nicht verfügbar"
 }

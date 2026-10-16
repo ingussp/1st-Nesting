@@ -627,5 +627,7 @@
   "dxf.failed": "DXF ixrac etmək mümkün olmadı.",
   "thickness.warning_title": "Detalların qalınlıqları fərqlidir",
   "thickness.warning": "İstinad qalınlığı: %s.\nFərqli qalınlıqdakı detallar qırmızı rənglə işarələnib.",
-  "thickness.row_tooltip": "Qalınlıq: %s. İstinad qalınlığı: %s."
+  "thickness.row_tooltip": "Qalınlıq: %s. İstinad qalınlığı: %s.",
+  "result_info_single_piece_offcut": "Birparça qalıq: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Birparça qalıq: mövcud deyil"
 }

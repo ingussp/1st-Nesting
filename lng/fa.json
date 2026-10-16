@@ -627,5 +627,7 @@
   "dxf.failed": "DXF صادر نشد.",
   "thickness.warning_title": "ضخامت قطعات متفاوت است",
   "thickness.warning": "ضخامت مرجع: %s.\nقطعات با ضخامت متفاوت به رنگ قرمز مشخص شده‌اند.",
-  "thickness.row_tooltip": "ضخامت: %s. ضخامت مرجع: %s."
+  "thickness.row_tooltip": "ضخامت: %s. ضخامت مرجع: %s.",
+  "result_info_single_piece_offcut": "باقی‌ماندهٔ یکپارچه: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "باقی‌ماندهٔ یکپارچه: در دسترس نیست"
 }

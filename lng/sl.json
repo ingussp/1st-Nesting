@@ -627,5 +627,7 @@
   "dxf.failed": "Ni bilo mogoče izvoziti DXF.",
   "thickness.warning_title": "Različne debeline delov",
   "thickness.warning": "Referenčna debelina: %s.\nDeli z drugačno debelino so označeni z rdečo.",
-  "thickness.row_tooltip": "Debelina: %s. Referenčna debelina: %s."
+  "thickness.row_tooltip": "Debelina: %s. Referenčna debelina: %s.",
+  "result_info_single_piece_offcut": "Ostanek v enem kosu: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Ostanek v enem kosu: ni na voljo"
 }

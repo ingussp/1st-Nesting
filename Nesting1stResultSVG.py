@@ -45,6 +45,8 @@ def render_result_svg(data, translate):
     Contours keep their millimetre coordinates inside uniform SVG transforms.
     Areas exclude selected holes and use actual member contours, not envelopes.
     """
+    from Nesting1stReusableOffcut import offcut_text, reusable_offcut
+    offcut = reusable_offcut(data)
     sources = {str(p['source_part_index']): p for p in data.get('sourceParts',[])}
     sheet_parts = {}
     count = 0
@@ -96,8 +98,9 @@ def render_result_svg(data, translate):
                text(40,138,tr('result_info_utilisation',utilisation)),
                text(640,138,tr('result_info_waste',100-utilisation)),
                text(40,166,tr('result_info_sheet_area',total_area,area_unit)),
-               text(640,166,tr('unplaced_parts_label',len(unplaced)))]
-    y = 196
+               text(640,166,tr('unplaced_parts_label',len(unplaced))),
+               text(40,194,offcut_text(data,translate))]
+    y = 224
     identifiers = [str(data.get(key,'')) for key in ('job_id','created_at') if data.get(key)]
     if identifiers:
         content.append(text(40,y,' · '.join(identifiers),12))
@@ -133,6 +136,9 @@ def render_result_svg(data, translate):
             px = (min(p[0] for p in part['outer'])+max(p[0] for p in part['outer']))/2
             py = (min(p[1] for p in part['outer'])+max(p[1] for p in part['outer']))/2
             content.append('<text transform="translate(%.6f %.6f) scale(1 -1)" font-size="%.9f" text-anchor="middle" dominant-baseline="middle">%d</text>' % (px,py,14/scale,part['number']))
+        if offcut is not None and offcut['sheet_index'] == int(sheet['sheet'].get('sheet_instance_index',sheet['index'])) and offcut['area'] > 0:
+            content.append('<path class="reusable-offcut" d="%s" fill="none" stroke="#00a666" stroke-width="%.9f"><title>%s</title></path>' %
+                           (_path(offcut['outer'],offcut['holes']),2/scale,escape(str(offcut_text(data,translate)))))
         content.append('</g>')
         y = drawing_y+height*scale+32
         for part in parts:

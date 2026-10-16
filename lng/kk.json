@@ -627,5 +627,7 @@
   "dxf.failed": "DXF экспорттау мүмкін болмады.",
   "thickness.warning_title": "Бөлшектердің қалыңдығы әртүрлі",
   "thickness.warning": "Анықтамалық қалыңдық: %s.\nҚалыңдығы өзгеше бөлшектер қызыл түспен белгіленген.",
-  "thickness.row_tooltip": "Қалыңдық: %s. Анықтамалық қалыңдық: %s."
+  "thickness.row_tooltip": "Қалыңдық: %s. Анықтамалық қалыңдық: %s.",
+  "result_info_single_piece_offcut": "Біртұтас қалдық: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Біртұтас қалдық: қолжетімсіз"
 }

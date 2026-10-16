@@ -627,5 +627,7 @@
   "dxf.failed": "تعذر تصدير DXF.",
   "thickness.warning_title": "اختلاف سماكة الأجزاء",
   "thickness.warning": "السماكة المرجعية: %s.\nالأجزاء ذات السماكة المختلفة مميزة باللون الأحمر.",
-  "thickness.row_tooltip": "السماكة: %s. السماكة المرجعية: %s."
+  "thickness.row_tooltip": "السماكة: %s. السماكة المرجعية: %s.",
+  "result_info_single_piece_offcut": "قصاصة من قطعة واحدة: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "قصاصة من قطعة واحدة: غير متاح"
 }

@@ -627,5 +627,7 @@
   "dxf.failed": "Không thể xuất DXF.",
   "thickness.warning_title": "Độ dày các chi tiết khác nhau",
   "thickness.warning": "Độ dày tham chiếu: %s.\nCác chi tiết có độ dày khác biệt được đánh dấu màu đỏ.",
-  "thickness.row_tooltip": "Độ dày: %s. Độ dày tham chiếu: %s."
+  "thickness.row_tooltip": "Độ dày: %s. Độ dày tham chiếu: %s.",
+  "result_info_single_piece_offcut": "Phần dư liền một mảnh: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Phần dư liền một mảnh: không khả dụng"
 }

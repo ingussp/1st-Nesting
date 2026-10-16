@@ -627,5 +627,7 @@
   "dxf.failed": "Nelze exportovat DXF.",
   "thickness.warning_title": "Rozdílné tloušťky dílů",
   "thickness.warning": "Referenční tloušťka: %s.\nDíly s odlišnou tloušťkou jsou označeny červeně.",
-  "thickness.row_tooltip": "Tloušťka: %s. Referenční tloušťka: %s."
+  "thickness.row_tooltip": "Tloušťka: %s. Referenční tloušťka: %s.",
+  "result_info_single_piece_offcut": "Jednodílný odřezek: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Jednodílný odřezek: není k dispozici"
 }

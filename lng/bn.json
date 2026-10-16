@@ -627,5 +627,7 @@
   "dxf.failed": "DXF রপ্তানি করা যায়নি।",
   "thickness.warning_title": "অংশগুলির পুরুত্ব ভিন্ন",
   "thickness.warning": "রেফারেন্স পুরুত্ব: %s.\nভিন্ন পুরুত্বের অংশগুলি লাল রঙে চিহ্নিত করা হয়েছে।",
-  "thickness.row_tooltip": "পুরুত্ব: %s. রেফারেন্স পুরুত্ব: %s."
+  "thickness.row_tooltip": "পুরুত্ব: %s. রেফারেন্স পুরুত্ব: %s.",
+  "result_info_single_piece_offcut": "একখণ্ড অবশিষ্টাংশ: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "একখণ্ড অবশিষ্টাংশ: উপলব্ধ নয়"
 }

@@ -627,5 +627,7 @@
   "dxf.failed": "DXF ကို မတင်ပို့နိုင်ခဲ့ပါ။",
   "thickness.warning_title": "အစိတ်အပိုင်းများ၏ အထူကွာခြားနေသည်",
   "thickness.warning": "ရည်ညွှန်းအထူ: %s.\nအထူကွာခြားသော အစိတ်အပိုင်းများကို အနီရောင်ဖြင့် ဖော်ပြထားသည်။",
-  "thickness.row_tooltip": "အထူ: %s. ရည်ညွှန်းအထူ: %s."
+  "thickness.row_tooltip": "အထူ: %s. ရည်ညွှန်းအထူ: %s.",
+  "result_info_single_piece_offcut": "တစ်ဆက်တည်း ကျန်ပစ္စည်းအပိုင်း: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "တစ်ဆက်တည်း ကျန်ပစ္စည်းအပိုင်း: မရရှိနိုင်ပါ"
 }

@@ -627,5 +627,7 @@
   "dxf.failed": "DXF содир карда нашуд.",
   "thickness.warning_title": "Ғафсии қисмҳо гуногун аст",
   "thickness.warning": "Ғафсии истинодӣ: %s.\nҚисмҳои дорои ғафсии гуногун бо ранги сурх ишора шудаанд.",
-  "thickness.row_tooltip": "Ғафсӣ: %s. Ғафсии истинодӣ: %s."
+  "thickness.row_tooltip": "Ғафсӣ: %s. Ғафсии истинодӣ: %s.",
+  "result_info_single_piece_offcut": "Боқимондаи якпорча: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Боқимондаи якпорча: дастрас нест"
 }

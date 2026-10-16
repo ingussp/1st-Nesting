@@ -627,5 +627,7 @@
   "dxf.failed": "Nepodarilo sa exportovať DXF.",
   "thickness.warning_title": "Rozdielne hrúbky dielov",
   "thickness.warning": "Referenčná hrúbka: %s.\nDiely s odlišnou hrúbkou sú označené červenou farbou.",
-  "thickness.row_tooltip": "Hrúbka: %s. Referenčná hrúbka: %s."
+  "thickness.row_tooltip": "Hrúbka: %s. Referenčná hrúbka: %s.",
+  "result_info_single_piece_offcut": "Jednodielny odrezok: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Jednodielny odrezok: nie je k dispozícii"
 }

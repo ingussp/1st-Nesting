@@ -627,5 +627,7 @@
   "dxf.failed": "Impossible d'exporter DXF.",
   "thickness.warning_title": "Épaisseurs de pièces différentes",
   "thickness.warning": "Épaisseur de référence: %s.\nLes pièces dont l’épaisseur diffère sont surlignées en rouge.",
-  "thickness.row_tooltip": "Épaisseur: %s. Épaisseur de référence: %s."
+  "thickness.row_tooltip": "Épaisseur: %s. Épaisseur de référence: %s.",
+  "result_info_single_piece_offcut": "Chute d’un seul tenant: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Chute d’un seul tenant: indisponible"
 }

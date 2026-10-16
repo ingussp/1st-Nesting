@@ -627,5 +627,7 @@
   "dxf.failed": "No se pudo exportar DXF.",
   "thickness.warning_title": "Espesores diferentes de las piezas",
   "thickness.warning": "Espesor de referencia: %s.\nLas piezas con un espesor diferente están resaltadas en rojo.",
-  "thickness.row_tooltip": "Espesor: %s. Espesor de referencia: %s."
+  "thickness.row_tooltip": "Espesor: %s. Espesor de referencia: %s.",
+  "result_info_single_piece_offcut": "Retal de una sola pieza: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Retal de una sola pieza: no disponible"
 }

@@ -428,6 +428,12 @@ class NestingResultImporter(object):
                 pass
 
             self._create_result_info()
+            from Nesting1stReusableOffcut import create_offcut_outline
+            try:
+                create_offcut_outline(self, tr)
+            except Exception as error:
+                # An optional annotation must not discard a valid CAD layout.
+                App.Console.PrintWarning('Could not draw reusable offcut: %s\n' % error)
             self._create_unplaced_group()
 
             from Nesting1stBridgeModel import store_result_data
@@ -1405,6 +1411,7 @@ class NestingResultImporter(object):
 
     # Build the "Result info" App::Part holding one text line per summary value.
     def _create_result_info(self):
+        from Nesting1stReusableOffcut import offcut_text
         values = self._result_summary_values()
         unit = str(self.result_data.get("units", "mm") or "mm")
         font_size = max(12.0, min(200.0, self._sheet_max_y * 0.02))
@@ -1412,6 +1419,7 @@ class NestingResultImporter(object):
             tr('result_info_placed_total') % (values["placed_count"], values["total_count"]),
             tr('result_info_utilisation') % values["utilisation"],
             tr('result_info_waste') % values["waste"],
+            offcut_text(self.result_data, tr, getattr(self.panel, 'display_units', 'mm')),
             tr('result_info_sheets') % values["sheet_count"],
             tr('result_info_sheet_area') % (values["total_area"], unit),
         ]

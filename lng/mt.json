@@ -627,5 +627,7 @@
   "dxf.failed": "Ma setgħetx tesporta DXF.",
   "thickness.warning_title": "Ħxuna differenti tal-partijiet",
   "thickness.warning": "Ħxuna ta’ referenza: %s.\nIl-partijiet bi ħxuna differenti huma mmarkati bl-aħmar.",
-  "thickness.row_tooltip": "Ħxuna: %s. Ħxuna ta’ referenza: %s."
+  "thickness.row_tooltip": "Ħxuna: %s. Ħxuna ta’ referenza: %s.",
+  "result_info_single_piece_offcut": "Fdal f’biċċa waħda: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Fdal f’biċċa waħda: mhux disponibbli"
 }

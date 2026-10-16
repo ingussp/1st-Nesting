@@ -627,5 +627,7 @@
   "dxf.failed": "Не удалось экспортировать DXF.",
   "thickness.warning_title": "Разная толщина деталей",
   "thickness.warning": "Эталонная толщина: %s.\nДетали с отличающейся толщиной выделены красным цветом.",
-  "thickness.row_tooltip": "Толщина: %s. Эталонная толщина: %s."
+  "thickness.row_tooltip": "Толщина: %s. Эталонная толщина: %s.",
+  "result_info_single_piece_offcut": "Цельный остаток: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Цельный остаток: недоступно"
 }

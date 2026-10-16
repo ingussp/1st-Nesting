@@ -1254,6 +1254,8 @@ def build_nesting_config(
         "spacing": spacing,
         "partToSheet": sheet_margin,
         "partToHole": hole_clearance,
+        # The engine works in mm even when the panel displays inches.
+        "reusableOffcut": {"enabled": True, "minWidthMm": spacing + 1.0},
         "timeLimitSeconds": limit,
         "continuousRoundSeconds": round_seconds,
         "gpu": {

@@ -627,5 +627,7 @@
   "dxf.failed": "Не вдалося експортувати DXF.",
   "thickness.warning_title": "Різна товщина деталей",
   "thickness.warning": "Еталонна товщина: %s.\nДеталі з іншою товщиною виділено червоним кольором.",
-  "thickness.row_tooltip": "Товщина: %s. Еталонна товщина: %s."
+  "thickness.row_tooltip": "Товщина: %s. Еталонна товщина: %s.",
+  "result_info_single_piece_offcut": "Цілісний залишок: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Цілісний залишок: недоступно"
 }

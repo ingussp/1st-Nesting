@@ -627,5 +627,7 @@
   "dxf.failed": "Nije moguće izvesti DXF.",
   "thickness.warning_title": "Različite debljine dijelova",
   "thickness.warning": "Referentna debljina: %s.\nDijelovi s različitom debljinom označeni su crvenom bojom.",
-  "thickness.row_tooltip": "Debljina: %s. Referentna debljina: %s."
+  "thickness.row_tooltip": "Debljina: %s. Referentna debljina: %s.",
+  "result_info_single_piece_offcut": "Ostatak u jednom komadu: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Ostatak u jednom komadu: nije dostupno"
 }

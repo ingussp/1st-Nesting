@@ -627,5 +627,7 @@
   "dxf.failed": "Neizdevās eksportēt DXF.",
   "thickness.warning_title": "Atšķirīgi detaļu biezumi",
   "thickness.warning": "Atskaites biezums: %s.\nDetaļas ar atšķirīgu biezumu tabulā ir iekrāsotas sarkanā krāsā.",
-  "thickness.row_tooltip": "Biezums: %s. Atskaites biezums: %s."
+  "thickness.row_tooltip": "Biezums: %s. Atskaites biezums: %s.",
+  "result_info_single_piece_offcut": "Viena gabala atgriezums: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Viena gabala atgriezums: nav pieejams"
 }

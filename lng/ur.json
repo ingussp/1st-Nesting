@@ -627,5 +627,7 @@
   "dxf.failed": "DXF برآمد نہیں کیا جا سکا۔",
   "thickness.warning_title": "پرزوں کی موٹائی مختلف ہے",
   "thickness.warning": "حوالہ موٹائی: %s.\nمختلف موٹائی والے پرزے سرخ رنگ میں نشان زد ہیں۔",
-  "thickness.row_tooltip": "موٹائی: %s. حوالہ موٹائی: %s."
+  "thickness.row_tooltip": "موٹائی: %s. حوالہ موٹائی: %s.",
+  "result_info_single_piece_offcut": "ایک ٹکڑے میں بچا ہوا مواد: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "ایک ٹکڑے میں بچا ہوا مواد: دستیاب نہیں"
 }

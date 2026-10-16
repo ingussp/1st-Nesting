@@ -627,5 +627,7 @@
   "dxf.failed": "Kunne ikke eksportere DXF.",
   "thickness.warning_title": "Forskellige emnetykkelser",
   "thickness.warning": "Referencetykkelse: %s.\nEmner med en anden tykkelse er markeret med rødt.",
-  "thickness.row_tooltip": "Tykkelse: %s. Referencetykkelse: %s."
+  "thickness.row_tooltip": "Tykkelse: %s. Referencetykkelse: %s.",
+  "result_info_single_piece_offcut": "Reststykke i ét stykke: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Reststykke i ét stykke: ikke tilgængeligt"
 }

@@ -627,5 +627,7 @@
   "dxf.failed": "ไม่สามารถส่งออก DXF",
   "thickness.warning_title": "ความหนาของชิ้นส่วนแตกต่างกัน",
   "thickness.warning": "ความหนาอ้างอิง: %s.\nชิ้นส่วนที่มีความหนาแตกต่างกันจะถูกเน้นด้วยสีแดง",
-  "thickness.row_tooltip": "ความหนา: %s. ความหนาอ้างอิง: %s."
+  "thickness.row_tooltip": "ความหนา: %s. ความหนาอ้างอิง: %s.",
+  "result_info_single_piece_offcut": "เศษวัสดุชิ้นเดียว: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "เศษวัสดุชิ้นเดียว: ไม่พร้อมใช้งาน"
 }

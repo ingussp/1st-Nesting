@@ -627,5 +627,7 @@
   "dxf.failed": "Kunde inte exportera DXF.",
   "thickness.warning_title": "Olika detaljtjocklekar",
   "thickness.warning": "Referenstjocklek: %s.\nDetaljer med avvikande tjocklek är markerade med rött.",
-  "thickness.row_tooltip": "Tjocklek: %s. Referenstjocklek: %s."
+  "thickness.row_tooltip": "Tjocklek: %s. Referenstjocklek: %s.",
+  "result_info_single_piece_offcut": "Restbit i ett stycke: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Restbit i ett stycke: inte tillgänglig"
 }

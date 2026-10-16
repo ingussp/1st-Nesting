@@ -627,5 +627,7 @@
   "dxf.failed": "DXF eksport qilinmadi.",
   "thickness.warning_title": "Detallar qalinligi har xil",
   "thickness.warning": "Etalon qalinlik: %s.\nQalinligi farq qiluvchi detallar qizil rang bilan belgilangan.",
-  "thickness.row_tooltip": "Qalinlik: %s. Etalon qalinlik: %s."
+  "thickness.row_tooltip": "Qalinlik: %s. Etalon qalinlik: %s.",
+  "result_info_single_piece_offcut": "Yaxlit qoldiq: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Yaxlit qoldiq: mavjud emas"
 }

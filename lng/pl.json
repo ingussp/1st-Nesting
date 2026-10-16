@@ -627,5 +627,7 @@
   "dxf.failed": "Nie można wyeksportować DXF.",
   "thickness.warning_title": "Różne grubości części",
   "thickness.warning": "Grubość odniesienia: %s.\nCzęści o innej grubości są zaznaczone na czerwono.",
-  "thickness.row_tooltip": "Grubość: %s. Grubość odniesienia: %s."
+  "thickness.row_tooltip": "Grubość: %s. Grubość odniesienia: %s.",
+  "result_info_single_piece_offcut": "Odpad w jednym kawałku: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Odpad w jednym kawałku: niedostępny"
 }

@@ -627,5 +627,7 @@
   "dxf.failed": "Ei voitu viedä DXF.",
   "thickness.warning_title": "Osien paksuudet poikkeavat",
   "thickness.warning": "Vertailupaksuus: %s.\nPaksuudeltaan poikkeavat osat on merkitty punaisella.",
-  "thickness.row_tooltip": "Paksuus: %s. Vertailupaksuus: %s."
+  "thickness.row_tooltip": "Paksuus: %s. Vertailupaksuus: %s.",
+  "result_info_single_piece_offcut": "Yhtenäinen jäännöspala: %.2f %s (%.2f %%)",
+  "result_info_single_piece_offcut_unavailable": "Yhtenäinen jäännöspala: ei saatavilla"
 }
